@@ -1,0 +1,13 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`returns prop types for a React element 1`] = `
+[
+  {
+    "defaultValue": null,
+    "description": null,
+    "name": "foo",
+    "required": true,
+    "type": "string",
+  },
+]
+`;
