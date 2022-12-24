@@ -1,0 +1,9 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`extracts export and dependencies 1`] = `
+"type SystemProps = { as: any }
+
+type BoxProps = { children: any } & SystemProps
+
+export const Box = (props: BoxProps) => <div {...props} />"
+`;

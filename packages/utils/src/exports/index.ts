@@ -1,0 +1,1 @@
+export { extractExportByIdentifier } from './extractExportByIdentifier'
