@@ -1,0 +1,40 @@
+{
+  "name": "@tsxmod/utils",
+  "version": "0.0.0",
+  "description": "Utilities to help make TS Morph even easier to work with.",
+  "author": "Travis Arnold",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/souporserious/tsxmod/tree/main/packages/utils"
+  },
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "typings": "dist/index.d.ts",
+  "sideEffects": false,
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "ast",
+    "ts",
+    "explorer",
+    "typescript",
+    "refactor",
+    "analyze",
+    "analysis",
+    "codemod",
+    "utilities"
+  ],
+  "scripts": {
+    "dev": "tsup src/index.ts --dts --sourcemap --format esm,cjs --watch",
+    "build": "tsup src/index.ts --dts --format esm,cjs",
+    "test": "node --loader tsx --test src/**/*.ts"
+  },
+  "peerDependencies": {
+    "ts-morph": ">=17.0.0"
+  },
+  "devDependencies": {
+    "ts-morph": "^17.0.1"
+  }
+}

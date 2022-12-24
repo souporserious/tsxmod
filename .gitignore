@@ -1,0 +1,6 @@
+.DS_Store
+.next
+.turbo
+.vscode
+dist
+node_modules

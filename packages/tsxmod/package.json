@@ -1,0 +1,19 @@
+{
+  "name": "tsxmod",
+  "description": "Analyze and run codemods for TypeScript or JavaScript using TS Morph.",
+  "version": "0.0.0",
+  "bin": {
+    "tsxmod": "dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "dev": "tsup src/index.ts --watch --sourcemap --format esm,cjs",
+    "build": "tsup src/index.ts --dts --format esm,cjs"
+  },
+  "dependencies": {
+    "@tsxmod/utils": "workspace:*",
+    "ts-morph": "^17.0.1"
+  }
+}
