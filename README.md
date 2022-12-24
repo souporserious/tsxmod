@@ -41,3 +41,23 @@ const codemod = require('./codemod')
 - [ ] Errors can be gathered from running typecheck and eslint if available
 - [ ] Analyze a project based on a builtin helper, or a custom helper located in the .tsxmod/analyze .tsxmod/transform directory settings
 - [ ] View collapsible AST tree of a file
+
+## Related
+
+[generate typescript docs using ts morph](https://souporserious.com/generate-typescript-docs-using-ts-morph/)
+
+[extract exports using ts morph](https://github.com/souporserious/extract-exports-using-ts-morph/tree/main)
+
+[ast explorer](https://astexplorer.net/)
+
+[ts-morph-helpers](https://github.com/webpro/ts-morph-helpers/tree/main)
+
+[ts-morph-utils](https://github.com/TisnKu/ts-morph-utils/tree/master)
+
+[morpher](https://github.com/LinbuduLab/morpher/tree/main)
+
+[cancerberosgx ts-morph-playground](https://cancerberosgx.github.io/ts-morph-playground/#/)
+
+[awhitty ts-morph-playground](https://awhitty.me/ts-morph-playground/)
+
+[sourcegraph codemod](https://github.com/sourcegraph/codemod/tree/main)
