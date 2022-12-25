@@ -29,6 +29,7 @@ importers:
   packages/site:
     specifiers:
       '@monaco-editor/react': 4.4.6
+      '@swc/wasm-web': 1.3.24
       next: 13.1.1
       react: 18.2.0
       react-dom: 18.2.0
@@ -36,6 +37,7 @@ importers:
       ts-morph: 17.0.1
     dependencies:
       '@monaco-editor/react': 4.4.6_react-dom@18.2.0+react@18.2.0
+      '@swc/wasm-web': 1.3.24
       next: 13.1.1_react-dom@18.2.0+react@18.2.0
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
@@ -974,6 +976,10 @@ packages:
       '@swc/core': 1.3.24
       jsonc-parser: 3.2.0
     dev: true
+
+  /@swc/wasm-web/1.3.24:
+    resolution: {integrity: sha512-hIj6TIf1hIHXI8u9MVFCch6y6pAYBHEGByQ/vRlOSsrEpUE4bq9zd258tVvVY7S90EWw1p5xD4pF+3PdwaO5Lw==}
+    dev: false
 
   /@ts-morph/common/0.18.1:
     resolution: {integrity: sha512-RVE+zSRICWRsfrkAw5qCAK+4ZH9kwEFv5h0+/YeHTLieWP7F4wWq4JsKFuNWG+fYh/KF+8rAtgdj5zb2mm+DVA==}
