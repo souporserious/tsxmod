@@ -6,8 +6,11 @@
     "build": "next build"
   },
   "dependencies": {
-    "next": "13.1.0",
+    "@monaco-editor/react": "4.4.6",
+    "next": "13.1.1",
     "react": "18.2.0",
-    "react-dom": "18.2.0"
+    "react-dom": "18.2.0",
+    "react-resizable-panels": "0.0.11",
+    "ts-morph": "17.0.1"
   }
 }
