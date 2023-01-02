@@ -1,4 +1,4 @@
-lockfileVersion: 5.3
+lockfileVersion: 5.4
 
 importers:
 
@@ -22,7 +22,7 @@ importers:
       '@types/react': 18.0.26
       '@types/react-dom': 18.0.10
       jest: 29.3.1_@types+node@18.11.17
-      tsup: 6.5.0_87e9bfeb4b475fb96cf54b5a4e64a2b4
+      tsup: 6.5.0_q7u3722li5p3s3hvjnne4zfcwq
       turbo: 1.6.3
       typescript: 4.9.4
 
@@ -36,12 +36,12 @@ importers:
       react-resizable-panels: 0.0.11
       ts-morph: 17.0.1
     dependencies:
-      '@monaco-editor/react': 4.4.6_react-dom@18.2.0+react@18.2.0
+      '@monaco-editor/react': 4.4.6_biqbaboplfbrettd7655fr4n2y
       '@swc/wasm-web': 1.3.24
-      next: 13.1.1_react-dom@18.2.0+react@18.2.0
+      next: 13.1.1_biqbaboplfbrettd7655fr4n2y
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
-      react-resizable-panels: 0.0.11_react-dom@18.2.0+react@18.2.0
+      react-resizable-panels: 0.0.11_biqbaboplfbrettd7655fr4n2y
       ts-morph: 17.0.1
 
   packages/tsxmod:
@@ -227,6 +227,8 @@ packages:
     resolution: {integrity: sha512-T3Z9oHybU+0vZlY9CiDSJQTD5ZapcW18ZctFMi0MOAl/4BjFF4ul7NVSARLdbGO5vDqy9eQiGTV0LtKfvCYvcg==}
     engines: {node: '>=6.0.0'}
     hasBin: true
+    dependencies:
+      '@babel/types': 7.20.7
     dev: true
 
   /@babel/plugin-syntax-async-generators/7.8.4_@babel+core@7.20.7:
@@ -403,6 +405,7 @@ packages:
     engines: {node: '>=12'}
     cpu: [arm]
     os: [android]
+    requiresBuild: true
     dev: true
     optional: true
 
@@ -411,6 +414,7 @@ packages:
     engines: {node: '>=12'}
     cpu: [loong64]
     os: [linux]
+    requiresBuild: true
     dev: true
     optional: true
 
@@ -707,7 +711,7 @@ packages:
       state-local: 1.0.7
     dev: false
 
-  /@monaco-editor/react/4.4.6_react-dom@18.2.0+react@18.2.0:
+  /@monaco-editor/react/4.4.6_biqbaboplfbrettd7655fr4n2y:
     resolution: {integrity: sha512-Gr3uz3LYf33wlFE3eRnta4RxP5FSNxiIV9ENn2D2/rN8KgGAD8ecvcITRtsbbyuOuNkwbuHYxfeaz2Vr+CtyFA==}
     peerDependencies:
       monaco-editor: '>= 0.25.0 < 1'
@@ -729,6 +733,7 @@ packages:
     engines: {node: '>= 10'}
     cpu: [arm]
     os: [android]
+    requiresBuild: true
     dev: false
     optional: true
 
@@ -737,6 +742,7 @@ packages:
     engines: {node: '>= 10'}
     cpu: [arm64]
     os: [android]
+    requiresBuild: true
     dev: false
     optional: true
 
@@ -745,6 +751,7 @@ packages:
     engines: {node: '>= 10'}
     cpu: [arm64]
     os: [darwin]
+    requiresBuild: true
     dev: false
     optional: true
 
@@ -753,6 +760,7 @@ packages:
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [darwin]
+    requiresBuild: true
     dev: false
     optional: true
 
@@ -761,6 +769,7 @@ packages:
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [freebsd]
+    requiresBuild: true
     dev: false
     optional: true
 
@@ -769,6 +778,7 @@ packages:
     engines: {node: '>= 10'}
     cpu: [arm]
     os: [linux]
+    requiresBuild: true
     dev: false
     optional: true
 
@@ -777,6 +787,7 @@ packages:
     engines: {node: '>= 10'}
     cpu: [arm64]
     os: [linux]
+    requiresBuild: true
     dev: false
     optional: true
 
@@ -785,6 +796,7 @@ packages:
     engines: {node: '>= 10'}
     cpu: [arm64]
     os: [linux]
+    requiresBuild: true
     dev: false
     optional: true
 
@@ -793,6 +805,7 @@ packages:
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [linux]
+    requiresBuild: true
     dev: false
     optional: true
 
@@ -801,6 +814,7 @@ packages:
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [linux]
+    requiresBuild: true
     dev: false
     optional: true
 
@@ -809,6 +823,7 @@ packages:
     engines: {node: '>= 10'}
     cpu: [arm64]
     os: [win32]
+    requiresBuild: true
     dev: false
     optional: true
 
@@ -817,6 +832,7 @@ packages:
     engines: {node: '>= 10'}
     cpu: [ia32]
     os: [win32]
+    requiresBuild: true
     dev: false
     optional: true
 
@@ -825,6 +841,7 @@ packages:
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [win32]
+    requiresBuild: true
     dev: false
     optional: true
 
@@ -867,6 +884,7 @@ packages:
     engines: {node: '>=10'}
     cpu: [arm64]
     os: [darwin]
+    requiresBuild: true
     dev: true
     optional: true
 
@@ -875,6 +893,7 @@ packages:
     engines: {node: '>=10'}
     cpu: [x64]
     os: [darwin]
+    requiresBuild: true
     dev: true
     optional: true
 
@@ -883,6 +902,7 @@ packages:
     engines: {node: '>=10'}
     cpu: [arm]
     os: [linux]
+    requiresBuild: true
     dev: true
     optional: true
 
@@ -891,6 +911,7 @@ packages:
     engines: {node: '>=10'}
     cpu: [arm64]
     os: [linux]
+    requiresBuild: true
     dev: true
     optional: true
 
@@ -899,6 +920,7 @@ packages:
     engines: {node: '>=10'}
     cpu: [arm64]
     os: [linux]
+    requiresBuild: true
     dev: true
     optional: true
 
@@ -907,6 +929,7 @@ packages:
     engines: {node: '>=10'}
     cpu: [x64]
     os: [linux]
+    requiresBuild: true
     dev: true
     optional: true
 
@@ -915,6 +938,7 @@ packages:
     engines: {node: '>=10'}
     cpu: [x64]
     os: [linux]
+    requiresBuild: true
     dev: true
     optional: true
 
@@ -923,6 +947,7 @@ packages:
     engines: {node: '>=10'}
     cpu: [arm64]
     os: [win32]
+    requiresBuild: true
     dev: true
     optional: true
 
@@ -931,6 +956,7 @@ packages:
     engines: {node: '>=10'}
     cpu: [ia32]
     os: [win32]
+    requiresBuild: true
     dev: true
     optional: true
 
@@ -939,6 +965,7 @@ packages:
     engines: {node: '>=10'}
     cpu: [x64]
     os: [win32]
+    requiresBuild: true
     dev: true
     optional: true
 
@@ -1487,6 +1514,7 @@ packages:
     engines: {node: '>=12'}
     cpu: [x64]
     os: [android]
+    requiresBuild: true
     dev: true
     optional: true
 
@@ -1495,6 +1523,7 @@ packages:
     engines: {node: '>=12'}
     cpu: [arm64]
     os: [android]
+    requiresBuild: true
     dev: true
     optional: true
 
@@ -1503,6 +1532,7 @@ packages:
     engines: {node: '>=12'}
     cpu: [x64]
     os: [darwin]
+    requiresBuild: true
     dev: true
     optional: true
 
@@ -1511,6 +1541,7 @@ packages:
     engines: {node: '>=12'}
     cpu: [arm64]
     os: [darwin]
+    requiresBuild: true
     dev: true
     optional: true
 
@@ -1519,6 +1550,7 @@ packages:
     engines: {node: '>=12'}
     cpu: [x64]
     os: [freebsd]
+    requiresBuild: true
     dev: true
     optional: true
 
@@ -1527,6 +1559,7 @@ packages:
     engines: {node: '>=12'}
     cpu: [arm64]
     os: [freebsd]
+    requiresBuild: true
     dev: true
     optional: true
 
@@ -1535,6 +1568,7 @@ packages:
     engines: {node: '>=12'}
     cpu: [ia32]
     os: [linux]
+    requiresBuild: true
     dev: true
     optional: true
 
@@ -1543,6 +1577,7 @@ packages:
     engines: {node: '>=12'}
     cpu: [x64]
     os: [linux]
+    requiresBuild: true
     dev: true
     optional: true
 
@@ -1551,6 +1586,7 @@ packages:
     engines: {node: '>=12'}
     cpu: [arm]
     os: [linux]
+    requiresBuild: true
     dev: true
     optional: true
 
@@ -1559,6 +1595,7 @@ packages:
     engines: {node: '>=12'}
     cpu: [arm64]
     os: [linux]
+    requiresBuild: true
     dev: true
     optional: true
 
@@ -1567,6 +1604,7 @@ packages:
     engines: {node: '>=12'}
     cpu: [mips64el]
     os: [linux]
+    requiresBuild: true
     dev: true
     optional: true
 
@@ -1575,6 +1613,7 @@ packages:
     engines: {node: '>=12'}
     cpu: [ppc64]
     os: [linux]
+    requiresBuild: true
     dev: true
     optional: true
 
@@ -1583,6 +1622,7 @@ packages:
     engines: {node: '>=12'}
     cpu: [riscv64]
     os: [linux]
+    requiresBuild: true
     dev: true
     optional: true
 
@@ -1591,6 +1631,7 @@ packages:
     engines: {node: '>=12'}
     cpu: [s390x]
     os: [linux]
+    requiresBuild: true
     dev: true
     optional: true
 
@@ -1599,6 +1640,7 @@ packages:
     engines: {node: '>=12'}
     cpu: [x64]
     os: [netbsd]
+    requiresBuild: true
     dev: true
     optional: true
 
@@ -1607,6 +1649,7 @@ packages:
     engines: {node: '>=12'}
     cpu: [x64]
     os: [openbsd]
+    requiresBuild: true
     dev: true
     optional: true
 
@@ -1615,6 +1658,7 @@ packages:
     engines: {node: '>=12'}
     cpu: [x64]
     os: [sunos]
+    requiresBuild: true
     dev: true
     optional: true
 
@@ -1623,6 +1667,7 @@ packages:
     engines: {node: '>=12'}
     cpu: [ia32]
     os: [win32]
+    requiresBuild: true
     dev: true
     optional: true
 
@@ -1631,6 +1676,7 @@ packages:
     engines: {node: '>=12'}
     cpu: [x64]
     os: [win32]
+    requiresBuild: true
     dev: true
     optional: true
 
@@ -1639,6 +1685,7 @@ packages:
     engines: {node: '>=12'}
     cpu: [arm64]
     os: [win32]
+    requiresBuild: true
     dev: true
     optional: true
 
@@ -1771,6 +1818,7 @@ packages:
     resolution: {integrity: sha512-xiqMQR4xAeHTuB9uWm+fFRcIOgKBMiOBP+eXiyT7jsgVCq1bkVygt00oASowB7EdtpOHaaPgKt812P9ab+DDKA==}
     engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
     os: [darwin]
+    requiresBuild: true
     dev: true
     optional: true
 
@@ -2560,7 +2608,7 @@ packages:
     resolution: {integrity: sha512-OWND8ei3VtNC9h7V60qff3SVobHr996CTwgxubgyQYEpg290h9J0buyECNNJexkFm5sOajh5G116RYA1c8ZMSw==}
     dev: true
 
-  /next/13.1.1_react-dom@18.2.0+react@18.2.0:
+  /next/13.1.1_biqbaboplfbrettd7655fr4n2y:
     resolution: {integrity: sha512-R5eBAaIa3X7LJeYvv1bMdGnAVF4fVToEjim7MkflceFPuANY3YyvFxXee/A+acrSYwYPvOvf7f6v/BM/48ea5w==}
     engines: {node: '>=14.6.0'}
     hasBin: true
@@ -2799,7 +2847,7 @@ packages:
     resolution: {integrity: sha512-xWGDIW6x921xtzPkhiULtthJHoJvBbF3q26fzloPCK0hsvxtPVelvftw3zjbHWSkR2km9Z+4uxbDDK/6Zw9B8w==}
     dev: true
 
-  /react-resizable-panels/0.0.11_react-dom@18.2.0+react@18.2.0:
+  /react-resizable-panels/0.0.11_biqbaboplfbrettd7655fr4n2y:
     resolution: {integrity: sha512-XjEcEf/4fOpAvhzuscQVwD/9foxFmExwfT5xxsBVTnjeqL+eOd6U2dFwHK5bwZOBaFpVhIaLdei0zKAE98LV6Q==}
     peerDependencies:
       react: ^16.14.0 || ^17.0.0 || ^18.0.0
@@ -3111,7 +3159,7 @@ packages:
     resolution: {integrity: sha512-tGyy4dAjRIEwI7BzsB0lynWgOpfqjUdq91XXAlIWD2OwKBH7oCl/GZG/HT4BOHrTlPMOASlMQ7veyTqpmRcrNA==}
     dev: false
 
-  /tsup/6.5.0_87e9bfeb4b475fb96cf54b5a4e64a2b4:
+  /tsup/6.5.0_q7u3722li5p3s3hvjnne4zfcwq:
     resolution: {integrity: sha512-36u82r7rYqRHFkD15R20Cd4ercPkbYmuvRkz3Q1LCm5BsiFNUgpo36zbjVhCOgvjyxNBWNKHsaD5Rl8SykfzNA==}
     engines: {node: '>=14'}
     hasBin: true
@@ -3152,6 +3200,7 @@ packages:
     resolution: {integrity: sha512-QmDIX0Yh1wYQl0bUS0gGWwNxpJwrzZU2GIAYt3aOKoirWA2ecnyb3R6ludcS1znfNV2MfunP+l8E3ncxUHwtjA==}
     cpu: [x64]
     os: [darwin]
+    requiresBuild: true
     dev: true
     optional: true
 
@@ -3159,6 +3208,7 @@ packages:
     resolution: {integrity: sha512-75DXhFpwE7CinBbtxTxH08EcWrxYSPFow3NaeFwsG8aymkWXF+U2aukYHJA6I12n9/dGqf7yRXzkF0S/9UtdyQ==}
     cpu: [arm64]
     os: [darwin]
+    requiresBuild: true
     dev: true
     optional: true
 
@@ -3166,6 +3216,7 @@ packages:
     resolution: {integrity: sha512-O9uc6J0yoRPWdPg9THRQi69K6E2iZ98cRHNvus05lZbcPzZTxJYkYGb5iagCmCW/pq6fL4T4oLWAd6evg2LGQA==}
     cpu: [x64]
     os: [linux]
+    requiresBuild: true
     dev: true
     optional: true
 
@@ -3173,6 +3224,7 @@ packages:
     resolution: {integrity: sha512-dCy667qqEtZIhulsRTe8hhWQNCJO0i20uHXv7KjLHuFZGCeMbWxB8rsneRoY+blf8+QNqGuXQJxak7ayjHLxiA==}
     cpu: [arm64]
     os: [linux]
+    requiresBuild: true
     dev: true
     optional: true
 
@@ -3180,6 +3232,7 @@ packages:
     resolution: {integrity: sha512-lKRqwL3mrVF09b9KySSaOwetehmGknV9EcQTF7d2dxngGYYX1WXoQLjFP9YYH8ZV07oPm+RUOAKSCQuDuMNhiA==}
     cpu: [x64]
     os: [win32]
+    requiresBuild: true
     dev: true
     optional: true
 
@@ -3187,6 +3240,7 @@ packages:
     resolution: {integrity: sha512-BXY1sDPEA1DgPwuENvDCD8B7Hb0toscjus941WpL8CVd10hg9pk/MWn9CNgwDO5Q9ks0mw+liDv2EMnleEjeNA==}
     cpu: [arm64]
     os: [win32]
+    requiresBuild: true
     dev: true
     optional: true
 

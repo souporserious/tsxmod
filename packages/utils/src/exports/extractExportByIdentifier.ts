@@ -6,6 +6,13 @@ export function extractExportByIdentifier(
   sourceFile: SourceFile,
   identifier: string
 ) {
+  /** Copy the source file so it isn't mutated. */
+  const baseName = sourceFile.getBaseNameWithoutExtension()
+
+  sourceFile = sourceFile.copy(
+    sourceFile.getFilePath().replace(baseName, `${baseName}.copy`)
+  )
+
   /** Remove named exports: export { useHover } from 'hooks' */
   sourceFile.getExportDeclarations().forEach((declaration) => {
     declaration.remove()
@@ -23,12 +30,7 @@ export function extractExportByIdentifier(
       )!
 
       if (exportIdentifier.getText() !== identifier) {
-        // TODO: we need a findReferencesInSourceFile() helper
-        const references = exportIdentifier.findReferences()
-
-        if (references.length <= 1) {
-          declaration.remove()
-        }
+        declaration.remove()
       }
     })
   })
@@ -40,6 +42,9 @@ export function extractExportByIdentifier(
     lastFullText = sourceFile.getFullText()
     sourceFile.fixUnusedIdentifiers()
   }
+
+  /** Remove the copy now that we have the source text. */
+  sourceFile.delete()
 
   return lastFullText.trim()
 }
