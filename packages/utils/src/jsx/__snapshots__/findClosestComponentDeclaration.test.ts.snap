@@ -1,0 +1,44 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`finds the closest component to a node 1`] = `
+"Button = (props: {
+  onClick: () => void
+  children: React.ReactNode
+}) => {
+  return <button onClick={props.onClick}>{props.children}</button>
+}"
+`;
+
+exports[`finds the closest component to a node 2`] = `
+"export function Dialog(props: {
+  open: boolean
+  onClose: () => void
+  children: React.ReactNode
+}) {
+  if (!props.open) return null
+
+  return (
+    <dialog>
+      {props.children}
+      <Button onClick={props.onClose}>Close</Button>
+    </dialog>
+  )
+}"
+`;
+
+exports[`finds the closest component to a node 3`] = `
+"export default function App() {
+  const [open, setOpen] = React.useState(false)
+
+  React.useEffect(() => {
+    console.log({ open })
+  }, [open])
+
+  return (
+    <>
+      <Button onClick={() => setOpen(true)} children="Open" />
+      <Dialog onClose={() => setOpen(false)} open={open} />
+    </>
+  )
+}"
+`;

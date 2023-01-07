@@ -35,8 +35,9 @@ export function Dialog(props: {
 const appSource = `
 import React from 'react'
 import { Button } from './Button'
+import { Dialog } from './Dialog'
 
-export defaul function App() {
+export default function App() {
   const [open, setOpen] = React.useState(false)
 
   return (
