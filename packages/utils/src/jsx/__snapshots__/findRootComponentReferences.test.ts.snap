@@ -1,0 +1,8 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`traces component references to the root element 1`] = `
+[
+  "/about.tsx",
+  "/contact.tsx",
+]
+`;
