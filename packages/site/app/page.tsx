@@ -11,8 +11,13 @@ import './styles.css'
 const project = new Project({ useInMemoryFileSystem: true })
 
 const codeString = `
-export function getString(): string {
-  return 'Rising crust pizza';
+import React from 'react'
+
+export function Button(props: {
+    onClick: () => void
+    children: React.ReactNode
+}) {
+    return <button onClick={props.onClick}>{props.children}</button>
 }
 `.trim()
 
@@ -20,16 +25,21 @@ const initialTransformSource = `
 import { Project } from 'ts-morph';
 
 export default function transform(project: Project) {
-  const file = project.getSourceFileOrThrow('test.ts');
-  const declaration = file.getFunctionOrThrow('getString');
+  const file = project.getSourceFileOrThrow('Button.tsx');
+  const declaration = file.getFunctionOrThrow('Button');
   
-  declaration.rename('getPizzaKind');
+  declaration.rename('LegacyButton');
 }
 `.trim()
 
-const sourceFile = project.createSourceFile('test.ts', codeString)
+const sourceFile = project.createSourceFile('Button.tsx', codeString)
 
 const setTheme = (monaco) => {
+  monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
+    jsx: monaco.languages.typescript.JsxEmit.Preserve,
+    esModuleInterop: true,
+  })
+
   monaco.editor.defineTheme('dark-theme', {
     base: 'vs-dark',
     inherit: true,
@@ -38,6 +48,14 @@ const setTheme = (monaco) => {
       'editor.background': '#000000',
     },
   })
+}
+
+const monacoOptions = {
+  automaticLayout: true,
+  contextmenu: false,
+  formatOnPaste: true,
+  formatOnType: true,
+  minimap: { enabled: false },
 }
 
 export default function Page() {
@@ -62,29 +80,26 @@ export default function Page() {
       transform(transformedProject)
 
       setTransformedSource(
-        transformedProject.getSourceFile('test.ts').getFullText()
+        transformedProject.getSourceFile('Button.tsx').getFullText()
       )
     })
   }, [sourceCode, transformSource])
 
   return (
     <PanelGroup
-      direction="horizontal"
-      width={window.innerWidth}
-      height={window.innerHeight}
+      direction="vertical"
       className="panel-group"
+      style={{ height: '100vh' }}
     >
-      <Panel id="editors" className="panel">
-        <PanelGroup
-          direction="vertical"
-          width={window.innerWidth / 2}
-          height={window.innerHeight}
-          className="panel"
-        >
+      <Panel id="editors" className="panel" defaultSize={50}>
+        <PanelGroup direction="horizontal" className="panel">
           <Panel id="source" className="panel">
             <MonacoEditor
+              width="100%"
               height="100%"
+              path="source.tsx"
               language="typescript"
+              options={monacoOptions}
               value={sourceCode}
               theme="dark-theme"
               beforeMount={setTheme}
@@ -102,34 +117,48 @@ export default function Page() {
               }}
             />
           </Panel>
-          <Panel id="transform" className="panel">
-            <MonacoEditor
-              height="100%"
-              language="typescript"
-              value={transformSource}
-              onChange={setTransformSource}
-              theme="dark-theme"
-              beforeMount={setTheme}
-            />
-          </Panel>
+
+          <PanelResizeHandle className="resize-handle" />
+
           <Panel id="output" className="panel">
             <MonacoEditor
               height="100%"
               language="typescript"
+              path="transformed-source.tsx"
+              options={monacoOptions}
               value={transformedSource}
               theme="dark-theme"
               beforeMount={setTheme}
             />
           </Panel>
         </PanelGroup>
-        <PanelResizeHandle className="resize-handle" />
       </Panel>
-      <Panel id="explorer" className="panel">
-        <ASTExplorer
-          node={sourceFile}
-          selectedNode={selectedNode}
-          setSelectedNode={setSelectedNode}
-        />
+
+      <Panel id="ast" className="panel" defaultSize={50}>
+        <PanelGroup direction="horizontal" className="panel">
+          <Panel id="explorer" className="panel" defaultSize={50}>
+            <ASTExplorer
+              node={sourceFile}
+              selectedNode={selectedNode}
+              setSelectedNode={setSelectedNode}
+            />
+          </Panel>
+
+          <PanelResizeHandle className="resize-handle" />
+
+          <Panel id="transform" className="panel">
+            <MonacoEditor
+              height="100%"
+              language="typescript"
+              path="transform.ts"
+              options={monacoOptions}
+              value={transformSource}
+              onChange={setTransformSource}
+              theme="dark-theme"
+              beforeMount={setTheme}
+            />
+          </Panel>
+        </PanelGroup>
       </Panel>
     </PanelGroup>
   )

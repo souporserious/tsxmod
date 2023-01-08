@@ -7,11 +7,12 @@
   },
   "dependencies": {
     "@monaco-editor/react": "4.4.6",
-    "@swc/wasm-web": "1.3.24",
+    "@swc/wasm-web": "1.3.25",
+    "@typescript/ata": "0.9.3",
     "next": "13.1.1",
     "react": "18.2.0",
     "react-dom": "18.2.0",
-    "react-resizable-panels": "0.0.11",
+    "react-resizable-panels": "0.0.30",
     "ts-morph": "17.0.1"
   }
 }
