@@ -5,6 +5,7 @@ import { Project } from 'ts-morph'
 import type { Node } from 'ts-morph'
 import { useEffect, useRef, useState } from 'react'
 import { executeCode } from './execute-code'
+import { initializeMonaco } from '../utils/initialize-monaco'
 
 import './styles.css'
 
@@ -33,22 +34,6 @@ export default function transform(project: Project) {
 `.trim()
 
 const sourceFile = project.createSourceFile('Button.tsx', codeString)
-
-const setTheme = (monaco) => {
-  monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
-    jsx: monaco.languages.typescript.JsxEmit.Preserve,
-    esModuleInterop: true,
-  })
-
-  monaco.editor.defineTheme('dark-theme', {
-    base: 'vs-dark',
-    inherit: true,
-    rules: [],
-    colors: {
-      'editor.background': '#000000',
-    },
-  })
-}
 
 const monacoOptions = {
   automaticLayout: true,
@@ -102,7 +87,7 @@ export default function Page() {
               options={monacoOptions}
               value={sourceCode}
               theme="dark-theme"
-              beforeMount={setTheme}
+              beforeMount={initializeMonaco}
               onMount={(editor) => {
                 editor.onDidChangeCursorPosition((event) => {
                   const offset = editor.getModel().getOffsetAt(event.position)
@@ -125,10 +110,14 @@ export default function Page() {
               height="100%"
               language="typescript"
               path="transformed-source.tsx"
-              options={monacoOptions}
+              options={{
+                ...monacoOptions,
+                readOnly: true,
+                scrollBeyondLastLine: false,
+              }}
               value={transformedSource}
               theme="dark-theme"
-              beforeMount={setTheme}
+              beforeMount={initializeMonaco}
             />
           </Panel>
         </PanelGroup>
@@ -155,7 +144,7 @@ export default function Page() {
               value={transformSource}
               onChange={setTransformSource}
               theme="dark-theme"
-              beforeMount={setTheme}
+              beforeMount={initializeMonaco}
             />
           </Panel>
         </PanelGroup>
