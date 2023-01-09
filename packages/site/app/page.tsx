@@ -4,8 +4,9 @@ import { PanelGroup, Panel, PanelResizeHandle } from 'react-resizable-panels'
 import { Project } from 'ts-morph'
 import type { Node } from 'ts-morph'
 import { useEffect, useRef, useState } from 'react'
-import { executeCode } from './execute-code'
 import { initializeMonaco } from '../utils/initialize-monaco'
+import { scrollIntoView } from '../utils/scroll'
+import { executeCode } from './execute-code'
 
 import './styles.css'
 
@@ -72,12 +73,27 @@ export default function Page() {
 
   return (
     <PanelGroup
-      direction="vertical"
+      direction="horizontal"
       className="panel-group"
       style={{ height: '100vh' }}
     >
-      <Panel id="editors" className="panel" defaultSize={50}>
-        <PanelGroup direction="horizontal" className="panel">
+      <Panel id="transform" className="panel">
+        <MonacoEditor
+          height="100%"
+          language="typescript"
+          path="transform.ts"
+          options={monacoOptions}
+          value={transformSource}
+          onChange={setTransformSource}
+          theme="dark-theme"
+          beforeMount={initializeMonaco}
+        />
+      </Panel>
+
+      <PanelResizeHandle className="resize-handle" />
+
+      <Panel id="source-group">
+        <PanelGroup direction="vertical">
           <Panel id="source" className="panel">
             <MonacoEditor
               width="100%"
@@ -109,7 +125,7 @@ export default function Page() {
             <MonacoEditor
               height="100%"
               language="typescript"
-              path="transformed-source.tsx"
+              path="output.tsx"
               options={{
                 ...monacoOptions,
                 readOnly: true,
@@ -123,31 +139,14 @@ export default function Page() {
         </PanelGroup>
       </Panel>
 
-      <Panel id="ast" className="panel" defaultSize={50}>
-        <PanelGroup direction="horizontal" className="panel">
-          <Panel id="explorer" className="panel" defaultSize={50}>
-            <ASTExplorer
-              node={sourceFile}
-              selectedNode={selectedNode}
-              setSelectedNode={setSelectedNode}
-            />
-          </Panel>
+      <PanelResizeHandle className="resize-handle" />
 
-          <PanelResizeHandle className="resize-handle" />
-
-          <Panel id="transform" className="panel">
-            <MonacoEditor
-              height="100%"
-              language="typescript"
-              path="transform.ts"
-              options={monacoOptions}
-              value={transformSource}
-              onChange={setTransformSource}
-              theme="dark-theme"
-              beforeMount={initializeMonaco}
-            />
-          </Panel>
-        </PanelGroup>
+      <Panel id="explorer" className="panel" defaultSize={15}>
+        <ASTExplorer
+          node={sourceFile}
+          selectedNode={selectedNode}
+          setSelectedNode={setSelectedNode}
+        />
       </Panel>
     </PanelGroup>
   )
@@ -169,28 +168,28 @@ function ASTExplorer({
 
   useEffect(() => {
     if (isSelected) {
-      ref.current.scrollIntoView()
+      scrollIntoView(ref.current)
     }
   }, [isSelected])
 
   return (
     <div
       style={{
-        padding: level === 0 ? '1rem' : undefined,
+        padding: level === 0 ? '0.2rem' : undefined,
         overflow: level === 0 ? 'auto' : undefined,
       }}
     >
       <div
         ref={ref}
         style={{
-          padding: '0.25rem',
+          padding: '0.125rem',
           backgroundColor: isSelected ? '#3178c6' : undefined,
         }}
         onClick={() => setSelectedNode(node)}
       >
         {node.getKindName()}
       </div>
-      <ul style={{ margin: 0 }}>
+      <ul style={{ paddingLeft: 0, margin: 0 }}>
         {node.getChildren().map((child, index) => {
           return (
             <li key={index} style={{ listStyle: 'none', paddingLeft: 8 }}>

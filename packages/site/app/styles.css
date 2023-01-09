@@ -1,5 +1,6 @@
 body {
   font-family: system-ui, sans-serif;
+  font-size: 12px;
   margin: 0;
   background-color: #000000;
   color: #ffffff;
@@ -15,7 +16,6 @@ body {
 
 .resize-handle {
   display: block;
-  width: 0.5rem;
-  height: 100%;
+  flex-basis: 0.15rem;
   background-color: #3d3d3d;
 }
