@@ -1,11 +1,10 @@
 'use client'
-import MonacoEditor from '@monaco-editor/react'
 import { PanelGroup, Panel, PanelResizeHandle } from 'react-resizable-panels'
 import { Project } from 'ts-morph'
 import type { Node } from 'ts-morph'
 import { useEffect, useRef, useState } from 'react'
-import { initializeMonaco } from '../utils/initialize-monaco'
 import { scrollIntoView } from '../utils/scroll'
+import { Editor } from './Editor'
 import { executeCode } from './execute-code'
 
 import './styles.css'
@@ -78,15 +77,11 @@ export default function Page() {
       style={{ height: '100vh' }}
     >
       <Panel id="transform" className="panel">
-        <MonacoEditor
-          height="100%"
-          language="typescript"
+        <Editor
           path="transform.ts"
           options={monacoOptions}
           value={transformSource}
           onChange={setTransformSource}
-          theme="dark-theme"
-          beforeMount={initializeMonaco}
         />
       </Panel>
 
@@ -95,15 +90,10 @@ export default function Page() {
       <Panel id="source-group">
         <PanelGroup direction="vertical">
           <Panel id="source" className="panel">
-            <MonacoEditor
-              width="100%"
-              height="100%"
+            <Editor
               path="source.tsx"
-              language="typescript"
               options={monacoOptions}
               value={sourceCode}
-              theme="dark-theme"
-              beforeMount={initializeMonaco}
               onMount={(editor) => {
                 editor.onDidChangeCursorPosition((event) => {
                   const offset = editor.getModel().getOffsetAt(event.position)
@@ -122,9 +112,7 @@ export default function Page() {
           <PanelResizeHandle className="resize-handle" />
 
           <Panel id="output" className="panel">
-            <MonacoEditor
-              height="100%"
-              language="typescript"
+            <Editor
               path="output.tsx"
               options={{
                 ...monacoOptions,
@@ -132,8 +120,6 @@ export default function Page() {
                 scrollBeyondLastLine: false,
               }}
               value={transformedSource}
-              theme="dark-theme"
-              beforeMount={initializeMonaco}
             />
           </Panel>
         </PanelGroup>

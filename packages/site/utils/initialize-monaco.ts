@@ -1,3 +1,4 @@
+import type { Monaco } from '@monaco-editor/react'
 import { wireTmGrammars } from 'monaco-editor-textmate'
 import { Registry } from 'monaco-textmate'
 import { loadWASM } from 'onigasm'
@@ -5,7 +6,7 @@ import { loadWASM } from 'onigasm'
 import defineTheme from './define-theme'
 import theme from './theme.json'
 
-export async function initializeMonaco(monaco: typeof import('monaco-editor')) {
+export async function initializeMonaco(monaco: Monaco) {
   try {
     await loadWASM('/onigasm.wasm')
   } catch {

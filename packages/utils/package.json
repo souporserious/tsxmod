@@ -31,10 +31,7 @@
     "build": "tsup src/index.ts --dts --format esm,cjs",
     "test": "jest"
   },
-  "peerDependencies": {
-    "ts-morph": ">=17.0.0"
-  },
-  "devDependencies": {
-    "ts-morph": "^17.0.1"
+  "dependencies": {
+    "ts-morph": "*"
   }
 }
