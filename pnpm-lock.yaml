@@ -30,23 +30,25 @@ importers:
 
   packages/site:
     specifiers:
-      '@monaco-editor/react': 4.4.6
-      '@swc/wasm-web': 1.3.25
+      '@monaco-editor/react': ^4.4.6
+      '@preact/signals-core': ^1.2.3
+      '@swc/wasm-web': ^1.3.25
       '@tsxmod/utils': workspace:*
       '@typescript/ata': 0.9.3
       color: ^4.2.3
       monaco-editor: ^0.34.1
       monaco-editor-textmate: ^4.0.0
       monaco-textmate: ^3.0.1
-      next: 13.1.1
+      next: ^13.1.1
       onigasm: ^2.2.5
-      react: 18.2.0
-      react-dom: 18.2.0
-      react-resizable-panels: 0.0.31
+      react: ^18.2.0
+      react-dom: ^18.2.0
+      react-resizable-panels: ^0.0.31
       ts-morph: '*'
       typescript: '*'
     dependencies:
       '@monaco-editor/react': 4.4.6_6vrjaj6ridxbohi43n7zt4gn7q
+      '@preact/signals-core': 1.2.3
       '@swc/wasm-web': 1.3.25
       '@tsxmod/utils': link:../utils
       '@typescript/ata': 0.9.3_typescript@4.9.4
@@ -882,6 +884,10 @@ packages:
     dependencies:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.15.0
+
+  /@preact/signals-core/1.2.3:
+    resolution: {integrity: sha512-Kui4p7PMcEQevBgsTO0JBo3gyQ88Q3qzEvsVCuSp11t0JcN4DmGCTJcGRVSCq7Bn7lGxJBO+57jNSzDoDJ+QmA==}
+    dev: false
 
   /@sinclair/typebox/0.24.51:
     resolution: {integrity: sha512-1P1OROm/rdubP5aFDSZQILU0vrLCJ4fvHt6EoqHEM+2D/G5MK3bIaymUKLit8Js9gbns5UyJnkP/TZROLw4tUA==}
