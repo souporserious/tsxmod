@@ -1,8 +1,8 @@
 'use client'
-import { PanelGroup, Panel, PanelResizeHandle } from 'react-resizable-panels'
 import { Project } from 'ts-morph'
 import type { Node } from 'ts-morph'
 import { useEffect, useRef, useState } from 'react'
+import { Logo } from 'components'
 import { scrollIntoView } from '../utils/scroll'
 import { Editor } from './Editor'
 import { executeCode } from './execute-code'
@@ -71,70 +71,57 @@ export default function Page() {
   }, [sourceCode, transformSource])
 
   return (
-    <PanelGroup
-      direction="horizontal"
-      className="panel-group"
-      style={{ height: '100vh' }}
-    >
-      <Panel id="transform" className="panel">
+    <div>
+      <div style={{ padding: 'var(--space-1)' }}>
+        <Logo />
+      </div>
+      <div style={{ display: 'grid', gridTemplateColumns: '40fr 40fr 20fr' }}>
         <Editor
           path="transform.ts"
           options={monacoOptions}
           value={transformSource}
           onChange={setTransformSource}
         />
-      </Panel>
 
-      <PanelResizeHandle className="resize-handle" />
+        <div style={{ display: 'grid', gridTemplateRows: '1fr 1fr' }}>
+          <Editor
+            path="source.tsx"
+            options={monacoOptions}
+            value={sourceCode}
+            onMount={(editor) => {
+              editor.onDidChangeCursorPosition((event) => {
+                const offset = editor.getModel().getOffsetAt(event.position)
+                const node = sourceFile.getDescendantAtPos(offset)
 
-      <Panel id="source-group">
-        <PanelGroup direction="vertical">
-          <Panel id="source" className="panel">
-            <Editor
-              path="source.tsx"
-              options={monacoOptions}
-              value={sourceCode}
-              onMount={(editor) => {
-                editor.onDidChangeCursorPosition((event) => {
-                  const offset = editor.getModel().getOffsetAt(event.position)
-                  const node = sourceFile.getDescendantAtPos(offset)
+                setSelectedNode(node)
+              })
+            }}
+            onChange={(value) => {
+              sourceFile.replaceWithText(value)
+              setSourceCode(value)
+            }}
+          />
 
-                  setSelectedNode(node)
-                })
-              }}
-              onChange={(value) => {
-                sourceFile.replaceWithText(value)
-                setSourceCode(value)
-              }}
-            />
-          </Panel>
+          <Editor
+            path="output.tsx"
+            options={{
+              ...monacoOptions,
+              readOnly: true,
+              scrollBeyondLastLine: false,
+            }}
+            value={transformedSource}
+          />
+        </div>
 
-          <PanelResizeHandle className="resize-handle" />
-
-          <Panel id="output" className="panel">
-            <Editor
-              path="output.tsx"
-              options={{
-                ...monacoOptions,
-                readOnly: true,
-                scrollBeyondLastLine: false,
-              }}
-              value={transformedSource}
-            />
-          </Panel>
-        </PanelGroup>
-      </Panel>
-
-      <PanelResizeHandle className="resize-handle" />
-
-      <Panel id="explorer" className="panel" defaultSize={15}>
-        <ASTExplorer
-          node={sourceFile}
-          selectedNode={selectedNode}
-          setSelectedNode={setSelectedNode}
-        />
-      </Panel>
-    </PanelGroup>
+        <div style={{ height: '100vh', overflow: 'auto' }}>
+          <ASTExplorer
+            node={sourceFile}
+            selectedNode={selectedNode}
+            setSelectedNode={setSelectedNode}
+          />
+        </div>
+      </div>
+    </div>
   )
 }
 
@@ -159,12 +146,7 @@ function ASTExplorer({
   }, [isSelected])
 
   return (
-    <div
-      style={{
-        padding: level === 0 ? '0.2rem' : undefined,
-        overflow: level === 0 ? 'auto' : undefined,
-      }}
-    >
+    <div style={{ padding: level === 0 ? '0.2rem' : undefined }}>
       <div
         ref={ref}
         style={{

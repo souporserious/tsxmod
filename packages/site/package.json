@@ -19,7 +19,6 @@
     "onigasm": "^2.2.5",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-resizable-panels": "^0.0.31",
     "ts-morph": "*",
     "typescript": "*"
   }
