@@ -71,56 +71,83 @@ export default function Page() {
   }, [sourceCode, transformSource])
 
   return (
-    <div>
+    <div
+      style={{ display: 'grid', gridTemplateRows: 'auto 1fr', height: '100vh' }}
+    >
       <div style={{ padding: 'var(--space-1)' }}>
         <Logo />
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: '40fr 40fr 20fr' }}>
-        <Editor
-          path="transform.ts"
-          options={monacoOptions}
-          value={transformSource}
-          onChange={setTransformSource}
-        />
+        <Section title="Transform">
+          <Editor
+            path="transform.ts"
+            options={monacoOptions}
+            value={transformSource}
+            onChange={setTransformSource}
+          />
+        </Section>
 
         <div style={{ display: 'grid', gridTemplateRows: '1fr 1fr' }}>
-          <Editor
-            path="source.tsx"
-            options={monacoOptions}
-            value={sourceCode}
-            onMount={(editor) => {
-              editor.onDidChangeCursorPosition((event) => {
-                const offset = editor.getModel().getOffsetAt(event.position)
-                const node = sourceFile.getDescendantAtPos(offset)
+          <Section title="Input">
+            <Editor
+              path="source.tsx"
+              options={monacoOptions}
+              value={sourceCode}
+              onMount={(editor) => {
+                editor.onDidChangeCursorPosition((event) => {
+                  const offset = editor.getModel().getOffsetAt(event.position)
+                  const node = sourceFile.getDescendantAtPos(offset)
 
-                setSelectedNode(node)
-              })
-            }}
-            onChange={(value) => {
-              sourceFile.replaceWithText(value)
-              setSourceCode(value)
-            }}
-          />
+                  setSelectedNode(node)
+                })
+              }}
+              onChange={(value) => {
+                sourceFile.replaceWithText(value)
+                setSourceCode(value)
+              }}
+            />
+          </Section>
 
-          <Editor
-            path="output.tsx"
-            options={{
-              ...monacoOptions,
-              readOnly: true,
-              scrollBeyondLastLine: false,
-            }}
-            value={transformedSource}
-          />
+          <Section title="Output">
+            <Editor
+              path="output.tsx"
+              options={{
+                ...monacoOptions,
+                readOnly: true,
+                scrollBeyondLastLine: false,
+              }}
+              value={transformedSource}
+            />
+          </Section>
         </div>
 
-        <div style={{ height: '100vh', overflow: 'auto' }}>
-          <ASTExplorer
-            node={sourceFile}
-            selectedNode={selectedNode}
-            setSelectedNode={setSelectedNode}
-          />
-        </div>
+        <Section title="AST Explorer">
+          <div style={{ height: '100vh', overflow: 'auto' }}>
+            <ASTExplorer
+              node={sourceFile}
+              selectedNode={selectedNode}
+              setSelectedNode={setSelectedNode}
+            />
+          </div>
+        </Section>
       </div>
+    </div>
+  )
+}
+
+function Section({
+  title,
+  children,
+}: {
+  title: string
+  children: React.ReactNode
+}) {
+  return (
+    <div style={{ display: 'grid', gridTemplateRows: 'auto min(0, 1fr)' }}>
+      <div style={{ padding: 'var(--space-1)' }}>
+        <h2>{title}</h2>
+      </div>
+      {children}
     </div>
   )
 }
@@ -146,11 +173,11 @@ function ASTExplorer({
   }, [isSelected])
 
   return (
-    <div style={{ padding: level === 0 ? '0.2rem' : undefined }}>
+    <div style={{ padding: level === 0 ? 'var(--space-1)' : undefined }}>
       <div
         ref={ref}
         style={{
-          padding: '0.125rem',
+          padding: 'var(--space-025)',
           backgroundColor: isSelected ? '#3178c6' : undefined,
         }}
         onClick={() => setSelectedNode(node)}

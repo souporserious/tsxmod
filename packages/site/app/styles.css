@@ -8,14 +8,11 @@
 }
 
 :root {
-  --font-size-primary: 5rem;
-  --font-size-secondary: 2rem;
-  --font-size-tertiary: 1rem;
-
   --radii-primary: 0.2rem;
   --radii-secondary: 0.4rem;
   --radii-tertiary: 2rem;
 
+  --space-025: 0.125rem;
   --space-1: 0.8rem;
   --space-2: 1rem;
   --space-3: 2rem;
@@ -34,6 +31,12 @@ body {
   font-size: 12px;
   background-color: #000;
   color: #fff;
+}
+
+h2 {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
 }
 
 img,
