@@ -42,8 +42,10 @@ const monacoOptions = {
   contextmenu: false,
   formatOnPaste: true,
   formatOnType: true,
+  folding: false,
+  glyphMargin: false,
   minimap: { enabled: false },
-}
+} as editor.IEditorConstructionOptions
 
 export default function Page() {
   const [selectedNode, setSelectedNode] = useState<Node>(null)
@@ -179,6 +181,7 @@ function Section({
         display: 'grid',
         gridTemplateRows: 'auto minmax(0, 1fr)',
         overflow: 'auto',
+        border: '0.5px solid #0c1535',
       }}
     >
       <div style={{ padding: 'var(--space-1)' }}>
