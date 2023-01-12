@@ -2,7 +2,7 @@
 import { Project } from 'ts-morph'
 import type { Node } from 'ts-morph'
 import { useEffect, useRef, useState } from 'react'
-import { Logo } from 'components'
+import { GitHubLink, Logo } from 'components'
 import { scrollIntoView } from '../utils/scroll'
 import { Editor } from './Editor'
 import { executeCode } from './execute-code'
@@ -78,8 +78,10 @@ export default function Page() {
         height: '100vh',
       }}
     >
-      <div style={{ padding: 'var(--space-1)' }}>
+      <div style={{ display: 'flex', padding: 'var(--space-1)' }}>
         <Logo />
+        <div style={{ flex: 1 }} />
+        <GitHubLink />
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: '4fr 4fr 2fr' }}>
         <Section title="Transform">
