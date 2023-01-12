@@ -1,33 +1,9 @@
+import { readFileSync } from 'fs'
 import { Project } from 'ts-morph'
 import { findRootComponentReferences } from './findRootComponentReferences'
 
-const buttonSource = `
-import React from 'react'
-
-export const Button = (props: {
-    onClick: () => void
-    children: React.ReactNode
-}) => {
-    return <button onClick={props.onClick}>{props.children}</button>
-}
-`
-
-const dialogSource = `
-import React from 'react'
-import { Button } from './Button'
-
-export function Dialog(props: {
-    onClose: () => void
-    children: React.ReactNode
-}) {
-    return (
-        <dialog>
-            {props.children}
-            <Button onClick={props.onClose}>Close</Button>
-        </dialog>
-    )
-}
-`
+const buttonSource = readFileSync('fixtures/app/Button.tsx', 'utf8')
+const dialogSource = readFileSync('fixtures/app/Dialog.tsx', 'utf8')
 
 const pageSource = `
 import React from 'react'

@@ -1,57 +1,10 @@
+import { readFileSync } from 'fs'
 import { Project, SyntaxKind } from 'ts-morph'
 import { findClosestComponentDeclaration } from './findClosestComponentDeclaration'
 
-const buttonSource = `
-import React from 'react'
-
-export const Button = (props: {
-  onClick: () => void
-  children: React.ReactNode
-}) => {
-  return <button onClick={props.onClick}>{props.children}</button>
-}
-`
-
-const dialogSource = `
-import React from 'react'
-import { Button } from './Button'
-
-export function Dialog(props: {
-  open: boolean
-  onClose: () => void
-  children: React.ReactNode
-}) {
-  if (!props.open) return null
-
-  return (
-    <dialog>
-      {props.children}
-      <Button onClick={props.onClose}>Close</Button>
-    </dialog>
-  )
-}
-`
-
-const appSource = `
-import React from 'react'
-import { Button } from './Button'
-import { Dialog } from './Dialog'
-
-export default function App() {
-  const [open, setOpen] = React.useState(false)
-
-  React.useEffect(() => {
-    console.log({ open })
-  }, [open])
-
-  return (
-    <>
-      <Button onClick={() => setOpen(true)} children="Open" />
-      <Dialog onClose={() => setOpen(false)} open={open} />
-    </>
-  )
-}
-`
+const buttonSource = readFileSync('fixtures/app/Button.tsx', 'utf8')
+const dialogSource = readFileSync('fixtures/app/Dialog.tsx', 'utf8')
+const appSource = readFileSync('fixtures/app/App.tsx', 'utf8')
 
 test('finds the closest component to a node', () => {
   const project = new Project({ useInMemoryFileSystem: true })

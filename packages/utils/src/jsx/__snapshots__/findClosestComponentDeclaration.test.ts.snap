@@ -37,7 +37,9 @@ exports[`finds the closest component to a node 3`] = `
   return (
     <>
       <Button onClick={() => setOpen(true)} children="Open" />
-      <Dialog onClose={() => setOpen(false)} open={open} />
+      <Dialog onClose={() => setOpen(false)} open={open}>
+        Hello Dialog
+      </Dialog>
     </>
   )
 }"
