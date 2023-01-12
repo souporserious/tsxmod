@@ -1,6 +1,8 @@
 'use client'
-import { Project } from 'ts-morph'
+import type { Monaco } from '@monaco-editor/react'
+import type { editor } from 'monaco-editor'
 import type { Node } from 'ts-morph'
+import { Project } from 'ts-morph'
 import { useEffect, useRef, useState } from 'react'
 import { GitHubLink, Logo } from 'components'
 import { scrollIntoView } from '../utils/scroll'
@@ -48,6 +50,8 @@ export default function Page() {
   const [sourceCode, setSourceCode] = useState(() => sourceFile.getFullText())
   const [transformSource, setTransformSource] = useState(initialTransformSource)
   const [transformedSource, setTransformedSource] = useState('')
+  const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null)
+  const monacoRef = useRef<Monaco | null>(null)
 
   useEffect(() => {
     executeCode(transformSource).then((transform) => {
@@ -69,6 +73,27 @@ export default function Page() {
       )
     })
   }, [sourceCode, transformSource])
+
+  // Focus the editor when the selected node changed from the AST explorer
+  useEffect(() => {
+    if (
+      selectedNode === null ||
+      monacoRef.current === null ||
+      editorRef.current === null ||
+      editorRef.current.hasTextFocus()
+    ) {
+      return
+    }
+
+    const lineAndColumn = selectedNode
+      .getSourceFile()
+      .getLineAndColumnAtPos(selectedNode.getStart())
+
+    editorRef.current.focus()
+    editorRef.current.setPosition(
+      new monacoRef.current.Position(lineAndColumn.line, lineAndColumn.column)
+    )
+  }, [selectedNode])
 
   return (
     <div
@@ -106,6 +131,10 @@ export default function Page() {
               onChange={(value) => {
                 sourceFile.replaceWithText(value)
                 setSourceCode(value)
+              }}
+              onMount={(editor, monaco) => {
+                editorRef.current = editor
+                monacoRef.current = monaco
               }}
             />
           </Section>

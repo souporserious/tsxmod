@@ -8,6 +8,7 @@ import { initializeMonaco } from '../utils/initialize-monaco'
 
 export function Editor({
   onCursorChange,
+  onMount,
   ...props
 }: { onCursorChange?: (position: number) => any } & ComponentProps<
   typeof MonacoEditor
@@ -23,6 +24,8 @@ export function Editor({
       const offset = editor.getModel().getOffsetAt(event.position)
       onCursorChange?.(offset)
     })
+
+    onMount?.(editor, monaco)
   }, [])
 
   React.useEffect(() => {
