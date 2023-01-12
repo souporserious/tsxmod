@@ -72,12 +72,16 @@ export default function Page() {
 
   return (
     <div
-      style={{ display: 'grid', gridTemplateRows: 'auto 1fr', height: '100vh' }}
+      style={{
+        display: 'grid',
+        gridTemplateRows: 'auto minmax(0, 1fr)',
+        height: '100vh',
+      }}
     >
       <div style={{ padding: 'var(--space-1)' }}>
         <Logo />
       </div>
-      <div style={{ display: 'grid', gridTemplateColumns: '40fr 40fr 20fr' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '4fr 4fr 2fr' }}>
         <Section title="Transform">
           <Editor
             path="transform.ts"
@@ -93,13 +97,9 @@ export default function Page() {
               path="source.tsx"
               options={monacoOptions}
               value={sourceCode}
-              onMount={(editor) => {
-                editor.onDidChangeCursorPosition((event) => {
-                  const offset = editor.getModel().getOffsetAt(event.position)
-                  const node = sourceFile.getDescendantAtPos(offset)
-
-                  setSelectedNode(node)
-                })
+              onCursorChange={(position) => {
+                const node = sourceFile.getDescendantAtPos(position)
+                setSelectedNode(node)
               }}
               onChange={(value) => {
                 sourceFile.replaceWithText(value)
@@ -122,7 +122,7 @@ export default function Page() {
         </div>
 
         <Section title="AST Explorer">
-          <div style={{ height: '100vh', overflow: 'auto' }}>
+          <div style={{ overflow: 'auto' }}>
             <ASTExplorer
               node={sourceFile}
               selectedNode={selectedNode}
@@ -143,7 +143,13 @@ function Section({
   children: React.ReactNode
 }) {
   return (
-    <div style={{ display: 'grid', gridTemplateRows: 'auto min(0, 1fr)' }}>
+    <div
+      style={{
+        display: 'grid',
+        gridTemplateRows: 'auto minmax(0, 1fr)',
+        overflow: 'auto',
+      }}
+    >
       <div style={{ padding: 'var(--space-1)' }}>
         <h2>{title}</h2>
       </div>

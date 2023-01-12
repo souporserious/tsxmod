@@ -6,10 +6,23 @@ import MonacoEditor from '@monaco-editor/react'
 import { fetchTypes } from '../utils/fetch-types'
 import { initializeMonaco } from '../utils/initialize-monaco'
 
-export function Editor(props: ComponentProps<typeof MonacoEditor>) {
+export function Editor({
+  onCursorChange,
+  ...props
+}: { onCursorChange?: (position: number) => any } & ComponentProps<
+  typeof MonacoEditor
+>) {
   const monacoRef = React.useRef<Monaco | null>(null)
-  const handleMount = React.useCallback((_, monaco) => {
+  const handleMount = React.useCallback<
+    ComponentProps<typeof MonacoEditor>['onMount']
+  >((editor, monaco) => {
     monacoRef.current = monaco
+
+    // TODO cleanup events in unmount
+    editor.onDidChangeCursorPosition((event) => {
+      const offset = editor.getModel().getOffsetAt(event.position)
+      onCursorChange?.(offset)
+    })
   }, [])
 
   React.useEffect(() => {
