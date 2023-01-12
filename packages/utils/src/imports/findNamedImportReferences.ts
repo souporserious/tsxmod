@@ -1,18 +1,18 @@
-import { Project, ReferencedSymbol, ts } from 'ts-morph'
+import { Project, Node, ts } from 'ts-morph'
 
 /**
  * Find all references for a named import.
  *
  * @example
- * const references = getReferencesForNamedImport(project, 'package', 'Stack')
+ * const references = findNamedImportReferences(project, 'package', 'Stack')
  */
 
-export function getReferencesForNamedImport(
+export function findNamedImportReferences(
   project: Project,
   moduleSpecifierValue: string,
   namedImportName: string
 ) {
-  let references: ReferencedSymbol[] = []
+  let references: Node[] = []
 
   for (const sourceFile of project.getSourceFiles()) {
     for (const importDeclaration of sourceFile.getImportDeclarations()) {
@@ -25,7 +25,7 @@ export function getReferencesForNamedImport(
               ts.SyntaxKind.Identifier
             )
 
-            references = identifier.findReferences()
+            references = identifier.findReferencesAsNodes()
 
             break
           }

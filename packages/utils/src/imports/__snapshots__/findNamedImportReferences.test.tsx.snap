@@ -1,0 +1,12 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`get references for named import 1`] = `
+[
+  "Button",
+  "<Button onClick={props.onClose} variant="secondary">",
+  "</Button>",
+  "Button: any",
+  "Button",
+  "<Button onClick={() => setOpen(true)} children="Open" />",
+]
+`;
