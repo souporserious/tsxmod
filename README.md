@@ -23,13 +23,11 @@ const codemod = require('./codemod')
 
 # Todos
 
-- [ ] Convert to a monorepo
-- [ ] Add tests
-- [ ] Start transforms package
-- [ ] Start analyze package
-- [ ] Start utils package
+- [x] Convert to a monorepo
+- [x] Add tests
+- [x] Start utils package
 - [ ] Add codemod examples
-- [ ] Add playground
+- [x] Add playground
 - [ ] Add site
 - [ ] Add share functionality
 - [ ] Add design system specific helpers (analyze and change colors, space, etc. between CSS and JS)
@@ -46,18 +44,20 @@ const codemod = require('./codemod')
 
 [generate typescript docs using ts morph](https://souporserious.com/generate-typescript-docs-using-ts-morph/)
 
-[extract exports using ts morph](https://github.com/souporserious/extract-exports-using-ts-morph/tree/main)
+[extract exports using ts morph](https://github.com/souporserious/extract-exports-using-ts-morph)
 
 [ast explorer](https://astexplorer.net/)
 
-[ts-morph-helpers](https://github.com/webpro/ts-morph-helpers/tree/main)
+[ts-ast-viewer](https://ts-ast-viewer.com/)
 
-[ts-morph-utils](https://github.com/TisnKu/ts-morph-utils/tree/master)
+[ts-morph-helpers](https://github.com/webpro/ts-morph-helpers)
 
-[morpher](https://github.com/LinbuduLab/morpher/tree/main)
+[ts-morph-utils](https://github.com/TisnKu/ts-morph-utils)
 
-[cancerberosgx ts-morph-playground](https://cancerberosgx.github.io/ts-morph-playground/#/)
+[morpher](https://github.com/LinbuduLab/morpher)
 
-[awhitty ts-morph-playground](https://awhitty.me/ts-morph-playground/)
+[cancerberosgx ts-morph-playground](https://cancerberosgx.github.io/ts-morph-playground)
 
-[sourcegraph codemod](https://github.com/sourcegraph/codemod/tree/main)
+[awhitty ts-morph-playground](https://awhitty.me/ts-morph-playground)
+
+[sourcegraph codemod](https://github.com/sourcegraph/codemod)
