@@ -9,7 +9,7 @@ export function getNodesBetweenOffsets(
   const nodes: Node[] = []
   let position = start
 
-  while (position < end) {
+  while (position <= end) {
     const node = sourceFile.getDescendantAtPos(position)
 
     if (node) {
