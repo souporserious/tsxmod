@@ -1,11 +1,11 @@
-import { Node, SourceFile } from 'ts-morph'
+import type { Node, SourceFile } from 'ts-morph'
 
 /** Get all nodes between a start and end offset. */
 export function getNodesBetweenOffsets(
   sourceFile: SourceFile,
   start: number,
   end: number
-) {
+): Node[] {
   const nodes: Node[] = []
   let position = start
 
