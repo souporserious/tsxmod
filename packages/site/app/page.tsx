@@ -1,8 +1,10 @@
 'use client'
+import type { Dispatch, SetStateAction } from 'react'
 import type { Monaco } from '@monaco-editor/react'
 import type { editor } from 'monaco-editor'
 import type { Node } from 'ts-morph'
 import { Project } from 'ts-morph'
+import { getNodesBetweenOffsets } from '@tsxmod/utils'
 import { useEffect, useRef, useState } from 'react'
 import { GitHubLink, Logo } from 'components'
 import { scrollIntoView } from '../utils/scroll'
@@ -48,7 +50,7 @@ const monacoOptions = {
 } as editor.IEditorConstructionOptions
 
 export default function Page() {
-  const [selectedNode, setSelectedNode] = useState<Node>(null)
+  const [activeNodes, setActiveNodes] = useState<Node[]>([])
   const [sourceCode, setSourceCode] = useState(() => sourceFile.getFullText())
   const [transformSource, setTransformSource] = useState(initialTransformSource)
   const [transformedSource, setTransformedSource] = useState('')
@@ -79,7 +81,7 @@ export default function Page() {
   // Focus the editor when the selected node changed from the AST explorer
   useEffect(() => {
     if (
-      selectedNode === null ||
+      activeNodes.length === 0 ||
       monacoRef.current === null ||
       editorRef.current === null ||
       editorRef.current.hasTextFocus()
@@ -87,15 +89,16 @@ export default function Page() {
       return
     }
 
-    const lineAndColumn = selectedNode
+    const firstNode = activeNodes[0]
+    const lineAndColumn = firstNode
       .getSourceFile()
-      .getLineAndColumnAtPos(selectedNode.getStart())
+      .getLineAndColumnAtPos(firstNode.getStart())
 
     editorRef.current.focus()
     editorRef.current.setPosition(
       new monacoRef.current.Position(lineAndColumn.line, lineAndColumn.column)
     )
-  }, [selectedNode])
+  }, [activeNodes])
 
   return (
     <div
@@ -126,9 +129,13 @@ export default function Page() {
               path="source.tsx"
               options={monacoOptions}
               value={sourceCode}
-              onCursorChange={(position) => {
-                const node = sourceFile.getDescendantAtPos(position)
-                setSelectedNode(node)
+              onCursorChange={(selection) => {
+                const nodes = getNodesBetweenOffsets(
+                  sourceFile,
+                  selection.start.offset,
+                  selection.end.offset
+                )
+                setActiveNodes(nodes)
               }}
               onChange={(value) => {
                 sourceFile.replaceWithText(value)
@@ -158,8 +165,8 @@ export default function Page() {
           <div style={{ overflow: 'auto' }}>
             <ASTExplorer
               node={sourceFile}
-              selectedNode={selectedNode}
-              setSelectedNode={setSelectedNode}
+              activeNodes={activeNodes}
+              setActiveNodes={setActiveNodes}
             />
           </div>
         </Section>
@@ -194,17 +201,17 @@ function Section({
 
 function ASTExplorer({
   node,
-  selectedNode,
-  setSelectedNode,
+  activeNodes,
+  setActiveNodes,
   level = 0,
 }: {
   node: Node
-  selectedNode?: Node
-  setSelectedNode?: (node: Node) => void
+  activeNodes?: Node[]
+  setActiveNodes?: Dispatch<SetStateAction<Node[]>>
   level?: number
 }) {
-  const ref = useRef<HTMLDivElement>(null)
-  const isSelected = node === selectedNode
+  const ref = useRef<HTMLButtonElement>(null)
+  const isSelected = activeNodes?.includes(node) ?? false
 
   useEffect(() => {
     if (isSelected) {
@@ -214,24 +221,29 @@ function ASTExplorer({
 
   return (
     <div style={{ padding: level === 0 ? 'var(--space-1)' : undefined }}>
-      <div
+      <button
         ref={ref}
         style={{
+          appearance: 'none',
           padding: 'var(--space-025)',
-          backgroundColor: isSelected ? '#3178c6' : undefined,
+          border: 'none',
+          color: '#fff',
+          backgroundColor: isSelected ? '#3178c6' : 'transparent',
         }}
-        onClick={() => setSelectedNode(node)}
+        onClick={() => {
+          setActiveNodes?.([node])
+        }}
       >
         {node.getKindName()}
-      </div>
+      </button>
       <ul style={{ paddingLeft: 0, margin: 0 }}>
         {node.getChildren().map((child, index) => {
           return (
             <li key={index} style={{ listStyle: 'none', paddingLeft: 8 }}>
               <ASTExplorer
                 node={child}
-                selectedNode={selectedNode}
-                setSelectedNode={setSelectedNode}
+                activeNodes={activeNodes}
+                setActiveNodes={setActiveNodes}
                 level={level + 1}
               />
             </li>
