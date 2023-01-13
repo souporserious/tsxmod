@@ -1,0 +1,10 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`gets nodes within an offset range 1`] = `
+[
+  "const",
+  "b",
+  "=",
+  "2",
+]
+`;
