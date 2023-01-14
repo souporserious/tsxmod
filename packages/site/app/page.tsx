@@ -1,13 +1,12 @@
 'use client'
-import type { Dispatch, SetStateAction } from 'react'
 import type { Monaco } from '@monaco-editor/react'
 import type { editor } from 'monaco-editor'
-import type { Node } from 'ts-morph'
-import { Project } from 'ts-morph'
-import { getNodesBetweenOffsets } from '@tsxmod/utils'
+import type { Node } from 'tsxmod/ts-morph'
+import { Project } from 'tsxmod/ts-morph'
+import { getNodesBetweenOffsets } from 'tsxmod/utils'
 import { useEffect, useRef, useState } from 'react'
 import { GitHubLink, Logo } from 'components'
-import { scrollIntoView } from '../utils/scroll'
+import { ASTExplorer } from './ASTExplorer'
 import { Editor } from './Editor'
 import { executeCode } from './execute-code'
 
@@ -38,16 +37,6 @@ export default function transform(project: Project) {
 `.trim()
 
 const sourceFile = project.createSourceFile('Button.tsx', codeString)
-
-const monacoOptions = {
-  automaticLayout: true,
-  contextmenu: false,
-  formatOnPaste: true,
-  formatOnType: true,
-  folding: false,
-  glyphMargin: false,
-  minimap: { enabled: false },
-} as editor.IEditorConstructionOptions
 
 export default function Page() {
   const [activeNodes, setActiveNodes] = useState<Node[]>([])
@@ -117,7 +106,6 @@ export default function Page() {
         <Section title="Transform">
           <Editor
             path="transform.ts"
-            options={monacoOptions}
             value={transformSource}
             onChange={setTransformSource}
           />
@@ -127,7 +115,7 @@ export default function Page() {
           <Section title="Input">
             <Editor
               path="source.tsx"
-              options={monacoOptions}
+              options={{ scrollBeyondLastLine: false }}
               value={sourceCode}
               onCursorChange={(selection) => {
                 const nodes = getNodesBetweenOffsets(
@@ -151,18 +139,21 @@ export default function Page() {
           <Section title="Output">
             <Editor
               path="output.tsx"
-              options={{
-                ...monacoOptions,
-                readOnly: true,
-                scrollBeyondLastLine: false,
-              }}
+              options={{ readOnly: true, scrollBeyondLastLine: false }}
               value={transformedSource}
             />
           </Section>
         </div>
 
-        <Section title="AST Explorer">
-          <div style={{ overflow: 'auto' }}>
+        <Section title="AST">
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              padding: 'var(--space-1)',
+              overflow: 'auto',
+            }}
+          >
             <ASTExplorer
               node={sourceFile}
               activeNodes={activeNodes}
@@ -195,61 +186,6 @@ function Section({
         <h2>{title}</h2>
       </div>
       {children}
-    </div>
-  )
-}
-
-function ASTExplorer({
-  node,
-  activeNodes,
-  setActiveNodes,
-  level = 0,
-}: {
-  node: Node
-  activeNodes?: Node[]
-  setActiveNodes?: Dispatch<SetStateAction<Node[]>>
-  level?: number
-}) {
-  const ref = useRef<HTMLButtonElement>(null)
-  const isSelected = activeNodes?.includes(node) ?? false
-
-  useEffect(() => {
-    if (isSelected) {
-      scrollIntoView(ref.current)
-    }
-  }, [isSelected])
-
-  return (
-    <div style={{ padding: level === 0 ? 'var(--space-1)' : undefined }}>
-      <button
-        ref={ref}
-        style={{
-          appearance: 'none',
-          padding: 'var(--space-025)',
-          border: 'none',
-          color: '#fff',
-          backgroundColor: isSelected ? '#3178c6' : 'transparent',
-        }}
-        onClick={() => {
-          setActiveNodes?.([node])
-        }}
-      >
-        {node.getKindName()}
-      </button>
-      <ul style={{ paddingLeft: 0, margin: 0 }}>
-        {node.getChildren().map((child, index) => {
-          return (
-            <li key={index} style={{ listStyle: 'none', paddingLeft: 8 }}>
-              <ASTExplorer
-                node={child}
-                activeNodes={activeNodes}
-                setActiveNodes={setActiveNodes}
-                level={level + 1}
-              />
-            </li>
-          )
-        })}
-      </ul>
     </div>
   )
 }

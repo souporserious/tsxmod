@@ -1,6 +1,6 @@
 import * as React from 'react'
 import type { ComponentProps } from 'react'
-import type { IDisposable } from 'monaco-editor'
+import type { editor, IDisposable } from 'monaco-editor'
 import type { Monaco } from '@monaco-editor/react'
 import MonacoEditor from '@monaco-editor/react'
 
@@ -8,6 +8,16 @@ import { fetchTypes } from '../utils/fetch-types'
 import { initializeMonaco } from '../utils/initialize-monaco'
 
 type PositionAndOffset = { column: number; lineNumber: number; offset: number }
+
+const defaultMonacoOptions = {
+  automaticLayout: true,
+  contextmenu: false,
+  formatOnPaste: true,
+  formatOnType: true,
+  folding: false,
+  glyphMargin: false,
+  minimap: { enabled: false },
+} as editor.IEditorConstructionOptions
 
 export function Editor({
   onCursorChange,
@@ -76,6 +86,7 @@ export function Editor({
       language="typescript"
       theme="dark-theme"
       beforeMount={initializeMonaco}
+      options={{ ...defaultMonacoOptions, ...props.options }}
       onMount={handleMount}
     />
   )

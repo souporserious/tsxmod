@@ -1,5 +1,5 @@
 import { setupTypeAcquisition } from '@typescript/ata'
-import { Project, ts } from 'ts-morph'
+import { Project, ts } from 'tsxmod/ts-morph'
 
 /** Fetches the types for a string of code. */
 export async function fetchTypes(

@@ -31,6 +31,6 @@
   "dependencies": {
     "@tsxmod/utils": "workspace:*",
     "chokidar": "^3.5.3",
-    "ts-morph": "*"
+    "ts-morph": "^17.0.1"
   }
 }
