@@ -53,16 +53,12 @@ export function ASTExplorer({
       </button>
 
       {children.length > 0 ? (
-        <ul style={{ paddingLeft: 0, margin: 0 }}>
+        <ul>
           {getChildren(node).map((child) => {
             return (
               <li
                 key={child.getPos()}
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  listStyle: 'none',
-                }}
+                style={{ display: 'flex', flexDirection: 'column' }}
               >
                 <ASTExplorer
                   node={child}

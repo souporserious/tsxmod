@@ -67,28 +67,6 @@ export default function Page() {
     })
   }, [sourceCode, transformSource])
 
-  // Focus the editor when the selected node changed from the AST explorer
-  useEffect(() => {
-    if (
-      activeNodes.length === 0 ||
-      monacoRef.current === null ||
-      editorRef.current === null ||
-      editorRef.current.hasTextFocus()
-    ) {
-      return
-    }
-
-    const firstNode = activeNodes[0]
-    const lineAndColumn = firstNode
-      .getSourceFile()
-      .getLineAndColumnAtPos(firstNode.getStart())
-
-    editorRef.current.focus()
-    editorRef.current.setPosition(
-      new monacoRef.current.Position(lineAndColumn.line, lineAndColumn.column)
-    )
-  }, [activeNodes])
-
   return (
     <div
       style={{
@@ -150,15 +128,38 @@ export default function Page() {
             style={{
               display: 'flex',
               flexDirection: 'column',
-              padding: 'var(--space-1)',
               overflow: 'auto',
             }}
           >
-            <ASTExplorer
-              node={sourceFile}
-              activeNodes={activeNodes}
-              setActiveNodes={setActiveNodes}
-            />
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                padding: 'var(--space-1)',
+              }}
+            >
+              <ASTExplorer
+                node={sourceFile}
+                activeNodes={activeNodes}
+                setActiveNodes={(nodes) => {
+                  /** Focus the source editor when selecting a node in the AST */
+                  const firstNode = nodes[0]
+                  const lineAndColumn = firstNode
+                    .getSourceFile()
+                    .getLineAndColumnAtPos(firstNode.getStart())
+
+                  editorRef.current.focus()
+                  editorRef.current.setPosition(
+                    new monacoRef.current.Position(
+                      lineAndColumn.line,
+                      lineAndColumn.column
+                    )
+                  )
+
+                  setActiveNodes(nodes)
+                }}
+              />
+            </div>
           </div>
         </Section>
       </div>
