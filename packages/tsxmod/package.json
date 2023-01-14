@@ -5,15 +5,32 @@
   "bin": {
     "tsxmod": "dist/index.js"
   },
+  "main": "./dist/index.js",
+  "exports": {
+    "./ts-morph": "./dist/ts-morph.js",
+    "./utils": "./dist/utils.js"
+  },
+  "types": "./dist/index.d.ts",
+  "typesVersions": {
+    "*": {
+      "ts-morph": [
+        "./dist/ts-morph.d.ts"
+      ],
+      "utils": [
+        "./dist/utils.d.ts"
+      ]
+    }
+  },
   "files": [
     "dist"
   ],
   "scripts": {
-    "dev": "tsup src/index.ts --watch --sourcemap --format esm,cjs",
-    "build": "tsup src/index.ts --dts --format esm,cjs"
+    "build": "tsup src/index.ts src/utils.ts src/ts-morph.ts --dts --format esm,cjs",
+    "dev": "pnpm build --watch --sourcemap"
   },
   "dependencies": {
     "@tsxmod/utils": "workspace:*",
+    "chokidar": "^3.5.3",
     "ts-morph": "*"
   }
 }
