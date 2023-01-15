@@ -17,6 +17,11 @@ const defaultMonacoOptions = {
   folding: false,
   glyphMargin: false,
   minimap: { enabled: false },
+  quickSuggestions: false,
+  occurrencesHighlight: false,
+  selectionHighlight: false,
+  codeLens: false,
+  suggestOnTriggerCharacters: false,
 } as editor.IEditorConstructionOptions
 
 export function Editor({
@@ -30,6 +35,7 @@ export function Editor({
     startColumn: number
     endLineNumber: number
     endColumn: number
+    className: string
   }[]
   onCursorChange?: (selection: {
     start: PositionAndOffset
@@ -110,7 +116,7 @@ export function Editor({
           decoration.endColumn
         ),
         options: {
-          className: 'line-decoration',
+          className: decoration.className,
         },
       }))
     )

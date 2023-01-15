@@ -8,11 +8,13 @@ export function ASTExplorer({
   node,
   activeNodes,
   setActiveNodes,
+  setHoveredNode,
   level = 0,
 }: {
   node: Node
   activeNodes?: Node[]
   setActiveNodes?: Dispatch<SetStateAction<Node[]>>
+  setHoveredNode?: Dispatch<SetStateAction<Node | null>>
   level?: number
 }) {
   const ref = useRef<HTMLButtonElement>(null)
@@ -32,21 +34,23 @@ export function ASTExplorer({
     <>
       <button
         ref={ref}
+        className="ast-node"
         style={{
-          appearance: 'none',
-          padding: 'var(--space-025)',
           paddingLeft: `calc(var(--space-1) * ${level})`,
-          textAlign: 'left',
-          border: 'none',
-          color: 'inherit',
           backgroundColor: isSelected
             ? '#3178c6'
             : isParentSelected
-            ? '#0c1e31'
-            : 'transparent',
+            ? '#18324e'
+            : undefined,
         }}
         onClick={() => {
           setActiveNodes?.([node])
+        }}
+        onMouseEnter={() => {
+          setHoveredNode?.(node)
+        }}
+        onMouseLeave={() => {
+          setHoveredNode?.(null)
         }}
       >
         {node.getKindName()}
@@ -64,6 +68,7 @@ export function ASTExplorer({
                   node={child}
                   activeNodes={activeNodes}
                   setActiveNodes={setActiveNodes}
+                  setHoveredNode={setHoveredNode}
                   level={level + 1}
                 />
               </li>

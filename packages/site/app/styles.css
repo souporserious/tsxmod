@@ -74,6 +74,23 @@ ul {
   flex-direction: row;
 }
 
-.line-decoration {
-  background-color: #0c1e31;
+.line-decoration-active {
+  background-color: #18324e;
+}
+
+.line-decoration-hovered {
+  background-color: #18324e80;
+}
+
+.ast-node {
+  appearance: none;
+  padding: var(--space-025);
+  text-align: left;
+  border: none;
+  color: inherit;
+  background-color: transparent;
+}
+
+.ast-node:hover {
+  background-color: #18324e80;
 }

@@ -38,6 +38,7 @@ const sourceFile = project.createSourceFile('Button.tsx', codeString)
 
 export default function Page() {
   const [activeNodes, setActiveNodes] = useState<Node[]>([])
+  const [hoveredNode, setHoveredNode] = useState<Node | null>(null)
   const [sourceCode, setSourceCode] = useState(() => sourceFile.getFullText())
   const [transformSource, setTransformSource] = useState(initialTransformSource)
   const [transformedSource, setTransformedSource] = useState('')
@@ -93,18 +94,13 @@ export default function Page() {
               path="source.tsx"
               options={{ scrollBeyondLastLine: false }}
               value={sourceCode}
-              decorations={activeNodes.map((node) => {
-                const sourceFile = node.getSourceFile()
-                const start = sourceFile.getLineAndColumnAtPos(node.getStart())
-                const end = sourceFile.getLineAndColumnAtPos(node.getEnd())
-
-                return {
-                  startLineNumber: start.line,
-                  startColumn: start.column,
-                  endLineNumber: end.line,
-                  endColumn: end.column,
-                }
-              })}
+              decorations={activeNodes
+                .map((node) => getRangeFromNode(node, 'line-decoration-active'))
+                .concat(
+                  hoveredNode
+                    ? getRangeFromNode(hoveredNode, 'line-decoration-hovered')
+                    : []
+                )}
               onCursorChange={(selection) => {
                 const nodes = getNodesBetweenOffsets(
                   sourceFile,
@@ -168,6 +164,7 @@ export default function Page() {
 
                   setActiveNodes(nodes)
                 }}
+                setHoveredNode={setHoveredNode}
               />
             </div>
           </div>
@@ -175,6 +172,20 @@ export default function Page() {
       </div>
     </div>
   )
+}
+
+function getRangeFromNode(node: Node, className: string) {
+  const sourceFile = node.getSourceFile()
+  const start = sourceFile.getLineAndColumnAtPos(node.getStart())
+  const end = sourceFile.getLineAndColumnAtPos(node.getEnd())
+
+  return {
+    startLineNumber: start.line,
+    startColumn: start.column,
+    endLineNumber: end.line,
+    endColumn: end.column,
+    className,
+  }
 }
 
 function Section({
