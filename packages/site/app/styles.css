@@ -50,12 +50,6 @@ ul {
   padding: 0;
 }
 
-.resize-handle {
-  display: block;
-  flex-basis: 0.15rem;
-  background-color: #3d3d3d;
-}
-
 .screen-reader-only {
   border: 0;
   clip: rect(0 0 0 0);
@@ -78,4 +72,8 @@ ul {
 
 .Row {
   flex-direction: row;
+}
+
+.line-decoration {
+  background-color: #0c1e31;
 }

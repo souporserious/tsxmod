@@ -93,6 +93,18 @@ export default function Page() {
               path="source.tsx"
               options={{ scrollBeyondLastLine: false }}
               value={sourceCode}
+              decorations={activeNodes.map((node) => {
+                const sourceFile = node.getSourceFile()
+                const start = sourceFile.getLineAndColumnAtPos(node.getStart())
+                const end = sourceFile.getLineAndColumnAtPos(node.getEnd())
+
+                return {
+                  startLineNumber: start.line,
+                  startColumn: start.column,
+                  endLineNumber: end.line,
+                  endColumn: end.column,
+                }
+              })}
               onCursorChange={(selection) => {
                 const nodes = getNodesBetweenOffsets(
                   sourceFile,

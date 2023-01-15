@@ -20,22 +20,34 @@ const defaultMonacoOptions = {
 } as editor.IEditorConstructionOptions
 
 export function Editor({
+  decorations,
   onCursorChange,
   onMount,
   ...props
 }: {
+  decorations?: {
+    startLineNumber: number
+    startColumn: number
+    endLineNumber: number
+    endColumn: number
+  }[]
   onCursorChange?: (selection: {
     start: PositionAndOffset
     end: PositionAndOffset
   }) => any
 } & ComponentProps<typeof MonacoEditor>) {
   const monacoRef = React.useRef<Monaco | null>(null)
+  const editorRef = React.useRef<editor.IStandaloneCodeEditor | null>(null)
   const eventDisposables = React.useRef<IDisposable[]>([])
+  const decorationsRef = React.useRef([])
+  const [isMounting, setIsMounting] = React.useState(true)
   const handleMount = React.useCallback<
     ComponentProps<typeof MonacoEditor>['onMount']
   >((editor, monaco) => {
+    editorRef.current = editor
     monacoRef.current = monaco
 
+    /** Cursor Selection */
     eventDisposables.current.push(
       editor.onDidChangeCursorSelection((event) => {
         const startPosition = event.selection.getStartPosition()
@@ -49,12 +61,18 @@ export function Editor({
             lineNumber: startPosition.lineNumber,
             offset: startOffset,
           },
-          end: { ...endPosition, offset: endOffset },
+          end: {
+            column: endPosition.column,
+            lineNumber: endPosition.lineNumber,
+            offset: endOffset,
+          },
         })
       })
     )
 
     onMount?.(editor, monaco)
+
+    setIsMounting(false)
   }, [])
 
   /** Dispose events on unmount */
@@ -78,6 +96,25 @@ export function Editor({
       })
     })
   }, [props.value])
+
+  React.useEffect(() => {
+    if (isMounting || !decorations) return
+
+    decorationsRef.current = editorRef.current.deltaDecorations(
+      decorationsRef.current,
+      decorations.map((decoration) => ({
+        range: new monacoRef.current.Range(
+          decoration.startLineNumber,
+          decoration.startColumn,
+          decoration.endLineNumber,
+          decoration.endColumn
+        ),
+        options: {
+          className: 'line-decoration',
+        },
+      }))
+    )
+  }, [decorations, isMounting])
 
   return (
     <MonacoEditor
