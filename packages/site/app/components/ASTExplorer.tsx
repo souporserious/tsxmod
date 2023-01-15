@@ -20,7 +20,7 @@ export function ASTExplorer({
 }) {
   const ref = useRef<HTMLButtonElement>(null)
   const isSelected = activeNode === node
-  const isParentSelected = activeNode?.getFirstAncestor(
+  const isParentSelected = node.getFirstAncestor(
     (ancestor) => ancestor === activeNode
   )
   const getChildren = getChildrenFunction(TreeMode.forEachChild)
