@@ -1,4 +1,6 @@
+export { ASTExplorer } from './ASTExplorer'
 export { Column } from './Column'
+export { Editor } from './Editor'
 export { GitHubLink } from './GitHubLink'
 export { Logo } from './Logo'
 export { Row } from './Row'

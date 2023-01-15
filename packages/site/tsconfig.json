@@ -21,7 +21,7 @@
     ],
     "baseUrl": ".",
     "paths": {
-      "components/*": ["components/index.ts"]
+      "components/*": ["app/components/index.ts"]
     }
   },
   "include": ["next-env.d.ts", ".next/types/**/*.ts", "**/*.ts", "**/*.tsx"],
