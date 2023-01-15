@@ -1,27 +1,29 @@
 'use client'
 import { Dispatch, SetStateAction } from 'react'
 import { Node } from 'tsxmod/ts-morph'
+import { getChildrenFunction, TreeMode } from 'tsxmod/utils'
 import { useEffect, useRef } from 'react'
 import { scrollIntoView } from '../utils/scroll'
 
 export function ASTExplorer({
   node,
-  activeNodes,
-  setActiveNodes,
+  activeNode,
+  setActiveNode,
   setHoveredNode,
   level = 0,
 }: {
   node: Node
-  activeNodes?: Node[]
-  setActiveNodes?: Dispatch<SetStateAction<Node[]>>
+  activeNode?: Node
+  setActiveNode?: Dispatch<SetStateAction<Node>>
   setHoveredNode?: Dispatch<SetStateAction<Node | null>>
   level?: number
 }) {
   const ref = useRef<HTMLButtonElement>(null)
-  const isSelected = activeNodes?.includes(node) ?? false
-  const isParentSelected = activeNodes?.some((activeNode) =>
-    node.getFirstAncestor((ancestor) => ancestor === activeNode)
+  const isSelected = activeNode === node
+  const isParentSelected = activeNode?.getFirstAncestor(
+    (ancestor) => ancestor === activeNode
   )
+  const getChildren = getChildrenFunction(TreeMode.forEachChild)
   const children = getChildren(node)
 
   useEffect(() => {
@@ -44,7 +46,7 @@ export function ASTExplorer({
             : undefined,
         }}
         onClick={() => {
-          setActiveNodes?.([node])
+          setActiveNode?.(node)
         }}
         onMouseEnter={() => {
           setHoveredNode?.(node)
@@ -58,7 +60,7 @@ export function ASTExplorer({
 
       {children.length > 0 ? (
         <ul>
-          {getChildren(node).map((child) => {
+          {children.map((child) => {
             return (
               <li
                 key={child.getPos()}
@@ -66,8 +68,8 @@ export function ASTExplorer({
               >
                 <ASTExplorer
                   node={child}
-                  activeNodes={activeNodes}
-                  setActiveNodes={setActiveNodes}
+                  activeNode={activeNode}
+                  setActiveNode={setActiveNode}
                   setHoveredNode={setHoveredNode}
                   level={level + 1}
                 />
@@ -78,14 +80,4 @@ export function ASTExplorer({
       ) : null}
     </>
   )
-}
-
-export function getChildren(node: Node) {
-  const nodes: Node[] = []
-
-  node.forEachChild((child) => {
-    nodes.push(child)
-  })
-
-  return nodes
 }

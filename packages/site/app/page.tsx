@@ -3,7 +3,7 @@ import type { Monaco } from '@monaco-editor/react'
 import type { editor } from 'monaco-editor'
 import type { Node } from 'tsxmod/ts-morph'
 import { Project } from 'tsxmod/ts-morph'
-import { getNodesBetweenOffsets } from 'tsxmod/utils'
+import { getDescendantAtRange } from 'tsxmod/utils'
 import { useEffect, useRef, useState } from 'react'
 import { ASTExplorer, Editor, GitHubLink, Logo } from './components'
 import { executeCode } from './execute-code'
@@ -37,7 +37,7 @@ export default function transform(project: Project) {
 const sourceFile = project.createSourceFile('Button.tsx', codeString)
 
 export default function Page() {
-  const [activeNodes, setActiveNodes] = useState<Node[]>([])
+  const [activeNode, setActiveNode] = useState<Node | null>(null)
   const [hoveredNode, setHoveredNode] = useState<Node | null>(null)
   const [sourceCode, setSourceCode] = useState(() => sourceFile.getFullText())
   const [transformSource, setTransformSource] = useState(initialTransformSource)
@@ -94,20 +94,18 @@ export default function Page() {
               path="source.tsx"
               options={{ scrollBeyondLastLine: false }}
               value={sourceCode}
-              decorations={activeNodes
-                .map((node) => getRangeFromNode(node, 'line-decoration-active'))
-                .concat(
-                  hoveredNode
-                    ? getRangeFromNode(hoveredNode, 'line-decoration-hovered')
-                    : []
-                )}
+              decorations={[
+                activeNode &&
+                  getRangeFromNode(activeNode, 'line-decoration-active'),
+                hoveredNode &&
+                  getRangeFromNode(hoveredNode, 'line-decoration-hovered'),
+              ].filter(Boolean)}
               onCursorChange={(selection) => {
-                const nodes = getNodesBetweenOffsets(
-                  sourceFile,
+                const node = getDescendantAtRange(sourceFile, [
                   selection.start.offset,
-                  selection.end.offset
-                )
-                setActiveNodes(nodes)
+                  selection.end.offset,
+                ])
+                setActiveNode(node)
               }}
               onChange={(value) => {
                 sourceFile.replaceWithText(value)
@@ -146,13 +144,12 @@ export default function Page() {
             >
               <ASTExplorer
                 node={sourceFile}
-                activeNodes={activeNodes}
-                setActiveNodes={(nodes) => {
+                activeNode={activeNode}
+                setActiveNode={(node) => {
                   /** Focus the source editor when selecting a node in the AST */
-                  const firstNode = nodes[0]
-                  const lineAndColumn = firstNode
+                  const lineAndColumn = node
                     .getSourceFile()
-                    .getLineAndColumnAtPos(firstNode.getStart())
+                    .getLineAndColumnAtPos(node.getStart())
 
                   editorRef.current.focus()
                   editorRef.current.setPosition(
@@ -162,7 +159,7 @@ export default function Page() {
                     )
                   )
 
-                  setActiveNodes(nodes)
+                  setActiveNode(node)
                 }}
                 setHoveredNode={setHoveredNode}
               />
