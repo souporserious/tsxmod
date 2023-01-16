@@ -2,11 +2,13 @@
 import type { Monaco } from '@monaco-editor/react'
 import type { editor } from 'monaco-editor'
 import type { Node } from 'tsxmod/ts-morph'
+import * as tsMorph from 'tsxmod/ts-morph'
+import * as utils from 'tsxmod/utils'
 import { Project } from 'tsxmod/ts-morph'
 import { getDescendantAtRange } from 'tsxmod/utils'
 import { useEffect, useRef, useState } from 'react'
 import { ASTExplorer, Editor, GitHubLink, Logo } from './components'
-import { executeCode } from './execute-code'
+import { executeCode } from './utils/execute-code'
 
 import './styles.css'
 
@@ -25,10 +27,13 @@ export function Button(props: {
 
 const initialTransformSource = `
 import { Project } from 'ts-morph';
+import { getPropTypes } from 'tsxmod/utils';
 
-export default function transform(project: Project) {
+export default function (project: Project) {
   const file = project.getSourceFileOrThrow('Button.tsx');
   const declaration = file.getFunctionOrThrow('Button');
+
+  console.log(getPropTypes(declaration))
   
   declaration.rename('LegacyButton');
 }
@@ -46,7 +51,10 @@ export default function Page() {
   const monacoRef = useRef<Monaco | null>(null)
 
   useEffect(() => {
-    executeCode(transformSource).then((transform) => {
+    executeCode(transformSource, {
+      'ts-morph': tsMorph,
+      'tsxmod/utils': utils,
+    }).then((transform) => {
       const transformedProject = new Project({ useInMemoryFileSystem: true })
 
       // Map the original source files to the new project

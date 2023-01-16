@@ -21,7 +21,6 @@ const defaultMonacoOptions = {
   occurrencesHighlight: false,
   selectionHighlight: false,
   codeLens: false,
-  suggestOnTriggerCharacters: false,
 } as editor.IEditorConstructionOptions
 
 export function Editor({
@@ -100,6 +99,16 @@ export function Editor({
           type.path
         )
       })
+
+      /** Add TSXMOD utility types manually. */
+      fetch('tsxmod-utils.d.ts')
+        .then((respsone) => respsone.text())
+        .then((text) => {
+          monacoRef.current.languages.typescript.typescriptDefaults.addExtraLib(
+            text,
+            'file:///node_modules/tsxmod/utils/index.d.ts'
+          )
+        })
     })
   }, [props.value])
 
