@@ -24,7 +24,11 @@ async function run() {
 
   transformFn(exports, require)
 
-  exports.default(project)
+  try {
+    exports.default(project)
+  } catch (error) {
+    console.error(error)
+  }
 
   project.save()
 }
