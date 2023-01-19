@@ -3,21 +3,28 @@ import { Project } from 'ts-morph'
 import { resolve } from 'node:path'
 import { readFile } from 'node:fs/promises'
 import { createWatcher } from './create-watcher'
+import { transformCode } from './transform-code'
 
-const sourceFilePath = process.argv[2] || '.'
+const sourceFilePath = resolve(process.cwd(), process.argv[2] || '.')
+const transformFilePath = resolve(sourceFilePath, '.tsxmod/mod.ts')
 const watchFlag = process.argv[3] === '--watch'
 
 const project = new Project({
-  tsConfigFilePath: resolve(process.cwd(), sourceFilePath, 'tsconfig.json'),
+  tsConfigFilePath: resolve(sourceFilePath, 'tsconfig.json'),
 })
 
-const transformPath = `/Users/travisarnold/Code/tsxmod/packages/tsxmod/src/codemod.ts`
-
 async function run() {
-  const transform = await readFile(transformPath, 'utf8')
-  const transformFn = new Function('project', transform)
+  const transform = await readFile(transformFilePath, 'utf8')
+  const transformFn = new Function(
+    'exports',
+    'require',
+    await transformCode(transform)
+  )
+  const exports = { default: undefined }
 
-  transformFn(project)
+  transformFn(exports, require)
+
+  exports.default(project)
 
   project.save()
 }
@@ -25,7 +32,7 @@ async function run() {
 run()
 
 if (watchFlag) {
-  createWatcher(project, [transformPath], run)
+  createWatcher(project, [transformFilePath], run)
 }
 
 export { project }
