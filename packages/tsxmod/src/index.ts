@@ -18,6 +18,9 @@ const project = new Project({ tsConfigFilePath })
 
 async function run() {
   console.clear()
+  console.log(
+    `Running transform at: ${transformFilePath.replace(process.cwd(), '')}`
+  )
 
   const transform = await readFile(transformFilePath, 'utf8')
 
