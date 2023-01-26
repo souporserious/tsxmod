@@ -1,7 +1,7 @@
 import { Node } from 'ts-morph'
 
 /** Finds the closest component declaration starting from a node. */
-export function findClosestComponentDeclaration(node: Node) {
+export function findClosestComponentDeclaration(node: Node): Node | undefined {
   if (Node.isFunctionDeclaration(node) || Node.isVariableDeclaration(node)) {
     return node
   }
