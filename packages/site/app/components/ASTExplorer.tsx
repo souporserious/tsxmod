@@ -1,5 +1,4 @@
 'use client'
-import { Dispatch, SetStateAction } from 'react'
 import { Node } from 'tsxmod/ts-morph'
 import { getChildrenFunction, TreeMode } from 'tsxmod/utils'
 import { useEffect, useRef } from 'react'
@@ -14,8 +13,8 @@ export function ASTExplorer({
 }: {
   node: Node
   activeNode?: Node
-  setActiveNode?: Dispatch<SetStateAction<Node>>
-  setHoveredNode?: Dispatch<SetStateAction<Node | null>>
+  setActiveNode?: (value: Node) => void
+  setHoveredNode?: (value: Node) => void
   level?: number
 }) {
   const ref = useRef<HTMLButtonElement>(null)

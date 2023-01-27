@@ -48,6 +48,20 @@ declare function getImportDeclaration(sourceFile: SourceFile, moduleSpecifier: s
  */
 declare function getImportSpecifier(sourceFile: SourceFile, moduleSpecifier: string, importSpecifier: string): ImportSpecifier | undefined;
 
+/** Finds the closest component declaration starting from a node. */
+declare function findClosestComponentDeclaration(node: Node): Node | undefined;
+
+/**
+ * Traces component references.
+ *
+ * This is similar to `findReferencesAsNodes` but returns JsxSelfClosingElement and JsxElement nodes.
+ * Note, this currently does not account for cases where the component is used as a prop or is renamed.
+ */
+declare function findReferencesAsJsxElements(identifer: Identifier): Node[];
+
+/** Traces component references to the root component. */
+declare function findRootComponentReferences(node: Node): Node[];
+
 /** Returns a functional component declaration, unwrapping forwardRef if needed. */
 declare function getFunctionComponentDeclaration(declaration: Node): Node | null;
 
@@ -98,4 +112,4 @@ declare function getTypeDeclarationsFromProject(project: Project): Promise<{
 /** Gets the default values for a set of properties. */
 declare function getDefaultValuesFromProperties(properties: Array<PropertyAssignment | BindingElement>): Record<string, string | number | boolean | null>;
 
-export { TreeMode, extractExportByIdentifier, findNamedImportReferences, findReferencesInSourceFile, getChildrenFunction, getDefaultValuesFromProperties, getDescendantAtRange, getFunctionComponentDeclaration, getFunctionParameterTypes, getImportClause, getImportDeclaration, getImportSpecifier, getPropTypes, getTypeDeclarationsFromProject, isComponent, isForwardRefExpression, renameJsxIdentifier };
+export { TreeMode, extractExportByIdentifier, findClosestComponentDeclaration, findNamedImportReferences, findReferencesAsJsxElements, findReferencesInSourceFile, findRootComponentReferences, getChildrenFunction, getDefaultValuesFromProperties, getDescendantAtRange, getFunctionComponentDeclaration, getFunctionParameterTypes, getImportClause, getImportDeclaration, getImportSpecifier, getPropTypes, getTypeDeclarationsFromProject, isComponent, isForwardRefExpression, renameJsxIdentifier };
