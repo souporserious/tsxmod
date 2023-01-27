@@ -162,13 +162,9 @@ export default function Page() {
         </Section>
 
         <div style={{ display: 'grid', gridTemplateRows: '1fr 1fr' }}>
-          <Section title="Input">
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateRows: 'auto 1fr',
-              }}
-            >
+          <Section
+            title="Input"
+            header={
               <ul
                 style={{
                   display: 'flex',
@@ -182,12 +178,12 @@ export default function Page() {
                   <li
                     key={file.path}
                     style={{
-                      padding: 'var(--space-1)',
+                      padding: 'var(--space-05)',
                       cursor: 'pointer',
                       color:
                         file.path === activePath
                           ? 'rgb(116, 146, 255)'
-                          : 'white',
+                          : 'rgba(255, 255, 255, 0.5)',
                     }}
                     onClick={() => setActivePath(file.path)}
                   >
@@ -195,47 +191,48 @@ export default function Page() {
                   </li>
                 ))}
               </ul>
-              <Editor
-                path={activePath}
-                options={{ scrollBeyondLastLine: false }}
-                defaultValue={
-                  files.find((file) => file.path === activePath)?.code
-                }
-                defaultLanguage="typescript"
-                decorations={[
-                  activeNode &&
-                    getRangeFromNode(activeNode, 'line-decoration-active'),
-                  hoveredNode &&
-                    getRangeFromNode(hoveredNode, 'line-decoration-hovered'),
-                ].filter(Boolean)}
-                onCursorChange={(selection) => {
-                  const node = getDescendantAtRange(sourceFileRef.current, [
-                    selection.start.offset,
-                    selection.end.offset,
-                  ])
+            }
+          >
+            <Editor
+              path={activePath}
+              options={{ scrollBeyondLastLine: false }}
+              defaultValue={
+                files.find((file) => file.path === activePath)?.code
+              }
+              defaultLanguage="typescript"
+              decorations={[
+                activeNode &&
+                  getRangeFromNode(activeNode, 'line-decoration-active'),
+                hoveredNode &&
+                  getRangeFromNode(hoveredNode, 'line-decoration-hovered'),
+              ].filter(Boolean)}
+              onCursorChange={(selection) => {
+                const node = getDescendantAtRange(sourceFileRef.current, [
+                  selection.start.offset,
+                  selection.end.offset,
+                ])
 
-                  setActiveNode(node)
-                }}
-                onChange={(value) => {
-                  setSourceFile(sourceFile.replaceWithText(value) as SourceFile)
-                }}
-                onMount={(editor, monaco) => {
-                  files.forEach((file) => {
-                    const uri = monaco.Uri.parse(file.path)
-                    const model = monaco.editor.getModel(uri)
+                setActiveNode(node)
+              }}
+              onChange={(value) => {
+                setSourceFile(sourceFile.replaceWithText(value) as SourceFile)
+              }}
+              onMount={(editor, monaco) => {
+                files.forEach((file) => {
+                  const uri = monaco.Uri.parse(file.path)
+                  const model = monaco.editor.getModel(uri)
 
-                    if (model) {
-                      monaco.editor.setModelLanguage(model, 'typescript')
-                    } else {
-                      monaco.editor.createModel(file.code, 'typescript', uri)
-                    }
-                  })
+                  if (model) {
+                    monaco.editor.setModelLanguage(model, 'typescript')
+                  } else {
+                    monaco.editor.createModel(file.code, 'typescript', uri)
+                  }
+                })
 
-                  editorRef.current = editor
-                  monacoRef.current = monaco
-                }}
-              />
-            </div>
+                editorRef.current = editor
+                monacoRef.current = monaco
+              }}
+            />
           </Section>
 
           <Section title="Output">
@@ -307,9 +304,11 @@ function getRangeFromNode(node: Node, className: string) {
 
 function Section({
   title,
+  header,
   children,
 }: {
   title: string
+  header?: React.ReactNode
   children: React.ReactNode
 }) {
   return (
@@ -321,8 +320,17 @@ function Section({
         border: '0.5px solid #0c1535',
       }}
     >
-      <div style={{ padding: 'var(--space-1)' }}>
-        <h2>{title}</h2>
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'auto 1fr',
+          alignItems: 'center',
+          minHeight: '40px',
+          padding: 'var(--space-1)',
+          gap: 'var(--space-2)',
+        }}
+      >
+        <h2>{title}</h2> {header}
       </div>
       {children}
     </div>
