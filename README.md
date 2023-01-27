@@ -1,10 +1,13 @@
 # tsxmod
 
+> **Warning**
+> This project and all packages are still a work in progress. The APIs are not stable and may change.
+
 Programmatically analyze and run transformations across TypeScript or JavaScript files using [TS Morph](https://ts-morph.com/).
 
 ## About
 
-Codebases grow and change over time. As they do, it becomes more difficult to maintain and evolve them. This is especially true when you have a large codebase with many contributors. This is where codemods come in. Codemods are a way to make large-scale, non-trivial changes to codebases. They are a great way to refactor code, migrate to new APIs, and better understand your codebase.
+Codebases grow and change over time. As they do, it becomes more difficult to maintain and evolve them. This is where codemods can help. Codemods are a way to make large-scale, non-trivial changes to codebases. They are a great way to refactor code, migrate to new APIs, and better understand your codebase.
 
 ## CLI
 
