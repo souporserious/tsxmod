@@ -101,6 +101,9 @@ export default function Page() {
   const [transformedSource, setTransformedSource] = useState('')
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null)
   const monacoRef = useRef<Monaco | null>(null)
+  const sourceRef = useRef<SourceFile | null>(null)
+
+  sourceRef.current = sourceFile
 
   useEffect(() => {
     setSourceFile(project.getSourceFile(activePath))
@@ -193,17 +196,18 @@ export default function Page() {
                   files.find((file) => file.path === activePath)?.code
                 }
                 defaultLanguage="typescript"
-                // decorations={[
-                //   activeNode &&
-                //     getRangeFromNode(activeNode, 'line-decoration-active'),
-                //   hoveredNode &&
-                //     getRangeFromNode(hoveredNode, 'line-decoration-hovered'),
-                // ].filter(Boolean)}
+                decorations={[
+                  activeNode &&
+                    getRangeFromNode(activeNode, 'line-decoration-active'),
+                  hoveredNode &&
+                    getRangeFromNode(hoveredNode, 'line-decoration-hovered'),
+                ].filter(Boolean)}
                 onCursorChange={(selection) => {
-                  const node = getDescendantAtRange(sourceFile, [
+                  const node = getDescendantAtRange(sourceRef.current, [
                     selection.start.offset,
                     selection.end.offset,
                   ])
+
                   setActiveNode(node)
                 }}
                 onChange={(value) => {
