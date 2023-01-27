@@ -80,6 +80,10 @@ import { Project } from 'ts-morph';
 import { getPropTypes } from 'tsxmod/utils';
 
 export default function (project: Project) {
+  const appSourceFile = project.getSourceFileOrThrow('App.tsx');
+  const buttonSourceFile = project.getSourceFileOrThrow('Button.tsx');
+  const dialogSourceFile = project.getSourceFileOrThrow('Dialog.tsx');
+
   // Write codemod here
 }
 `.trim()
@@ -101,9 +105,11 @@ export default function Page() {
   const [transformedSource, setTransformedSource] = useState('')
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null)
   const monacoRef = useRef<Monaco | null>(null)
-  const sourceRef = useRef<SourceFile | null>(null)
 
-  sourceRef.current = sourceFile
+  // For some reason onCursorChange below is stale without using a ref
+  const sourceFileRef = useRef<SourceFile | null>(null)
+
+  sourceFileRef.current = sourceFile
 
   useEffect(() => {
     setSourceFile(project.getSourceFile(activePath))
@@ -131,7 +137,7 @@ export default function Page() {
         transformedProject.getSourceFile(activePath).getFullText()
       )
     })
-  }, [activePath, transformSource])
+  }, [activePath, sourceFile, transformSource])
 
   return (
     <div
@@ -203,7 +209,7 @@ export default function Page() {
                     getRangeFromNode(hoveredNode, 'line-decoration-hovered'),
                 ].filter(Boolean)}
                 onCursorChange={(selection) => {
-                  const node = getDescendantAtRange(sourceRef.current, [
+                  const node = getDescendantAtRange(sourceFileRef.current, [
                     selection.start.offset,
                     selection.end.offset,
                   ])

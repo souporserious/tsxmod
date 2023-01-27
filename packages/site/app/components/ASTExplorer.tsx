@@ -55,6 +55,10 @@ export function ASTExplorer({
         }}
       >
         {node.getKindName()}
+
+        {node === activeNode ? (
+          <span className="ast-node-text">{node.getText()}</span>
+        ) : null}
       </button>
 
       {children.length > 0 ? (
