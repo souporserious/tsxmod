@@ -24,11 +24,12 @@ TODO
 - [x] Convert to a monorepo
 - [x] Add tests
 - [x] Start utils package
-- [ ] Add codemod examples
-- [x] Add playground
-- [ ] Add site
-- [ ] Add share functionality
-- [ ] Add design system specific helpers (analyze and change colors, space, etc. between CSS and JS)
+- [ ] Codemod examples
+- [ ] Loading states
+- [x] Playground
+- [ ] Site
+- [ ] Share functionality
+- [ ] Design system specific helpers (analyze and change colors, space, etc. between CSS and JS)
 - [x] Load a project (tsconfig.json)
 - [x] Start TS Morph server (this is expensive so we only want to run when we need to)
 - [ ] Start optional playground that loads specific sources to test against

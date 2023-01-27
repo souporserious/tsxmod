@@ -1,7 +1,7 @@
 'use client'
 import type { Monaco } from '@monaco-editor/react'
 import type { editor } from 'monaco-editor'
-import type { Node } from 'tsxmod/ts-morph'
+import type { Node, SourceFile } from 'tsxmod/ts-morph'
 import * as tsMorph from 'tsxmod/ts-morph'
 import * as utils from 'tsxmod/utils'
 import { Project } from 'tsxmod/ts-morph'
@@ -12,43 +12,99 @@ import { executeCode } from './utils/execute-code'
 
 import './styles.css'
 
-const project = new Project({ useInMemoryFileSystem: true })
+const files = [
+  {
+    path: 'App.tsx',
+    code: `
+import React from 'react'
+import { Button } from './Button'
+import { Dialog } from './Dialog'
 
-const codeString = `
+export default function App() {
+  const [open, setOpen] = React.useState(false)
+
+  React.useEffect(() => {
+    console.log({ open })
+  }, [open])
+
+  return (
+    <>
+      <Button onClick={() => setOpen(true)} children="Open" />
+      <Dialog onClose={() => setOpen(false)} open={open}>
+        Hello Dialog
+      </Dialog>
+    </>
+  )
+}
+`.trim(),
+  },
+  {
+    path: 'Button.tsx',
+    code: `
 import React from 'react'
 
-export function Button(props: {
-    onClick: () => void
-    children: React.ReactNode
-}) {
-    return <button onClick={props.onClick}>{props.children}</button>
+export const Button = (props: {
+  onClick: () => void
+  children: React.ReactNode
+}) => {
+  return <button onClick={props.onClick}>{props.children}</button>
 }
-`.trim()
+`.trim(),
+  },
+  {
+    path: 'Dialog.tsx',
+    code: `
+import React from 'react'
+import { Button } from './Button'
+
+export function Dialog(props: {
+  open: boolean
+  onClose: () => void
+  children: React.ReactNode
+}) {
+  if (!props.open) return null
+
+  return (
+    <dialog>
+      {props.children}
+      <Button onClick={props.onClose}>Close</Button>
+    </dialog>
+  )
+}
+`.trim(),
+  },
+]
 
 const initialTransformSource = `
 import { Project } from 'ts-morph';
 import { getPropTypes } from 'tsxmod/utils';
 
 export default function (project: Project) {
-  const file = project.getSourceFileOrThrow('Button.tsx');
-  const declaration = file.getFunctionOrThrow('Button');
-
-  console.log(getPropTypes(declaration))
-  
-  declaration.rename('LegacyButton');
+  // Write codemod here
 }
 `.trim()
 
-const sourceFile = project.createSourceFile('Button.tsx', codeString)
+const project = new Project({ useInMemoryFileSystem: true })
+
+files.forEach((file) => {
+  project.createSourceFile(file.path, file.code)
+})
 
 export default function Page() {
+  const [activePath, setActivePath] = useState(files[0].path)
+  const [sourceFile, setSourceFile] = useState(() =>
+    project.getSourceFile(activePath)
+  )
   const [activeNode, setActiveNode] = useState<Node | null>(null)
   const [hoveredNode, setHoveredNode] = useState<Node | null>(null)
-  const [sourceCode, setSourceCode] = useState(() => sourceFile.getFullText())
   const [transformSource, setTransformSource] = useState(initialTransformSource)
   const [transformedSource, setTransformedSource] = useState('')
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null)
   const monacoRef = useRef<Monaco | null>(null)
+
+  useEffect(() => {
+    setSourceFile(project.getSourceFile(activePath))
+  }, [activePath])
 
   useEffect(() => {
     executeCode(transformSource, {
@@ -69,10 +125,10 @@ export default function Page() {
       transform(transformedProject)
 
       setTransformedSource(
-        transformedProject.getSourceFile('Button.tsx').getFullText()
+        transformedProject.getSourceFile(activePath).getFullText()
       )
     })
-  }, [sourceCode, transformSource])
+  }, [activePath, transformSource])
 
   return (
     <div
@@ -98,32 +154,78 @@ export default function Page() {
 
         <div style={{ display: 'grid', gridTemplateRows: '1fr 1fr' }}>
           <Section title="Input">
-            <Editor
-              path="source.tsx"
-              options={{ scrollBeyondLastLine: false }}
-              value={sourceCode}
-              decorations={[
-                activeNode &&
-                  getRangeFromNode(activeNode, 'line-decoration-active'),
-                hoveredNode &&
-                  getRangeFromNode(hoveredNode, 'line-decoration-hovered'),
-              ].filter(Boolean)}
-              onCursorChange={(selection) => {
-                const node = getDescendantAtRange(sourceFile, [
-                  selection.start.offset,
-                  selection.end.offset,
-                ])
-                setActiveNode(node)
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateRows: 'auto 1fr',
               }}
-              onChange={(value) => {
-                sourceFile.replaceWithText(value)
-                setSourceCode(value)
-              }}
-              onMount={(editor, monaco) => {
-                editorRef.current = editor
-                monacoRef.current = monaco
-              }}
-            />
+            >
+              <ul
+                style={{
+                  display: 'flex',
+                  listStyle: 'none',
+                  padding: 0,
+                  margin: 0,
+                  overflow: 'auto',
+                }}
+              >
+                {files.map((file) => (
+                  <li
+                    key={file.path}
+                    style={{
+                      padding: 'var(--space-1)',
+                      cursor: 'pointer',
+                      color:
+                        file.path === activePath
+                          ? 'rgb(116, 146, 255)'
+                          : 'white',
+                    }}
+                    onClick={() => setActivePath(file.path)}
+                  >
+                    {file.path}
+                  </li>
+                ))}
+              </ul>
+              <Editor
+                path={activePath}
+                options={{ scrollBeyondLastLine: false }}
+                defaultValue={
+                  files.find((file) => file.path === activePath)?.code
+                }
+                defaultLanguage="typescript"
+                // decorations={[
+                //   activeNode &&
+                //     getRangeFromNode(activeNode, 'line-decoration-active'),
+                //   hoveredNode &&
+                //     getRangeFromNode(hoveredNode, 'line-decoration-hovered'),
+                // ].filter(Boolean)}
+                onCursorChange={(selection) => {
+                  const node = getDescendantAtRange(sourceFile, [
+                    selection.start.offset,
+                    selection.end.offset,
+                  ])
+                  setActiveNode(node)
+                }}
+                onChange={(value) => {
+                  setSourceFile(sourceFile.replaceWithText(value) as SourceFile)
+                }}
+                onMount={(editor, monaco) => {
+                  files.forEach((file) => {
+                    const uri = monaco.Uri.parse(file.path)
+                    const model = monaco.editor.getModel(uri)
+
+                    if (model) {
+                      monaco.editor.setModelLanguage(model, 'typescript')
+                    } else {
+                      monaco.editor.createModel(file.code, 'typescript', uri)
+                    }
+                  })
+
+                  editorRef.current = editor
+                  monacoRef.current = monaco
+                }}
+              />
+            </div>
           </Section>
 
           <Section title="Output">
@@ -154,7 +256,7 @@ export default function Page() {
                 node={sourceFile}
                 activeNode={activeNode}
                 setActiveNode={(node) => {
-                  /** Focus the source editor when selecting a node in the AST */
+                  // Focus the source editor when selecting a node in the AST
                   const lineAndColumn = node
                     .getSourceFile()
                     .getLineAndColumnAtPos(node.getStart())
