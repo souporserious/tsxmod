@@ -10,20 +10,14 @@ export function findReferencesAsJsxElements(identifer: Identifier): Node[] {
   const jsxElements: Node[] = []
 
   for (const reference of identifer.findReferencesAsNodes()) {
-    const isJsxOpeningOrSelfClosingElement = Boolean(
-      reference.getFirstAncestor((node) => {
-        return (
-          Node.isJsxOpeningElement(node) || Node.isJsxSelfClosingElement(node)
-        )
-      })
-    )
-
-    if (isJsxOpeningOrSelfClosingElement) {
-      jsxElements.push(
-        reference.getFirstAncestorOrThrow((node) => {
-          return Node.isJsxElement(node) || Node.isJsxSelfClosingElement(node)
-        })
+    const node = reference.getFirstAncestor((node) => {
+      return (
+        Node.isJsxOpeningElement(node) || Node.isJsxSelfClosingElement(node)
       )
+    })
+
+    if (node) {
+      jsxElements.push(Node.isJsxOpeningElement(node) ? node.getParent() : node)
     }
   }
 
