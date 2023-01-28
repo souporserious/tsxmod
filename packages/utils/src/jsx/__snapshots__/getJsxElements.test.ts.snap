@@ -1,0 +1,12 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`traces component references to the root element 1`] = `
+[
+  "<Button onClick={() => setOpen(true)} children="Open" />",
+  "<Dialog onClose={() => setOpen(false)} open={open}>
+        Hello Dialog
+      </Dialog>",
+]
+`;
+
+exports[`traces component references to the root element 2`] = `"<Button onClick={props.onClose}>Close</Button>"`;
