@@ -94,7 +94,7 @@ export function Editor({
   React.useEffect(() => {
     fetchTypes(props.value).then((types) => {
       types.forEach((type) => {
-        monacoRef.current.languages.typescript.typescriptDefaults.addExtraLib(
+        monacoRef.current?.languages.typescript.typescriptDefaults.addExtraLib(
           type.code,
           type.path
         )
@@ -104,7 +104,7 @@ export function Editor({
       fetch('tsxmod-utils.d.ts')
         .then((respsone) => respsone.text())
         .then((text) => {
-          monacoRef.current.languages.typescript.typescriptDefaults.addExtraLib(
+          monacoRef.current?.languages.typescript.typescriptDefaults.addExtraLib(
             text,
             'file:///node_modules/tsxmod/utils/index.d.ts'
           )
@@ -136,7 +136,7 @@ export function Editor({
       {...props}
       height="100%"
       language="typescript"
-      theme="dark-theme"
+      theme="vs-dark"
       beforeMount={initializeMonaco}
       options={{ ...defaultMonacoOptions, ...props.options }}
       onMount={handleMount}
