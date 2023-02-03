@@ -25,7 +25,11 @@ export async function fetchTypes(
     })
 
     moduleImportDeclarations.forEach((moduleImportDeclaration) => {
-      ata(moduleImportDeclaration.getText())
+      const importdeclarationString = moduleImportDeclaration.getText()
+
+      if (importdeclarationString.includes('tsxmod') === false) {
+        ata(importdeclarationString)
+      }
     })
   })
 }
