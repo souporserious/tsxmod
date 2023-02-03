@@ -1,4 +1,4 @@
-import { SourceFile, FunctionDeclaration, Identifier, Node, Project, ts, ImportClause, ImportDeclaration, ImportSpecifier, JsxElement, JsxSelfClosingElement, PropertyAssignment, BindingElement } from 'ts-morph';
+import { SourceFile, FunctionDeclaration, Identifier, Node, Project, ts, ImportClause, ImportDeclaration, ImportSpecifier, JsxOpeningElement, JsxSelfClosingElement, JsxElement, PropertyAssignment, BindingElement } from 'ts-morph';
 
 /** Extract a single export and its local dependencies from a source file. */
 declare function extractExportByIdentifier(sourceFile: SourceFile, identifier: string): string;
@@ -57,13 +57,18 @@ declare function findClosestComponentDeclaration(node: Node): Node | undefined;
  * This is similar to `findReferencesAsNodes` but returns JsxSelfClosingElement and JsxElement nodes.
  * Note, this currently does not account for cases where the component is used as a prop or is renamed.
  */
-declare function findReferencesAsJsxElements(identifer: Identifier): Node[];
+declare function findReferencesAsJsxElements(identifer: Identifier): (JsxOpeningElement | JsxSelfClosingElement)[];
 
 /** Traces component references to the root component. */
 declare function findRootComponentReferences(node: Node): Node[];
 
 /** Returns a functional component declaration, unwrapping forwardRef if needed. */
 declare function getFunctionComponentDeclaration(declaration: Node): Node | null;
+
+/** Get the first descendant JsxElement based on the identifier. */
+declare function getJsxElement(node: Node, name: string): JsxOpeningElement | JsxSelfClosingElement | undefined;
+/** Get all descendant JsxElement nodes. */
+declare function getJsxElements(node: Node): (JsxOpeningElement | JsxSelfClosingElement)[];
 
 /** Gets the prop types for a component declaration. */
 declare function getPropTypes(declaration: Node): ({
@@ -112,4 +117,4 @@ declare function getTypeDeclarationsFromProject(project: Project): Promise<{
 /** Gets the default values for a set of properties. */
 declare function getDefaultValuesFromProperties(properties: Array<PropertyAssignment | BindingElement>): Record<string, string | number | boolean | null>;
 
-export { TreeMode, extractExportByIdentifier, findClosestComponentDeclaration, findNamedImportReferences, findReferencesAsJsxElements, findReferencesInSourceFile, findRootComponentReferences, getChildrenFunction, getDefaultValuesFromProperties, getDescendantAtRange, getFunctionComponentDeclaration, getFunctionParameterTypes, getImportClause, getImportDeclaration, getImportSpecifier, getPropTypes, getTypeDeclarationsFromProject, isComponent, isForwardRefExpression, renameJsxIdentifier };
+export { TreeMode, extractExportByIdentifier, findClosestComponentDeclaration, findNamedImportReferences, findReferencesAsJsxElements, findReferencesInSourceFile, findRootComponentReferences, getChildrenFunction, getDefaultValuesFromProperties, getDescendantAtRange, getFunctionComponentDeclaration, getFunctionParameterTypes, getImportClause, getImportDeclaration, getImportSpecifier, getJsxElement, getJsxElements, getPropTypes, getTypeDeclarationsFromProject, isComponent, isForwardRefExpression, renameJsxIdentifier };

@@ -2,7 +2,7 @@
 
 exports[`finds all element references to a component 1`] = `
 [
-  "<Button onClick={props.onClose}>Close</Button>",
+  "<Button onClick={props.onClose}>",
   "<Button onClick={() => setOpen(true)} children="Open" />",
 ]
 `;

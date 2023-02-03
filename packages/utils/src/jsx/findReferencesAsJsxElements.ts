@@ -1,4 +1,9 @@
-import { Identifier, Node } from 'ts-morph'
+import {
+  Identifier,
+  JsxOpeningElement,
+  JsxSelfClosingElement,
+  Node,
+} from 'ts-morph'
 
 /**
  * Traces component references.
@@ -6,7 +11,9 @@ import { Identifier, Node } from 'ts-morph'
  * This is similar to `findReferencesAsNodes` but returns JsxSelfClosingElement and JsxElement nodes.
  * Note, this currently does not account for cases where the component is used as a prop or is renamed.
  */
-export function findReferencesAsJsxElements(identifer: Identifier): Node[] {
+export function findReferencesAsJsxElements(
+  identifer: Identifier
+): (JsxOpeningElement | JsxSelfClosingElement)[] {
   const jsxElements: Node[] = []
 
   for (const reference of identifer.findReferencesAsNodes()) {
@@ -17,9 +24,9 @@ export function findReferencesAsJsxElements(identifer: Identifier): Node[] {
     })
 
     if (node) {
-      jsxElements.push(Node.isJsxOpeningElement(node) ? node.getParent() : node)
+      jsxElements.push(node)
     }
   }
 
-  return jsxElements
+  return jsxElements as (JsxOpeningElement | JsxSelfClosingElement)[]
 }
