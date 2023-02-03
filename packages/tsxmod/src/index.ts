@@ -15,6 +15,7 @@ console.log(
 )
 
 const project = new Project({ tsConfigFilePath })
+const isSaving = { current: false }
 
 async function run() {
   console.clear()
@@ -43,13 +44,17 @@ async function run() {
     console.error(error)
   }
 
+  isSaving.current = true
+
   project.save()
+
+  isSaving.current = false
 }
 
 run()
 
 if (watchFlag) {
-  createWatcher(project, [transformFilePath], run)
+  createWatcher(project, [transformFilePath], isSaving, run)
 }
 
 export { project }

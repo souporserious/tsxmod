@@ -4,16 +4,19 @@ import { watch } from 'chokidar'
 export function createWatcher(
   project: Project,
   loaderPaths: string[],
+  isSaving: { current: boolean },
   onUpdate: (path: string) => Promise<any>
 ) {
-  const watcher = watch(
-    loaderPaths.concat(
-      project.getSourceFiles().map((sourceFile) => sourceFile.getFilePath())
-    ),
-    { ignoreInitial: true }
-  )
+  const projectFiles = project
+    .getSourceFiles()
+    .map((sourceFile) => sourceFile.getFilePath())
+  const watcher = watch(loaderPaths.concat(projectFiles), {
+    ignoreInitial: true,
+  })
 
   watcher.on('add', function (addedPath) {
+    if (isSaving.current) return
+
     if (!loaderPaths.includes(addedPath)) {
       project.addSourceFileAtPath(addedPath)
     }
@@ -22,6 +25,8 @@ export function createWatcher(
   })
 
   watcher.on('unlink', function (removedPath) {
+    if (isSaving.current) return
+
     if (!loaderPaths.includes(removedPath)) {
       const removedSourceFile = project.getSourceFile(removedPath)
 
@@ -34,7 +39,8 @@ export function createWatcher(
   })
 
   watcher.on('change', async function (changedPath) {
-    console.log(changedPath)
+    if (isSaving.current) return
+
     if (!loaderPaths.includes(changedPath)) {
       const changedSourceFile = project.getSourceFile(changedPath)
 
