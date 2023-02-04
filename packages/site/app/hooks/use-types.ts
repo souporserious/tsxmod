@@ -8,13 +8,14 @@ import { create } from 'mutative'
 /** Type definitions for the current project. */
 export const types = signal<{ code: string; path: string }[]>([])
 
+const loadedPaths = new Set<string>()
 const ata = setupTypeAcquisition({
   projectName: 'tsxmod',
   typescript: ts,
   delegate: {
     receivedFile: (code: string, path: string) => {
       types.value = create(types.value, (draft) => {
-        draft.push({ code, path: `file:///${path}` })
+        draft.push({ code, path: `file://${path}` })
       })
     },
   },
@@ -55,10 +56,14 @@ export function useTypes(monaco: Monaco | null, code: string) {
     /** Load types into the editor as they are downloaded. */
     return effect(() => {
       types.value.forEach((type) => {
+        if (loadedPaths.has(type.path)) return
+
         monaco.languages.typescript.typescriptDefaults.addExtraLib(
           type.code,
           type.path
         )
+
+        loadedPaths.add(type.path)
       })
     })
   }, [monaco])
