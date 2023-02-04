@@ -4,7 +4,7 @@ import type { editor, IDisposable } from 'monaco-editor'
 import type { Monaco } from '@monaco-editor/react'
 import MonacoEditor from '@monaco-editor/react'
 
-import { fetchTypes } from '../utils/fetch-types'
+import { useTypes } from '../hooks/use-types'
 import { initializeMonaco } from '../utils/initialize-monaco'
 
 type PositionAndOffset = { column: number; lineNumber: number; offset: number }
@@ -41,16 +41,17 @@ export function Editor({
     end: PositionAndOffset
   }) => any
 } & ComponentProps<typeof MonacoEditor>) {
-  const monacoRef = React.useRef<Monaco | null>(null)
-  const editorRef = React.useRef<editor.IStandaloneCodeEditor | null>(null)
   const eventDisposables = React.useRef<IDisposable[]>([])
   const decorationsRef = React.useRef([])
   const [isMounting, setIsMounting] = React.useState(true)
+  const [monaco, setMonaco] = React.useState<Monaco | null>(null)
+  const [editor, setEditor] =
+    React.useState<editor.IStandaloneCodeEditor | null>(null)
   const handleMount = React.useCallback<
     ComponentProps<typeof MonacoEditor>['onMount']
   >((editor, monaco) => {
-    editorRef.current = editor
-    monacoRef.current = monaco
+    setMonaco(monaco)
+    setEditor(editor)
 
     /** Cursor Selection */
     eventDisposables.current.push(
@@ -80,6 +81,9 @@ export function Editor({
     setIsMounting(false)
   }, [])
 
+  /** Load types into the editor based on the value */
+  useTypes(monaco, props.value)
+
   /** Dispose events on unmount */
   React.useEffect(() => {
     return () => {
@@ -87,38 +91,13 @@ export function Editor({
     }
   }, [])
 
-  /**
-   * Fetch types based on editor value.
-   * TODO: optimize to only use one ata instance
-   */
-  React.useEffect(() => {
-    fetchTypes(props.value).then((types) => {
-      types.forEach((type) => {
-        monacoRef.current?.languages.typescript.typescriptDefaults.addExtraLib(
-          type.code,
-          type.path
-        )
-      })
-
-      /** Add TSXMOD utility types manually. */
-      fetch('tsxmod-utils.d.ts')
-        .then((respsone) => respsone.text())
-        .then((text) => {
-          monacoRef.current?.languages.typescript.typescriptDefaults.addExtraLib(
-            text,
-            'file:///node_modules/tsxmod/utils/index.d.ts'
-          )
-        })
-    })
-  }, [props.value])
-
   React.useEffect(() => {
     if (isMounting || !decorations) return
 
-    decorationsRef.current = editorRef.current.deltaDecorations(
+    decorationsRef.current = editor.deltaDecorations(
       decorationsRef.current,
       decorations.map((decoration) => ({
-        range: new monacoRef.current.Range(
+        range: new monaco.Range(
           decoration.startLineNumber,
           decoration.startColumn,
           decoration.endLineNumber,

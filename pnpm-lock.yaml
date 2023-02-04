@@ -36,6 +36,7 @@ importers:
       monaco-editor: ^0.34.1
       monaco-editor-textmate: ^4.0.0
       monaco-textmate: ^3.0.1
+      mutative: ^0.4.1
       next: ^13.1.6
       onigasm: ^2.2.5
       react: ^18.2.0
@@ -51,6 +52,7 @@ importers:
       monaco-editor: 0.34.1
       monaco-editor-textmate: 4.0.0_gty3z2xs6yh3j7xkzsbir7qbpe
       monaco-textmate: 3.0.1_onigasm@2.2.5
+      mutative: 0.4.1
       next: 13.1.6_biqbaboplfbrettd7655fr4n2y
       onigasm: 2.2.5
       react: 18.2.0
@@ -2659,6 +2661,11 @@ packages:
   /ms/2.1.2:
     resolution: {integrity: sha512-sGkPx+VjMtmA6MX27oA4FBFELFCZZ4S4XqeGOXCv68tT+jb3vk/RyaKWP0PTKyWtmLSM0b+adUTEvbs1PEaH2w==}
     dev: true
+
+  /mutative/0.4.1:
+    resolution: {integrity: sha512-V3z99IFyMfmGoEFoYWXgyEzPis3nsqu8SceQFgR2dKm+Rzn8lQBle/VjPF9sEh1xABxgJvCicQ82q0iwdj4E+A==}
+    engines: {node: '>=12.2.0'}
+    dev: false
 
   /mz/2.7.0:
     resolution: {integrity: sha512-z81GNO7nnYMEhrGh9LeymoE4+Yr0Wn5McHIZMK5cfQCl+NDX08sCZgUc9/6MHni9IWuFLm1Z3HTCXu2z9fN62Q==}
