@@ -52,6 +52,8 @@ TODO
 
 [ts-morph-utils](https://github.com/TisnKu/ts-morph-utils)
 
+[tydoc](https://github.com/tydoc/tydoc/tree/main/packages/extractor)
+
 [morpher](https://github.com/LinbuduLab/morpher)
 
 [cancerberosgx ts-morph-playground](https://cancerberosgx.github.io/ts-morph-playground)
