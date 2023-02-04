@@ -1,13 +1,20 @@
 'use client'
 import type { Monaco } from '@monaco-editor/react'
 import type { editor } from 'monaco-editor'
-import type { Node, SourceFile } from 'tsxmod/ts-morph'
+import {
+  InMemoryFileSystemHost,
+  Node,
+  SourceFile,
+  TypeFormatFlags,
+  ts,
+} from 'tsxmod/ts-morph'
 import * as tsMorph from 'tsxmod/ts-morph'
 import * as utils from 'tsxmod/utils'
 import { Project } from 'tsxmod/ts-morph'
 import { getDescendantAtRange } from 'tsxmod/utils'
 import { useEffect, useRef, useState } from 'react'
 import { ASTExplorer, Editor, GitHubLink, Logo } from './components'
+import { types } from './hooks/use-types'
 import { executeCode } from './utils/execute-code'
 
 import './styles.css'
@@ -77,13 +84,16 @@ export function Dialog(props: {
 
 const initialTransformSource = `
 import { Project } from 'ts-morph';
-import { getPropTypes } from 'tsxmod/utils';
+import { getJsxElement, getPropTypes } from 'tsxmod/utils';
 
 export default function (project: Project) {
   const appSourceFile = project.getSourceFileOrThrow('App.tsx');
   const buttonSourceFile = project.getSourceFileOrThrow('Button.tsx');
   const dialogSourceFile = project.getSourceFileOrThrow('Dialog.tsx');
-
+  
+  const appElement = getJsxElement(appSourceFile, 'App')
+  const buttonPropTypes = getPropTypes(buttonSourceFile.getVariableDeclaration('Button'))
+  
   // Write codemod here
 }
 `.trim()
@@ -158,6 +168,41 @@ export default function Page() {
             path="transform.ts"
             value={transformSource}
             onChange={setTransformSource}
+            // onCursorChange={(selection) => {
+            //   const fileSystem = new InMemoryFileSystemHost()
+
+            //   types.value.forEach((type) => {
+            //     fileSystem.writeFileSync(
+            //       type.path.replace('file:///', ''),
+            //       type.code
+            //     )
+            //   })
+
+            //   const project = new Project({
+            //     fileSystem,
+            //     compilerOptions: {
+            //       target: ts.ScriptTarget.ESNext,
+            //       moduleResolution: ts.ModuleResolutionKind.NodeJs,
+            //     },
+            //   })
+            //   const sourceFile = project.createSourceFile(
+            //     'transform.ts',
+            //     transformSource
+            //   )
+            //   const node = getDescendantAtRange(sourceFile, [
+            //     selection.start.offset,
+            //     selection.end.offset,
+            //   ])
+
+            //   console.log(
+            //     node
+            //       .getType()
+            //       .getText(
+            //         node,
+            //         TypeFormatFlags.UseAliasDefinedOutsideCurrentScope
+            //       )
+            //   )
+            // }}
           />
         </Section>
 
