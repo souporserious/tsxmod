@@ -1,3 +1,4 @@
+import * as ts_morph from 'ts-morph';
 import { SourceFile, FunctionDeclaration, Identifier, Node, Project, ts, ImportClause, ImportDeclaration, ImportSpecifier, JsxOpeningElement, JsxSelfClosingElement, JsxElement, PropertyAssignment, BindingElement } from 'ts-morph';
 
 /** Extract a single export and its local dependencies from a source file. */
@@ -22,7 +23,7 @@ declare function findReferencesInSourceFile(identifier: Identifier, sourceFile?:
  * @example
  * const references = findNamedImportReferences(project, 'package', 'Stack')
  */
-declare function findNamedImportReferences(project: Project, moduleSpecifierValue: string, namedImportName: string): Node<ts.Node>[];
+declare function findNamedImportReferences(project: Project, moduleSpecifierValue: string, namedImportName: string): ts_morph.Node<ts.Node>[];
 
 /**
  * Gets an import clause by its module and default import name.
