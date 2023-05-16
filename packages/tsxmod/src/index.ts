@@ -26,6 +26,7 @@ async function run() {
   )
 
   try {
+    delete require.cache[require.resolve(transformFilePath)]
     const transformFn = require(transformFilePath).default
     transformFn(project)
   } catch (error) {
