@@ -35,6 +35,6 @@
     "ts-morph": ">=17.0.0"
   },
   "devDependencies": {
-    "ts-morph": "^17.0.1"
+    "ts-morph": "^18.0.0"
   }
 }

@@ -67,7 +67,7 @@ declare function getFunctionComponentDeclaration(declaration: Node): Node | null
 
 /** Get the first descendant JsxElement based on the identifier. */
 declare function getJsxElement(node: Node, name: string): JsxOpeningElement | JsxSelfClosingElement | undefined;
-/** Get all descendant JsxElement nodes. */
+/** Get all descendant JsxOpeningElement and JsxSelfClosingElement nodes. */
 declare function getJsxElements(node: Node): (JsxOpeningElement | JsxSelfClosingElement)[];
 
 /** Gets the prop types for a component declaration. */
