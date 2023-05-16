@@ -66,9 +66,9 @@ declare function findRootComponentReferences(node: Node): Node[];
 declare function getFunctionComponentDeclaration(declaration: Node): Node | null;
 
 /** Get the first descendant JsxElement based on the identifier. */
-declare function getJsxElement(node: Node, name: string): JsxOpeningElement | JsxSelfClosingElement | undefined;
-/** Get all descendant JsxOpeningElement and JsxSelfClosingElement nodes. */
-declare function getJsxElements(node: Node): (JsxOpeningElement | JsxSelfClosingElement)[];
+declare function getJsxElement(node: Node, name: string): JsxElement | undefined;
+/** Get all descendant JsxElement nodes. */
+declare function getJsxElements(node: Node): JsxElement[];
 
 /** Gets the prop types for a component declaration. */
 declare function getPropTypes(declaration: Node): ({
