@@ -5,7 +5,7 @@ import { getJsxElement, getJsxElements } from './getJsxElements'
 const dialogSource = readFileSync('fixtures/app/Dialog.tsx', 'utf8')
 const appSource = readFileSync('fixtures/app/App.tsx', 'utf8')
 
-test('traces component references to the root element', () => {
+test('finds immediate JSX descendant elements for a node', () => {
   const project = new Project({ useInMemoryFileSystem: true })
   const dialogSourceFile = project.createSourceFile('Dialog.tsx', dialogSource)
   const appSourceFile = project.createSourceFile('App.tsx', appSource)
