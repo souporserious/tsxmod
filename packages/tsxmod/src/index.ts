@@ -1,9 +1,11 @@
 #!/usr/bin/env node
 import { Project } from 'ts-morph'
 import { resolve } from 'node:path'
-import { readFile } from 'node:fs/promises'
+import { register } from 'esbuild-register/dist/node'
 import { createWatcher } from './create-watcher'
-import { transformCode } from './transform-code'
+
+// Transpile imported files with esbuild
+register({ sourcemap: 'inline', target: 'es2022' })
 
 const sourceFilePath = resolve(process.cwd(), process.argv[2] || '.')
 const transformFilePath = resolve(sourceFilePath, '.tsxmod/mod.ts')
@@ -23,14 +25,9 @@ async function run() {
     `Running transform at: ${transformFilePath.replace(process.cwd(), '')}`
   )
 
-  const transform = await readFile(transformFilePath, 'utf8')
+  const transformFn = require(transformFilePath).default
 
   try {
-    const transformFn = new Function(
-      'exports',
-      'require',
-      await transformCode(transform)
-    )
     const exports = { default: undefined }
 
     transformFn(exports, require)

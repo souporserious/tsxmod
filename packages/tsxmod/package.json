@@ -29,9 +29,10 @@
     "dev": "pnpm build --watch --sourcemap"
   },
   "dependencies": {
-    "@swc/core": "^1.3.58",
     "@tsxmod/utils": "workspace:*",
     "chokidar": "^3.5.3",
+    "esbuild": "^0.17.19",
+    "esbuild-register": "^3.4.2",
     "ts-morph": "^17.0.1"
   }
 }
