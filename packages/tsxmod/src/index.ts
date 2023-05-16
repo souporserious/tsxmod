@@ -25,18 +25,9 @@ async function run() {
     `Running transform at: ${transformFilePath.replace(process.cwd(), '')}`
   )
 
-  const transformFn = require(transformFilePath).default
-
   try {
-    const exports = { default: undefined }
-
-    transformFn(exports, require)
-
-    try {
-      exports.default(project)
-    } catch (error) {
-      console.error(error)
-    }
+    const transformFn = require(transformFilePath).default
+    transformFn(project)
   } catch (error) {
     console.error(error)
   }
