@@ -1,4 +1,4 @@
-import { Project, Node, ts } from 'ts-morph'
+import { Project, ts } from 'ts-morph'
 
 /**
  * Find all references for a named import.
@@ -6,14 +6,11 @@ import { Project, Node, ts } from 'ts-morph'
  * @example
  * const references = findNamedImportReferences(project, 'package', 'Stack')
  */
-
 export function findNamedImportReferences(
   project: Project,
   moduleSpecifierValue: string,
   namedImportName: string
 ) {
-  let references: Node[] = []
-
   for (const sourceFile of project.getSourceFiles()) {
     for (const importDeclaration of sourceFile.getImportDeclarations()) {
       if (
@@ -25,14 +22,12 @@ export function findNamedImportReferences(
               ts.SyntaxKind.Identifier
             )
 
-            references = identifier.findReferencesAsNodes()
-
-            break
+            return identifier.findReferencesAsNodes()
           }
         }
       }
     }
   }
 
-  return references
+  return []
 }
