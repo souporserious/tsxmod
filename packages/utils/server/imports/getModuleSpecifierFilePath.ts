@@ -1,6 +1,7 @@
 import { ImportDeclaration } from 'ts-morph'
 import * as tsconfigPaths from 'tsconfig-paths'
 import * as path from 'node:path'
+import * as fs from 'node:fs'
 
 const defaultExtensions = ['.css', '.svg', '.json', '.md', '.mdx']
 
@@ -16,11 +17,26 @@ export function getModuleSpecifierFilePath(
   }
 
   const moduleSpecifier = importDeclaration.getModuleSpecifierValue()
+
+  if (moduleSpecifier.startsWith('./') || moduleSpecifier.startsWith('../')) {
+    const resolvedPath = path.resolve(
+      importDeclaration.getSourceFile().getDirectoryPath(),
+      moduleSpecifier
+    )
+
+    if (fs.existsSync(resolvedPath)) {
+      return resolvedPath
+    }
+
+    return undefined
+  }
+
   const project = importDeclaration.getProject()
   const compilerOptions = project.compilerOptions.get()
   const baseUrl = compilerOptions.baseUrl || ''
   const basePath = compilerOptions.pathsBasePath || ''
   const paths = compilerOptions.paths || {}
+  const absoluteBaseUrl = path.resolve(basePath as string, baseUrl)
 
   if (typeof baseUrl !== 'string') {
     throw new Error(
@@ -28,7 +44,6 @@ export function getModuleSpecifierFilePath(
     )
   }
 
-  const absoluteBaseUrl = path.resolve(basePath as string, baseUrl)
   const matchPath = tsconfigPaths.createMatchPath(absoluteBaseUrl, paths)
   const resolvedPath = matchPath(
     moduleSpecifier,

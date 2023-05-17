@@ -47,17 +47,19 @@ describe('getModuleSpecifierFilePath', () => {
 
   test('should return resolved path when source file is not a JavaScript file', () => {
     const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ts-morph'))
+    const srcDir = path.join(tmpDir, 'src')
     const libDir = path.join(tmpDir, 'lib')
-    const moduleFilePath = path.join(tmpDir, 'lib', 'test.module.css')
-    const sourceFilePath = path.join(tmpDir, 'test.ts')
+    const srcFilePath = path.join(srcDir, 'test.ts')
+    const cssFilePath = path.join(libDir, 'test.module.css')
     const tsConfigFilePath = path.join(tmpDir, 'tsconfig.json')
 
+    fs.mkdirSync(srcDir)
     fs.mkdirSync(libDir)
-    fs.writeFileSync(moduleFilePath, `.test {}`)
     fs.writeFileSync(
-      sourceFilePath,
-      `import styles from '@/lib/test.module.css'`
+      srcFilePath,
+      `import aliasStyles from '@/lib/test.module.css'\nimport relativeStyles from '../lib/test.module.css'`
     )
+    fs.writeFileSync(cssFilePath, `.test {}`)
     fs.writeFileSync(
       tsConfigFilePath,
       JSON.stringify({
@@ -72,16 +74,20 @@ describe('getModuleSpecifierFilePath', () => {
     )
 
     const project = new Project({ tsConfigFilePath })
-    const sourceFile = project.getSourceFile(sourceFilePath)!
-    const importDeclaration = sourceFile.getImportDeclarations()[0]
-    const result = getModuleSpecifierFilePath(importDeclaration)
+    const [importDeclarationAlias, importDeclarationRelative] = project
+      .getSourceFile(srcFilePath)!
+      .getImportDeclarations()
+    const aliasResult = getModuleSpecifierFilePath(importDeclarationAlias)
+    const relativeResult = getModuleSpecifierFilePath(importDeclarationRelative)
 
-    expect(result).toBe(moduleFilePath)
+    expect(aliasResult).toBe(cssFilePath)
+    expect(relativeResult).toBe(cssFilePath)
 
-    fs.unlinkSync(moduleFilePath)
-    fs.unlinkSync(sourceFilePath)
+    fs.unlinkSync(srcFilePath)
+    fs.unlinkSync(cssFilePath)
     fs.unlinkSync(tsConfigFilePath)
-    fs.rmdirSync(path.join(tmpDir, 'lib'))
+    fs.rmdirSync(srcDir)
+    fs.rmdirSync(libDir)
     fs.rmdirSync(tmpDir)
   })
 })
