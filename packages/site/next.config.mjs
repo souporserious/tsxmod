@@ -5,7 +5,7 @@ export default async function () {
   try {
     writeFile(
       'public/tsxmod-utils.d.ts',
-      await readFile('../utils/dist/src/index.d.ts', 'utf8')
+      await readFile('../utils/dist/client/index.d.ts', 'utf8')
     )
   } catch (error) {
     console.error(error)
