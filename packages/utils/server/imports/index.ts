@@ -1,0 +1,1 @@
+export { getModuleSpecifierFilePath } from './getModuleSpecifierFilePath'
