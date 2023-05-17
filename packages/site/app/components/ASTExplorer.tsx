@@ -1,6 +1,6 @@
 'use client'
-import { Node } from 'tsxmod/ts-morph'
-import { getChildrenFunction, TreeMode } from 'tsxmod/utils'
+import { Node } from 'ts-morph'
+import { getChildrenFunction, TreeMode } from '@tsxmod/utils'
 import { useEffect, useRef } from 'react'
 import { scrollIntoView } from '../utils/scroll'
 

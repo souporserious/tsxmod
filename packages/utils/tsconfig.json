@@ -13,6 +13,6 @@
     "isolatedModules": true,
     "jsx": "preserve"
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "server/**/*"],
   "exclude": ["node_modules", "dist"]
 }

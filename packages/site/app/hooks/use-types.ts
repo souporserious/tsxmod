@@ -1,7 +1,7 @@
 import * as React from 'react'
 import type { Monaco } from '@monaco-editor/react'
 import { setupTypeAcquisition } from '@typescript/ata'
-import { Project, ts } from 'tsxmod/ts-morph'
+import { Project, ts } from 'ts-morph'
 import { effect, signal } from '@preact/signals-core'
 import { create } from 'mutative'
 
@@ -11,7 +11,7 @@ export const types = signal<{ code: string; path: string }[]>([])
 const loadedPaths = new Set<string>()
 const ata = setupTypeAcquisition({
   projectName: 'tsxmod',
-  typescript: ts,
+  typescript: ts as any,
   delegate: {
     receivedFile: (code: string, path: string) => {
       types.value = create(types.value, (draft) => {
@@ -48,7 +48,7 @@ export function useTypes(monaco: Monaco | null, code: string) {
         types.value = create(types.value, (draft) => {
           draft.push({
             code: text,
-            path: 'file:///node_modules/tsxmod/utils/index.d.ts',
+            path: 'file:///node_modules/@tsxmod/utils/index.d.ts',
           })
         })
       })

@@ -8,9 +8,29 @@
     "type": "git",
     "url": "git+https://github.com/souporserious/tsxmod/tree/main/packages/utils"
   },
-  "main": "dist/index.js",
-  "module": "dist/index.mjs",
-  "typings": "dist/index.d.ts",
+  "main": "dist/client/index.js",
+  "module": "dist/client/index.mjs",
+  "typings": "dist/client/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/client/index.mjs",
+      "require": "./dist/client/index.js"
+    },
+    "./server": {
+      "import": "./dist/server/index.mjs",
+      "require": "./dist/server/index.js"
+    }
+  },
+  "typesVersions": {
+    "*": {
+      ".": [
+        "./dist/client/index.d.ts"
+      ],
+      "server": [
+        "./dist/server/index.d.ts"
+      ]
+    }
+  },
   "sideEffects": false,
   "files": [
     "dist"
@@ -27,8 +47,8 @@
     "utilities"
   ],
   "scripts": {
-    "dev": "tsup src/index.ts --dts --sourcemap --format esm,cjs --watch",
-    "build": "tsup src/index.ts --dts --format esm,cjs",
+    "dev": "tsup client/index.ts server/index.ts --dts --sourcemap --format esm,cjs --watch",
+    "build": "tsup client/index.ts server/index.ts --dts --format esm,cjs",
     "test": "jest"
   },
   "peerDependencies": {
@@ -36,5 +56,8 @@
   },
   "devDependencies": {
     "ts-morph": "^17.0.1"
+  },
+  "dependencies": {
+    "tsconfig-paths": "^4.2.0"
   }
 }

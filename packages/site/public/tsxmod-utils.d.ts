@@ -1,8 +1,12 @@
 import * as ts_morph from 'ts-morph';
-import { SourceFile, FunctionDeclaration, Identifier, Node, Project, ts, ImportClause, ImportDeclaration, ImportSpecifier, JsxOpeningElement, JsxSelfClosingElement, JsxElement, PropertyAssignment, BindingElement } from 'ts-morph';
+import { SourceFile, Expression, FunctionDeclaration, Identifier, Node, Project, ts, ImportClause, ImportDeclaration, ImportSpecifier, JsxOpeningElement, JsxSelfClosingElement, JsxElement, ObjectLiteralExpression, PropertyAssignment, BindingElement } from 'ts-morph';
 
 /** Extract a single export and its local dependencies from a source file. */
 declare function extractExportByIdentifier(sourceFile: SourceFile, identifier: string): string;
+
+type ExpressionValue = null | boolean | number | string | Record<string, any> | ExpressionValue[];
+/** Recursively resolves an expression into a literal value. */
+declare function resolveExpression(expression: Expression): ExpressionValue | ExpressionValue[];
 
 /** Get the parameter types for a function declaration. */
 declare function getFunctionParameterTypes(declaration: FunctionDeclaration): {
@@ -109,6 +113,9 @@ declare function getChildrenFunction(mode: keyof typeof TreeMode): (node: Node) 
  */
 declare function getDescendantAtRange(sourceFile: SourceFile, range: [number, number], mode?: keyof typeof TreeMode): Node;
 
+/** Resolves an object literal expression to a plain object. */
+declare function resolveObject(expression: ObjectLiteralExpression): Record<string, any>;
+
 /** Generates type declarations from a project. */
 declare function getTypeDeclarationsFromProject(project: Project): Promise<{
     path: string;
@@ -118,4 +125,4 @@ declare function getTypeDeclarationsFromProject(project: Project): Promise<{
 /** Gets the default values for a set of properties. */
 declare function getDefaultValuesFromProperties(properties: Array<PropertyAssignment | BindingElement>): Record<string, string | number | boolean | null>;
 
-export { TreeMode, extractExportByIdentifier, findClosestComponentDeclaration, findNamedImportReferences, findReferencesAsJsxElements, findReferencesInSourceFile, findRootComponentReferences, getChildrenFunction, getDefaultValuesFromProperties, getDescendantAtRange, getFunctionComponentDeclaration, getFunctionParameterTypes, getImportClause, getImportDeclaration, getImportSpecifier, getJsxElement, getJsxElements, getPropTypes, getTypeDeclarationsFromProject, isComponent, isForwardRefExpression, renameJsxIdentifier };
+export { TreeMode, extractExportByIdentifier, findClosestComponentDeclaration, findNamedImportReferences, findReferencesAsJsxElements, findReferencesInSourceFile, findRootComponentReferences, getChildrenFunction, getDefaultValuesFromProperties, getDescendantAtRange, getFunctionComponentDeclaration, getFunctionParameterTypes, getImportClause, getImportDeclaration, getImportSpecifier, getJsxElement, getJsxElements, getPropTypes, getTypeDeclarationsFromProject, isComponent, isForwardRefExpression, renameJsxIdentifier, resolveExpression, resolveObject };

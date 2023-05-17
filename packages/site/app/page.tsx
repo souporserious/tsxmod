@@ -7,11 +7,11 @@ import {
   SourceFile,
   TypeFormatFlags,
   ts,
-} from 'tsxmod/ts-morph'
-import * as tsMorph from 'tsxmod/ts-morph'
-import * as utils from 'tsxmod/utils'
-import { Project } from 'tsxmod/ts-morph'
-import { getDescendantAtRange } from 'tsxmod/utils'
+} from 'ts-morph'
+import * as tsMorph from 'ts-morph'
+import * as utils from '@tsxmod/utils'
+import { Project } from 'ts-morph'
+import { getDescendantAtRange } from '@tsxmod/utils'
 import { useEffect, useRef, useState } from 'react'
 import { ASTExplorer, Editor, GitHubLink, Logo } from './components'
 import { types } from './hooks/use-types'
@@ -84,7 +84,7 @@ export function Dialog(props: {
 
 const initialTransformSource = `
 import { Project } from 'ts-morph';
-import { getJsxElement, getPropTypes } from 'tsxmod/utils';
+import { getJsxElement, getPropTypes } from '@tsxmod/utils';
 
 export default function (project: Project) {
   const appSourceFile = project.getSourceFileOrThrow('App.tsx');
@@ -128,7 +128,7 @@ export default function Page() {
   useEffect(() => {
     executeCode(transformSource, {
       'ts-morph': tsMorph,
-      'tsxmod/utils': utils,
+      '@tsxmod/utils': utils,
     }).then((transform) => {
       const transformedProject = new Project({ useInMemoryFileSystem: true })
 
