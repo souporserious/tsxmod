@@ -12,13 +12,13 @@ describe('getClassNamesForJsxElement', () => {
     const [containerJsxElement] = getJsxElements(appSourceFile)
     const classNames = getClassNamesForJsxElement(containerJsxElement)
 
-    expect(classNames).toEqual([['container', 'padded']])
+    expect(classNames).toEqual(['container', 'padded'])
   })
 
   it('should handle when className is a variable', () => {
     const project = new Project({ useInMemoryFileSystem: true })
     const sourceFile = project.createSourceFile(
-      'test.tsx',
+      'Container.tsx',
       `const stackClassName = clsx(styles.stack, {
           [styles.debug]: process.env.NODE_ENV === 'development',
        })
@@ -27,13 +27,13 @@ describe('getClassNamesForJsxElement', () => {
     const [stackJsxElement] = getJsxElements(sourceFile)
     const classNames = getClassNamesForJsxElement(stackJsxElement)
 
-    expect(classNames).toEqual([['stack', 'debug']])
+    expect(classNames).toEqual(['stack', 'debug'])
   })
 
   it('should handle when className is a simple expression', () => {
     const project = new Project({ useInMemoryFileSystem: true })
     const sourceFile = project.createSourceFile(
-      'test.tsx',
+      'Container.tsx',
       `export const Container = <Stack
         direction="row"
         align="center"
@@ -43,6 +43,29 @@ describe('getClassNamesForJsxElement', () => {
     const [stackJsxElement] = getJsxElements(sourceFile)
     const classNames = getClassNamesForJsxElement(stackJsxElement)
 
-    expect(classNames).toEqual([['active']])
+    expect(classNames).toEqual(['active'])
+  })
+
+  it('should handle when className is an array or conditional', () => {
+    const project = new Project()
+    const sourceFile = project.createSourceFile(
+      'Card.tsx',
+      `
+  import styles from  './card.module.css';
+  import clsx from 'clsx';
+
+  export function Card({ active, size, align }) {
+    return <div className={clsx([
+      active && styles.active,
+      size === 'large' ? styles.large : styles.small,
+      align === 'left' ? styles.left : styles.right,
+    ])} />
+  }
+`
+    )
+    const [cardJsxElement] = getJsxElements(sourceFile)
+    const classNames = getClassNamesForJsxElement(cardJsxElement)
+
+    expect(classNames).toEqual(['active', 'large', 'small', 'left', 'right'])
   })
 })

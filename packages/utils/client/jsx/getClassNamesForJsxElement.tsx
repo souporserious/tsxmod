@@ -5,12 +5,13 @@ import {
   JsxOpeningElement,
   JsxSelfClosingElement,
   Node,
+  SyntaxKind,
 } from 'ts-morph'
 
 /** Get all possible class names for a JSX element. */
 export function getClassNamesForJsxElement(
   jsxElement: JsxElement | JsxOpeningElement | JsxSelfClosingElement
-): string[][] {
+): string[] {
   const allClassNames: string[][] = []
   const element = Node.isJsxElement(jsxElement)
     ? jsxElement.getOpeningElement()
@@ -32,7 +33,7 @@ export function getClassNamesForJsxElement(
     allClassNames.push(classNames)
   }
 
-  return allClassNames
+  return allClassNames.flat()
 }
 
 function processExpressionOrLiteral(
@@ -48,6 +49,24 @@ function processExpressionOrLiteral(
     Node.isNoSubstitutionTemplateLiteral(expression)
   ) {
     classNames.push(expression.getLiteralText())
+  } else if (Node.isArrayLiteralExpression(expression)) {
+    expression.getElements().forEach((element) => {
+      processExpressionOrLiteral(element, classNames)
+    })
+  } else if (Node.isConditionalExpression(expression)) {
+    processExpressionOrLiteral(expression.getWhenTrue(), classNames)
+    processExpressionOrLiteral(expression.getWhenFalse(), classNames)
+  } else if (Node.isBinaryExpression(expression)) {
+    const operatorToken = expression.getOperatorToken()
+    const rightExpression = expression.getRight()
+
+    // Handle logical AND operator: condition && className
+    if (operatorToken.getKind() === SyntaxKind.AmpersandAmpersandToken) {
+      // Here we assume that the right side of the expression
+      // is a PropertyAccessExpression or ElementAccessExpression
+      // denoting a className, we ignore the condition on the left side
+      processExpressionOrLiteral(rightExpression, classNames)
+    }
   } else if (Node.isObjectLiteralExpression(expression)) {
     expression.getProperties().forEach((property) => {
       if (Node.isPropertyAssignment(property)) {
@@ -103,13 +122,21 @@ function processExpressionOrLiteral(
         processExpressionOrLiteral(argument, classNames)
       } else {
         console.warn(
-          `Unhandled argument kind in function call: ${argument.getKindName()}`
+          `
+Unhandled argument: ${argument.getKindName()}
+text: ${argument.getText()}
+path: ${argument.getSourceFile().getFilePath()}`.trim()
         )
       }
     })
   } else if (Node.isPropertyAccessExpression(expression)) {
     classNames.push(expression.getName())
   } else {
-    console.warn(`Unhandled expression kind: ${expression.getKindName()}`)
+    console.warn(
+      `
+Unhandled expression: ${expression.getKindName()} 
+text: ${expression.getText()}
+path: ${expression.getSourceFile().getFilePath()}`.trim()
+    )
   }
 }
