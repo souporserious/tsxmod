@@ -2,13 +2,14 @@ import {
   ComputedPropertyName,
   Expression,
   JsxElement,
+  JsxOpeningElement,
   JsxSelfClosingElement,
   Node,
 } from 'ts-morph'
 
 /** Get all possible class names for a JSX element. */
 export function getClassNamesForJsxElement(
-  jsxElement: JsxElement | JsxSelfClosingElement
+  jsxElement: JsxElement | JsxOpeningElement | JsxSelfClosingElement
 ): string[][] {
   const allClassNames: string[][] = []
   const element = Node.isJsxElement(jsxElement)
