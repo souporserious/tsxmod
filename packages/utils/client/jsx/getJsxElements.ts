@@ -1,4 +1,4 @@
-import { JsxElement, Node, SyntaxKind } from 'ts-morph'
+import { JsxElement, JsxSelfClosingElement, Node, SyntaxKind } from 'ts-morph'
 
 /** Get the first descendant JsxElement based on the identifier. */
 export function getJsxElement(node: Node, name: string) {
@@ -15,5 +15,5 @@ export function getJsxElements(node: Node) {
     .getDescendants()
     .filter(
       (node) => Node.isJsxElement(node) || Node.isJsxSelfClosingElement(node)
-    ) as JsxElement[]
+    ) as (JsxElement | JsxSelfClosingElement)[]
 }

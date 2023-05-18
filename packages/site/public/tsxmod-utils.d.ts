@@ -67,13 +67,16 @@ declare function findReferencesAsJsxElements(identifer: Identifier): (JsxOpening
 /** Traces component references to the root component. */
 declare function findRootComponentReferences(node: Node): Node[];
 
+/** Get all possible class names for a JSX element. */
+declare function getClassNamesForJsxElement(jsxElement: JsxElement | JsxSelfClosingElement): string[][];
+
 /** Returns a functional component declaration, unwrapping forwardRef if needed. */
 declare function getFunctionComponentDeclaration(declaration: Node): Node | null;
 
 /** Get the first descendant JsxElement based on the identifier. */
-declare function getJsxElement(node: Node, name: string): JsxElement | undefined;
+declare function getJsxElement(node: Node, name: string): JsxSelfClosingElement | JsxElement | undefined;
 /** Get all descendant JsxElement nodes. */
-declare function getJsxElements(node: Node): JsxElement[];
+declare function getJsxElements(node: Node): (JsxSelfClosingElement | JsxElement)[];
 
 /** Gets the prop types for a component declaration. */
 declare function getPropTypes(declaration: Node): ({
@@ -125,4 +128,4 @@ declare function getTypeDeclarationsFromProject(project: Project): Promise<{
 /** Gets the default values for a set of properties. */
 declare function getDefaultValuesFromProperties(properties: Array<PropertyAssignment | BindingElement>): Record<string, string | number | boolean | null>;
 
-export { TreeMode, extractExportByIdentifier, findClosestComponentDeclaration, findNamedImportReferences, findReferencesAsJsxElements, findReferencesInSourceFile, findRootComponentReferences, getChildrenFunction, getDefaultValuesFromProperties, getDescendantAtRange, getFunctionComponentDeclaration, getFunctionParameterTypes, getImportClause, getImportDeclaration, getImportSpecifier, getJsxElement, getJsxElements, getPropTypes, getTypeDeclarationsFromProject, isComponent, isForwardRefExpression, renameJsxIdentifier, resolveExpression, resolveObject };
+export { TreeMode, extractExportByIdentifier, findClosestComponentDeclaration, findNamedImportReferences, findReferencesAsJsxElements, findReferencesInSourceFile, findRootComponentReferences, getChildrenFunction, getClassNamesForJsxElement, getDefaultValuesFromProperties, getDescendantAtRange, getFunctionComponentDeclaration, getFunctionParameterTypes, getImportClause, getImportDeclaration, getImportSpecifier, getJsxElement, getJsxElements, getPropTypes, getTypeDeclarationsFromProject, isComponent, isForwardRefExpression, renameJsxIdentifier, resolveExpression, resolveObject };
