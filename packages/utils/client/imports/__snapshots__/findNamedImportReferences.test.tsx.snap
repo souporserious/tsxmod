@@ -3,10 +3,10 @@
 exports[`get references for named import 1`] = `
 [
   "Button",
-  "<Button onClick={props.onClose} variant="secondary">",
-  "</Button>",
+  "<Button onClick={() => setOpen(true)} children="Open" />",
   "Button: any",
   "Button",
-  "<Button onClick={() => setOpen(true)} children="Open" />",
+  "<Button onClick={props.onClose} variant="secondary">",
+  "</Button>",
 ]
 `;

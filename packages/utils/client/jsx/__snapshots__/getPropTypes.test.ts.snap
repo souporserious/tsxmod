@@ -3,7 +3,7 @@
 exports[`returns prop types for a React element 1`] = `
 [
   {
-    "defaultValue": null,
+    "defaultValue": undefined,
     "description": null,
     "name": "foo",
     "required": true,
