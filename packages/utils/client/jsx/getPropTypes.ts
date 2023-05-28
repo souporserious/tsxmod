@@ -58,7 +58,7 @@ export function getPropTypes(declaration: Node) {
               .flat()
           )
           .join('\n')
-        const defaultValue = defaultValues[propName] || null
+        const defaultValue = defaultValues[propName]
 
         return {
           name: propName,
