@@ -68,7 +68,7 @@ declare function findReferencesAsJsxElements(identifer: Identifier): (JsxOpening
 declare function findRootComponentReferences(node: Node): Node[];
 
 /** Get all possible class names for a JSX element. */
-declare function getClassNamesForJsxElement(jsxElement: JsxElement | JsxOpeningElement | JsxSelfClosingElement): string[][];
+declare function getClassNamesForJsxElement(jsxElement: JsxElement | JsxOpeningElement | JsxSelfClosingElement): string[];
 
 /** Returns a functional component declaration, unwrapping forwardRef if needed. */
 declare function getFunctionComponentDeclaration(declaration: Node): Node | null;
@@ -84,7 +84,7 @@ declare function getPropTypes(declaration: Node): ({
     required: boolean;
     description: string | null;
     type: string;
-    defaultValue: string | number | true | null;
+    defaultValue: string | number | boolean | null;
 } | null)[] | null;
 
 /** Determines a JSX component by checking if the name is uppercase. */
