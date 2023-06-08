@@ -1,5 +1,5 @@
 import type { Expression } from 'ts-morph'
-import { Node, SyntaxKind } from 'ts-morph'
+import { Node } from 'ts-morph'
 
 type ExpressionValue =
   | null
