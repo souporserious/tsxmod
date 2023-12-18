@@ -168,4 +168,31 @@ describe('getFunctionParameterTypes', () => {
       description: null,
     })
   })
+
+  test('imported function return types should not be parsed', () => {
+    project.createSourceFile(
+      'types.ts',
+      `export function useCounter() { return { initialCount: 0 } }`,
+      { overwrite: true }
+    )
+    const sourceFile = project.createSourceFile(
+      'test.ts',
+      `import { useCounter } from './types' function useCounterOverride({ initialCount = 0 }: ReturnType<typeof useCounter>) {}`,
+      { overwrite: true }
+    )
+    const functionDeclaration = sourceFile.getFirstDescendantByKind(
+      SyntaxKind.FunctionDeclaration
+    )
+    const types = getFunctionParameterTypes(functionDeclaration!)
+    const [type] = types!
+
+    expect(type).toEqual({
+      name: null,
+      type: 'ReturnType<typeof useCounter>',
+      defaultValue: undefined,
+      required: true,
+      properties: null,
+      description: null,
+    })
+  })
 })

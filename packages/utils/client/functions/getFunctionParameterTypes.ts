@@ -42,11 +42,12 @@ function processType(
   typeChecker: TypeChecker
 ) {
   const valueDeclaration = parameter.getValueDeclaration()
+  const isParameterDeclaration = Node.isParameterDeclaration(valueDeclaration)
   let isObjectBindingPattern = false
   let required = false
   let defaultValue
 
-  if (Node.isParameterDeclaration(valueDeclaration)) {
+  if (isParameterDeclaration) {
     isObjectBindingPattern = Node.isObjectBindingPattern(
       valueDeclaration.getNameNode()
     )
@@ -84,7 +85,7 @@ function processType(
   }
 
   const parameterType = typeChecker.getTypeAtLocation(valueDeclaration)
-  const typeDeclaration = parameterType.getSymbol()?.getDeclarations()?.[0]
+  const typeDeclaration = parameterType.getSymbol()?.getDeclarations()?.at(0)
   const isTypeInNodeModules = parameterType
     .getSymbol()
     ?.getValueDeclaration()
@@ -96,6 +97,13 @@ function processType(
     : true
 
   if (isTypeInNodeModules || !isLocalType) {
+    // If the type is imported from a node module or not in the same file, return
+    // the type name and don't process the properties any further.
+    if (isParameterDeclaration) {
+      const parameterTypeNode = valueDeclaration.getTypeNodeOrThrow()
+      metadata.type = parameterTypeNode.getText()
+    }
+
     return metadata
   }
 
