@@ -72,7 +72,7 @@ function processType(
     defaultValue,
     required,
     name: isObjectBindingPattern ? null : parameter.getName(),
-    description: getDescriptionFromJsDocs(parameter),
+    description: getSymbolDescription(parameter),
     type: parameter
       .getTypeAtLocation(declaration)
       .getText(declaration, TypeFormatFlags.UseAliasDefinedOutsideCurrentScope),
@@ -155,7 +155,7 @@ function processProperty(
   const propertyMetadata: PropertyMetadata = {
     defaultValue,
     name: propertyName,
-    description: getDescriptionFromJsDocs(property),
+    description: getSymbolDescription(property),
     required: Node.isPropertySignature(valueDeclaration)
       ? !valueDeclaration?.hasQuestionToken() && !defaultValue
       : !defaultValue,
@@ -181,8 +181,8 @@ function processProperty(
   return propertyMetadata
 }
 
-/** Gets the description from a symbol's jsdocs. */
-function getDescriptionFromJsDocs(symbol: Symbol) {
+/** Gets the description from a symbol's jsdocs or leading comment range. */
+function getSymbolDescription(symbol: Symbol) {
   const description = symbol
     .getDeclarations()
     .filter(Node.isJSDocable)
@@ -194,5 +194,28 @@ function getDescriptionFromJsDocs(symbol: Symbol) {
     )
     .join('\n')
 
-  return description || null
+  if (description) {
+    return description
+  }
+
+  /** Try extracting from leading trivia and parsing */
+  const valueDeclaration = symbol.getValueDeclaration()
+
+  if (!valueDeclaration) {
+    return null
+  }
+
+  const commentRanges = valueDeclaration
+    .getLeadingCommentRanges()
+    .map((commentRange) => {
+      // Remove comment markers and trim whitespace
+      return commentRange
+        .getText()
+        .replace(/\/\*\*|\*\//g, '')
+        .replace(/^\s*\* /gm, '')
+        .trim()
+    })
+    .join('\n')
+
+  return commentRanges || null
 }

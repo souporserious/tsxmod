@@ -5,9 +5,10 @@ describe('getFunctionParameterTypes', () => {
   const project = new Project()
 
   it('should parse a function with parameters', () => {
+    const description = 'Provides the initial count.'
     const sourceFile = project.createSourceFile(
       'test.ts',
-      `function useCounter(initialCount: number = 0) {}`,
+      `function useCounter(\n/** ${description} */ initialCount: number = 0) {}`,
       { overwrite: true }
     )
     const functionDeclaration = sourceFile.getFirstDescendantByKind(
@@ -21,8 +22,8 @@ describe('getFunctionParameterTypes', () => {
       type: 'number',
       defaultValue: '0',
       required: false,
-      description: null,
       properties: [],
+      description,
     })
   })
 
