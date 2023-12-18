@@ -98,4 +98,48 @@ describe('getFunctionParameterTypes', () => {
       ],
     })
   })
+
+  it('should parse arrow function parameters', () => {
+    const sourceFile = project.createSourceFile(
+      'test.ts',
+      `const useCounter = (initialCount: number = 0) => {}`,
+      { overwrite: true }
+    )
+    const functionDeclaration = sourceFile.getFirstDescendantByKind(
+      SyntaxKind.ArrowFunction
+    )
+    const types = getFunctionParameterTypes(functionDeclaration!)
+    const [type] = types!
+
+    expect(type).toEqual({
+      name: 'initialCount',
+      type: 'number',
+      defaultValue: '0',
+      required: false,
+      properties: [],
+      description: null,
+    })
+  })
+
+  it('should parse function expression parameters', () => {
+    const sourceFile = project.createSourceFile(
+      'test.ts',
+      `const useCounter = function (initialCount: number = 0) {}`,
+      { overwrite: true }
+    )
+    const functionDeclaration = sourceFile.getFirstDescendantByKind(
+      SyntaxKind.FunctionExpression
+    )
+    const types = getFunctionParameterTypes(functionDeclaration!)
+    const [type] = types!
+
+    expect(type).toEqual({
+      name: 'initialCount',
+      type: 'number',
+      defaultValue: '0',
+      required: false,
+      properties: [],
+      description: null,
+    })
+  })
 })
