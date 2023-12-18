@@ -1,6 +1,5 @@
 import { CallExpression } from 'ts-morph'
 import { Node } from 'ts-morph'
-import { isComponent } from './isComponent'
 import { isForwardRefExpression } from './isForwardRefExpression'
 
 /** Returns a functional component declaration, unwrapping forwardRef if needed. */
@@ -11,7 +10,7 @@ export function getFunctionComponentDeclaration(
     const name = declaration.getName()
     const initializer = declaration.getInitializer()
 
-    if (isComponent(name)) {
+    if (/[A-Z]/.test(name.charAt(0))) {
       /**
        * If we're dealing with a 'forwardRef' call we take the first argument of
        * the function since that is the component declaration.
@@ -30,7 +29,7 @@ export function getFunctionComponentDeclaration(
   if (Node.isFunctionDeclaration(declaration)) {
     const name = declaration.getName()
 
-    if (name && isComponent(name)) {
+    if (name && /[A-Z]/.test(name.charAt(0))) {
       return declaration
     }
   }
