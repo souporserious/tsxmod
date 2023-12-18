@@ -18,5 +18,9 @@
     "tsup": "^8.0.1",
     "turbo": "latest",
     "typescript": "5.3.3"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=8.0.0"
   }
 }
