@@ -5,16 +5,13 @@ export default async function () {
   try {
     writeFile(
       'public/tsxmod-utils.d.ts',
-      await readFile('../utils/dist/client/index.d.ts', 'utf8')
+      await readFile('../packages/utils/dist/index.d.ts', 'utf8')
     )
   } catch (error) {
     console.error(error)
   }
 
   return {
-    experimental: {
-      appDir: true,
-    },
     webpack: (config, options) => {
       config.plugins.push(
         // TODO: #8 silencing ts-morph critical dependency warnings for now

@@ -55,8 +55,8 @@
     "ts-morph": ">=17.0.0"
   },
   "devDependencies": {
-    "clsx": "1.2.1",
-    "ts-morph": "^17.0.1"
+    "clsx": "2.0.0",
+    "ts-morph": "^21.0.1"
   },
   "dependencies": {
     "tsconfig-paths": "^4.2.0"

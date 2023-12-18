@@ -1,12 +1,7 @@
-import * as ts_morph from 'ts-morph';
-import { SourceFile, Expression, FunctionDeclaration, Identifier, Node, Project, ts, ImportClause, ImportDeclaration, ImportSpecifier, JsxOpeningElement, JsxSelfClosingElement, JsxElement, ObjectLiteralExpression, PropertyAssignment, BindingElement } from 'ts-morph';
+import { SourceFile, FunctionDeclaration, Identifier, Node, Project, ts, ImportClause, ImportDeclaration, ImportSpecifier, JsxOpeningElement, JsxSelfClosingElement, JsxElement, PropertyAssignment, BindingElement } from 'ts-morph';
 
 /** Extract a single export and its local dependencies from a source file. */
 declare function extractExportByIdentifier(sourceFile: SourceFile, identifier: string): string;
-
-type ExpressionValue = null | boolean | number | string | Record<string, any> | ExpressionValue[];
-/** Recursively resolves an expression into a literal value. */
-declare function resolveExpression(expression: Expression): ExpressionValue | ExpressionValue[];
 
 /** Get the parameter types for a function declaration. */
 declare function getFunctionParameterTypes(declaration: FunctionDeclaration): {
@@ -27,7 +22,7 @@ declare function findReferencesInSourceFile(identifier: Identifier, sourceFile?:
  * @example
  * const references = findNamedImportReferences(project, 'package', 'Stack')
  */
-declare function findNamedImportReferences(project: Project, moduleSpecifierValue: string, namedImportName: string): ts_morph.Node<ts.Node>[];
+declare function findNamedImportReferences(project: Project, moduleSpecifierValue: string, namedImportName: string): Node<ts.Node>[];
 
 /**
  * Gets an import clause by its module and default import name.
@@ -67,16 +62,13 @@ declare function findReferencesAsJsxElements(identifer: Identifier): (JsxOpening
 /** Traces component references to the root component. */
 declare function findRootComponentReferences(node: Node): Node[];
 
-/** Get all possible class names for a JSX element. */
-declare function getClassNamesForJsxElement(jsxElement: JsxElement | JsxOpeningElement | JsxSelfClosingElement): string[];
-
 /** Returns a functional component declaration, unwrapping forwardRef if needed. */
 declare function getFunctionComponentDeclaration(declaration: Node): Node | null;
 
 /** Get the first descendant JsxElement based on the identifier. */
-declare function getJsxElement(node: Node, name: string): JsxSelfClosingElement | JsxElement | undefined;
+declare function getJsxElement(node: Node, name: string): JsxElement | undefined;
 /** Get all descendant JsxElement nodes. */
-declare function getJsxElements(node: Node): (JsxSelfClosingElement | JsxElement)[];
+declare function getJsxElements(node: Node): JsxElement[];
 
 /** Gets the prop types for a component declaration. */
 declare function getPropTypes(declaration: Node): ({
@@ -84,7 +76,7 @@ declare function getPropTypes(declaration: Node): ({
     required: boolean;
     description: string | null;
     type: string;
-    defaultValue: string | number | boolean | null;
+    defaultValue: string | number | true | null;
 } | null)[] | null;
 
 /** Determines a JSX component by checking if the name is uppercase. */
@@ -116,9 +108,6 @@ declare function getChildrenFunction(mode: keyof typeof TreeMode): (node: Node) 
  */
 declare function getDescendantAtRange(sourceFile: SourceFile, range: [number, number], mode?: keyof typeof TreeMode): Node;
 
-/** Resolves an object literal expression to a plain object. */
-declare function resolveObject(expression: ObjectLiteralExpression): Record<string, any>;
-
 /** Generates type declarations from a project. */
 declare function getTypeDeclarationsFromProject(project: Project): Promise<{
     path: string;
@@ -128,4 +117,4 @@ declare function getTypeDeclarationsFromProject(project: Project): Promise<{
 /** Gets the default values for a set of properties. */
 declare function getDefaultValuesFromProperties(properties: Array<PropertyAssignment | BindingElement>): Record<string, string | number | boolean | null>;
 
-export { TreeMode, extractExportByIdentifier, findClosestComponentDeclaration, findNamedImportReferences, findReferencesAsJsxElements, findReferencesInSourceFile, findRootComponentReferences, getChildrenFunction, getClassNamesForJsxElement, getDefaultValuesFromProperties, getDescendantAtRange, getFunctionComponentDeclaration, getFunctionParameterTypes, getImportClause, getImportDeclaration, getImportSpecifier, getJsxElement, getJsxElements, getPropTypes, getTypeDeclarationsFromProject, isComponent, isForwardRefExpression, renameJsxIdentifier, resolveExpression, resolveObject };
+export { TreeMode, extractExportByIdentifier, findClosestComponentDeclaration, findNamedImportReferences, findReferencesAsJsxElements, findReferencesInSourceFile, findRootComponentReferences, getChildrenFunction, getDefaultValuesFromProperties, getDescendantAtRange, getFunctionComponentDeclaration, getFunctionParameterTypes, getImportClause, getImportDeclaration, getImportSpecifier, getJsxElement, getJsxElements, getPropTypes, getTypeDeclarationsFromProject, isComponent, isForwardRefExpression, renameJsxIdentifier };
