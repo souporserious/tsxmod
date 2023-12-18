@@ -1,11 +1,15 @@
 import FilterWarningsPlugin from 'webpack-filter-warnings-plugin'
-import { readFile, writeFile } from 'fs/promises'
+import { readFile, writeFile } from 'node:fs/promises'
+import { resolve } from 'node:path'
 
 export default async function () {
   try {
     writeFile(
       'public/tsxmod-utils.d.ts',
-      await readFile('../packages/utils/dist/index.d.ts', 'utf8')
+      await readFile(
+        resolve(process.cwd(), '../packages/utils/dist/index.d.ts'),
+        'utf8'
+      )
     )
   } catch (error) {
     console.error(error)

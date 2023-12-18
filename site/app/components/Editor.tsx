@@ -18,7 +18,7 @@ const defaultMonacoOptions = {
   glyphMargin: false,
   minimap: { enabled: false },
   quickSuggestions: false,
-  occurrencesHighlight: false,
+  occurrencesHighlight: 'off',
   selectionHighlight: false,
   codeLens: false,
 } as editor.IEditorConstructionOptions
