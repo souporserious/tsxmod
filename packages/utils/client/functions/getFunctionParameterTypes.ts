@@ -164,6 +164,23 @@ function processProperty(
   const propertyName = property.getName()
   const propertyType = property.getTypeAtLocation(declaration)
   const defaultValue = defaultValues[propertyName]
+
+  let typeText
+
+  if (
+    Node.isParameterDeclaration(valueDeclaration) ||
+    Node.isVariableDeclaration(valueDeclaration) ||
+    Node.isPropertySignature(valueDeclaration)
+  ) {
+    const typeNode = valueDeclaration.getTypeNodeOrThrow()
+    typeText = typeNode.getText()
+  } else {
+    typeText = propertyType.getText(
+      declaration,
+      TypeFormatFlags.UseAliasDefinedOutsideCurrentScope
+    )
+  }
+
   const propertyMetadata: PropertyMetadata = {
     defaultValue,
     name: propertyName,
@@ -171,23 +188,28 @@ function processProperty(
     required: Node.isPropertySignature(valueDeclaration)
       ? !valueDeclaration?.hasQuestionToken() && !defaultValue
       : !defaultValue,
-    type: propertyType.getText(
-      declaration,
-      TypeFormatFlags.UseAliasDefinedOutsideCurrentScope
-    ),
+    type: typeText,
     properties: null,
   }
 
   if (propertyType.isObject()) {
-    const firstChild = valueDeclaration?.getFirstChild()
-    propertyMetadata.properties = processTypeProperties(
-      propertyType,
-      declaration,
-      typeChecker,
-      Node.isObjectBindingPattern(firstChild)
-        ? getDefaultValuesFromProperties(firstChild.getElements())
-        : {}
-    )
+    const typeDeclaration = propertyType.getSymbol()?.getDeclarations()?.[0]
+    const isLocalType = typeDeclaration
+      ? declaration.getSourceFile().getFilePath() ===
+        typeDeclaration.getSourceFile().getFilePath()
+      : false
+
+    if (isLocalType) {
+      const firstChild = valueDeclaration?.getFirstChild()
+      propertyMetadata.properties = processTypeProperties(
+        propertyType,
+        declaration,
+        typeChecker,
+        Node.isObjectBindingPattern(firstChild)
+          ? getDefaultValuesFromProperties(firstChild.getElements())
+          : {}
+      )
+    }
   }
 
   return propertyMetadata

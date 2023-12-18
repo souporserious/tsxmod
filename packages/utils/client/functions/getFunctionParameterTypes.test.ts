@@ -80,7 +80,7 @@ describe('getFunctionParameterTypes', () => {
       properties: [
         {
           name: 'initial',
-          type: '{ count: number; }',
+          type: '{ count: number }',
           defaultValue: '{ count: 0 }',
           required: false,
           properties: [
@@ -192,6 +192,42 @@ describe('getFunctionParameterTypes', () => {
       defaultValue: undefined,
       required: true,
       properties: null,
+      description: null,
+    })
+  })
+
+  test('imported function object return types should not be parsed', () => {
+    project.createSourceFile(
+      'types.ts',
+      `export function useCounter() { return { initialCount: 0 } }`,
+      { overwrite: true }
+    )
+    const sourceFile = project.createSourceFile(
+      'test.ts',
+      `import { useCounter } from './types' function useCounterOverride({ counterState }: { counterState: ReturnType<typeof useCounter> }) {}`,
+      { overwrite: true }
+    )
+    const functionDeclaration = sourceFile.getFirstDescendantByKind(
+      SyntaxKind.FunctionDeclaration
+    )
+    const types = getFunctionParameterTypes(functionDeclaration!)
+    const [type] = types!
+
+    expect(type).toEqual({
+      name: null,
+      type: '{ counterState: ReturnType<typeof useCounter>; }',
+      defaultValue: undefined,
+      required: true,
+      properties: [
+        {
+          name: 'counterState',
+          type: 'ReturnType<typeof useCounter>',
+          defaultValue: undefined,
+          required: true,
+          properties: null,
+          description: null,
+        },
+      ],
       description: null,
     })
   })
