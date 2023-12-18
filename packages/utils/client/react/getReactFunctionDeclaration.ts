@@ -3,9 +3,7 @@ import { Node } from 'ts-morph'
 import { isForwardRefExpression } from './isForwardRefExpression'
 
 /** Returns a functional component declaration, unwrapping forwardRef if needed. */
-export function getFunctionComponentDeclaration(
-  declaration: Node
-): Node | null {
+export function getReactFunctionDeclaration(declaration: Node): Node | null {
   if (Node.isVariableDeclaration(declaration)) {
     const name = declaration.getName()
     const initializer = declaration.getInitializer()

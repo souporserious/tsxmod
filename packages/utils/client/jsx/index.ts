@@ -2,7 +2,6 @@ export { findClosestComponentDeclaration } from './findClosestComponentDeclarati
 export { findReferencesAsJsxElements } from './findReferencesAsJsxElements'
 export { findRootComponentReferences } from './findRootComponentReferences'
 export { getClassNamesForJsxElement } from './getClassNamesForJsxElement'
-export { getFunctionComponentDeclaration } from './getFunctionComponentDeclaration'
 export { getJsxElements, getJsxElement } from './getJsxElements'
 export { getPropTypes } from './getPropTypes'
 export { isJsxComponent } from './isJsxComponent'
