@@ -1,79 +1,198 @@
-import type { FunctionDeclaration, Symbol, Type } from 'ts-morph'
-import { Node, TypeFormatFlags } from 'ts-morph'
+import type {
+  ArrowFunction,
+  FunctionDeclaration,
+  FunctionExpression,
+  Symbol,
+  Type,
+} from 'ts-morph'
+import { Node, TypeFormatFlags, TypeChecker } from 'ts-morph'
+import { getDefaultValuesFromProperties } from '../index'
 
-/** Get the parameter types for a function declaration. */
-export function getFunctionParameterTypes(declaration: FunctionDeclaration) {
-  const types = declaration.getParameters().map((parameter) => {
-    const parameterName = parameter.getName()
-    const parameterType = parameter.getType()
-    const parameterTypeNode = parameter.getTypeNode()
-    const kindName = parameterTypeNode?.getKindName()
-    const typeText = parameterType.getText(
-      declaration,
-      TypeFormatFlags.UseAliasDefinedOutsideCurrentScope
-    )
-    let name: string | null = typeText
+/** Gets the types for a function declaration. */
+export function getFunctionParameterTypes(
+  declaration: ArrowFunction | FunctionDeclaration | FunctionExpression
+) {
+  const signatures = declaration.getType().getCallSignatures()
 
-    if (kindName === 'TypeReference') {
-      name = typeText
-    } else if (parameterName.startsWith('__')) {
-      name = null
-    }
-
-    return {
-      name,
-      type:
-        kindName === 'TypeLiteral' || kindName === 'TypeReference'
-          ? parseType(declaration, parameterType)
-          : typeText,
-    }
-  })
-
-  return types.filter(Boolean)
-}
-
-function parseType(declaration: Node, type: Type) {
-  const apparentProperties = type.getApparentProperties()
-
-  if (apparentProperties.length > 0) {
-    return apparentProperties
-      .flatMap((property) => getPropertyType(declaration, property))
-      .filter(Boolean)
+  if (signatures.length === 0) {
+    return null
   }
 
-  return type.getApparentType().getText()
+  const parameters = signatures.at(0)!.getParameters()
+
+  if (parameters.length === 0) {
+    return null
+  }
+
+  const typeChecker = declaration.getProject().getTypeChecker()
+  let parameterTypes: ReturnType<typeof processType>[] = []
+
+  for (const parameter of parameters) {
+    const parameterType = processType(parameter, declaration, typeChecker)
+    parameterTypes.push(parameterType)
+  }
+
+  return parameterTypes
 }
 
-function getPropertyType(declaration: Node, property: Symbol) {
-  const propertyDeclarations = property.getDeclarations()
+/** Processes a signature parameter into a metadata object. */
+function processType(
+  parameter: Symbol,
+  declaration: Node,
+  typeChecker: TypeChecker
+) {
+  const valueDeclaration = parameter.getValueDeclaration()
+  let isObjectBindingPattern = false
+  let required = false
+  let defaultValue
 
-  return propertyDeclarations.flatMap((propertyDeclaration) => {
-    if (
-      propertyDeclaration === undefined ||
-      propertyDeclaration.getSourceFile().getFilePath().includes('node_modules')
-    ) {
-      return null
+  if (Node.isParameterDeclaration(valueDeclaration)) {
+    isObjectBindingPattern = Node.isObjectBindingPattern(
+      valueDeclaration.getNameNode()
+    )
+
+    const initializer = valueDeclaration.getInitializer()
+    if (initializer) {
+      defaultValue = initializer.getText()
     }
 
-    if (propertyDeclaration) {
-      const [comment] = property
-        .getDeclarations()
-        .filter(Node.isJSDocable)
-        .map((declaration) =>
-          declaration
-            .getJsDocs()
-            .map((doc) => doc.getComment())
-            .flat()
-            .join('\n')
-        )
+    required = valueDeclaration
+      ? !valueDeclaration?.hasQuestionToken() && !defaultValue
+      : !defaultValue
+  }
 
-      return {
-        name: property.getName(),
-        type: property.getTypeAtLocation(declaration).getText(),
-        comment: comment ?? null,
-      }
-    }
+  const metadata: {
+    name: string | null
+    description: string | null
+    defaultValue: any
+    required: boolean
+    type: string
+    properties?: ReturnType<typeof processTypeProperties> | null
+  } = {
+    defaultValue,
+    required,
+    name: isObjectBindingPattern ? null : parameter.getName(),
+    description: getDescriptionFromJsDocs(parameter),
+    type: parameter
+      .getTypeAtLocation(declaration)
+      .getText(declaration, TypeFormatFlags.UseAliasDefinedOutsideCurrentScope),
+    properties: null,
+  }
 
+  if (!valueDeclaration) {
+    return metadata
+  }
+
+  const parameterType = typeChecker.getTypeAtLocation(valueDeclaration)
+  const typeDeclaration = parameterType.getSymbol()?.getDeclarations()?.[0]
+  const isTypeInNodeModules = parameterType
+    .getSymbol()
+    ?.getValueDeclaration()
+    ?.getSourceFile()
+    .isInNodeModules()
+
+  if (isTypeInNodeModules) {
+    return metadata
+  }
+
+  const firstChild = valueDeclaration.getFirstChild()
+  const defaultValues = Node.isObjectBindingPattern(firstChild)
+    ? getDefaultValuesFromProperties(firstChild.getElements())
+    : {}
+
+  metadata.properties = processTypeProperties(
+    parameterType,
+    declaration,
+    typeChecker,
+    defaultValues
+  )
+
+  return metadata
+}
+
+export interface PropertyMetadata {
+  name: string
+  description: string | null
+  defaultValue: any
+  required: boolean
+  type: string
+  properties: (PropertyMetadata | null)[] | null
+}
+
+/** Processes the properties of a type. */
+function processTypeProperties(
+  type: Type,
+  declaration: Node,
+  typeChecker: TypeChecker,
+  defaultValues: Record<string, any>
+) {
+  return type
+    .getApparentProperties()
+    .map((property) =>
+      processProperty(property, declaration, typeChecker, defaultValues)
+    )
+    .filter((property): property is NonNullable<typeof property> =>
+      Boolean(property)
+    )
+}
+
+/** Processes a property into a metadata object. */
+function processProperty(
+  property: Symbol,
+  declaration: Node,
+  typeChecker: TypeChecker,
+  defaultValues: Record<string, any>
+) {
+  const valueDeclaration = property.getValueDeclaration()
+
+  if (!valueDeclaration || valueDeclaration.getSourceFile().isInNodeModules()) {
     return null
-  })
+  }
+
+  const propertyName = property.getName()
+  const propertyType = property.getTypeAtLocation(declaration)
+  const defaultValue = defaultValues[propertyName]
+  const propertyMetadata: PropertyMetadata = {
+    defaultValue,
+    name: propertyName,
+    description: getDescriptionFromJsDocs(property),
+    required: Node.isPropertySignature(valueDeclaration)
+      ? !valueDeclaration?.hasQuestionToken() && !defaultValue
+      : !defaultValue,
+    type: propertyType.getText(
+      declaration,
+      TypeFormatFlags.UseAliasDefinedOutsideCurrentScope
+    ),
+    properties: null,
+  }
+
+  if (propertyType.isObject()) {
+    const firstChild = valueDeclaration?.getFirstChild()
+    propertyMetadata.properties = processTypeProperties(
+      propertyType,
+      declaration,
+      typeChecker,
+      Node.isObjectBindingPattern(firstChild)
+        ? getDefaultValuesFromProperties(firstChild.getElements())
+        : {}
+    )
+  }
+
+  return propertyMetadata
+}
+
+/** Gets the description from a symbol's jsdocs. */
+function getDescriptionFromJsDocs(symbol: Symbol) {
+  const description = symbol
+    .getDeclarations()
+    .filter(Node.isJSDocable)
+    .map((declaration) =>
+      declaration
+        .getJsDocs()
+        .map((doc) => doc.getComment())
+        .flat()
+    )
+    .join('\n')
+
+  return description || null
 }
