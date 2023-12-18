@@ -6,7 +6,7 @@ import type {
   Type,
 } from 'ts-morph'
 import { Node, TypeFormatFlags, TypeChecker } from 'ts-morph'
-import { getDefaultValuesFromProperties } from '../index'
+import { getDefaultValuesFromProperties, getSymbolDescription } from '../index'
 
 /** Gets the types for a function declaration. */
 export function getFunctionParameterTypes(
@@ -213,43 +213,4 @@ function processProperty(
   }
 
   return propertyMetadata
-}
-
-/** Gets the description from a symbol's jsdocs or leading comment range. */
-function getSymbolDescription(symbol: Symbol) {
-  const description = symbol
-    .getDeclarations()
-    .filter(Node.isJSDocable)
-    .map((declaration) =>
-      declaration
-        .getJsDocs()
-        .map((doc) => doc.getComment())
-        .flat()
-    )
-    .join('\n')
-
-  if (description) {
-    return description
-  }
-
-  /** Try extracting from leading trivia and parsing */
-  const valueDeclaration = symbol.getValueDeclaration()
-
-  if (!valueDeclaration) {
-    return null
-  }
-
-  const commentRanges = valueDeclaration
-    .getLeadingCommentRanges()
-    .map((commentRange) => {
-      // Remove comment markers and trim whitespace
-      return commentRange
-        .getText()
-        .replace(/\/\*\*|\*\//g, '')
-        .replace(/^\s*\* /gm, '')
-        .trim()
-    })
-    .join('\n')
-
-  return commentRanges || null
 }
