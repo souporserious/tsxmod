@@ -6,7 +6,7 @@ import type {
 import { Node, SyntaxKind } from 'ts-morph'
 
 /** Determines if a function node is a JSX component. */
-export function isComponent(
+export function isJsxComponent(
   node: ArrowFunction | FunctionDeclaration | FunctionExpression
 ): boolean {
   // Check if the function name (if present) starts with a capital letter

@@ -1,5 +1,5 @@
 import { Project, SyntaxKind } from 'ts-morph'
-import { isComponent } from './isComponent'
+import { isJsxComponent } from './isJsxComponent'
 
 describe('isJsxFunctionComponent', () => {
   const project = new Project()
@@ -13,7 +13,7 @@ describe('isJsxFunctionComponent', () => {
     const functionDeclaration = sourceFile.getFirstDescendantByKind(
       SyntaxKind.FunctionDeclaration
     )
-    expect(isComponent(functionDeclaration!)).toBe(true)
+    expect(isJsxComponent(functionDeclaration!)).toBe(true)
   })
 
   it('should return true for a function component with return type', () => {
@@ -25,7 +25,7 @@ describe('isJsxFunctionComponent', () => {
     const functionDeclaration = sourceFile.getFirstDescendantByKind(
       SyntaxKind.FunctionDeclaration
     )
-    expect(isComponent(functionDeclaration!)).toBe(true)
+    expect(isJsxComponent(functionDeclaration!)).toBe(true)
   })
 
   it('should return true for an arrow function component', () => {
@@ -37,7 +37,7 @@ describe('isJsxFunctionComponent', () => {
     const arrowFunction = sourceFile.getFirstDescendantByKind(
       SyntaxKind.ArrowFunction
     )
-    expect(isComponent(arrowFunction!)).toBe(true)
+    expect(isJsxComponent(arrowFunction!)).toBe(true)
   })
 
   it('should return false for a function component that returns a function type', () => {
@@ -49,6 +49,6 @@ describe('isJsxFunctionComponent', () => {
     const functionDeclaration = sourceFile.getFirstDescendantByKind(
       SyntaxKind.FunctionDeclaration
     )
-    expect(isComponent(functionDeclaration!)).toBe(false)
+    expect(isJsxComponent(functionDeclaration!)).toBe(false)
   })
 })
