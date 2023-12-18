@@ -142,4 +142,30 @@ describe('getFunctionParameterTypes', () => {
       description: null,
     })
   })
+
+  test('imported type should not be parsed', () => {
+    project.createSourceFile(
+      'types.ts',
+      `export type CounterOptions = { initialCount?: number }`
+    )
+    const sourceFile = project.createSourceFile(
+      'test.ts',
+      `import { CounterOptions } from './types' function useCounter({ initialCount = 0 }: CounterOptions) {}`,
+      { overwrite: true }
+    )
+    const functionDeclaration = sourceFile.getFirstDescendantByKind(
+      SyntaxKind.FunctionDeclaration
+    )
+    const types = getFunctionParameterTypes(functionDeclaration!)
+    const [type] = types!
+
+    expect(type).toEqual({
+      name: null,
+      type: 'CounterOptions',
+      defaultValue: undefined,
+      required: true,
+      properties: null,
+      description: null,
+    })
+  })
 })

@@ -90,8 +90,12 @@ function processType(
     ?.getValueDeclaration()
     ?.getSourceFile()
     .isInNodeModules()
+  const isLocalType = typeDeclaration
+    ? declaration.getSourceFile().getFilePath() ===
+      typeDeclaration.getSourceFile().getFilePath()
+    : true
 
-  if (isTypeInNodeModules) {
+  if (isTypeInNodeModules || !isLocalType) {
     return metadata
   }
 
