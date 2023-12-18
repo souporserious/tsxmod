@@ -1,6 +1,6 @@
 import type { PropertySignature } from 'ts-morph'
 import { Node, TypeFormatFlags } from 'ts-morph'
-import { getDefaultValuesFromProperties } from '../properties'
+import { getDefaultValuesFromProperties } from '../properties/getDefaultValuesFromProperties'
 
 /** Gets the prop types for a component declaration. */
 export function getPropTypes(declaration: Node) {

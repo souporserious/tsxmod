@@ -1,9 +1,13 @@
-import { BindingElement, PropertyAssignment } from 'ts-morph'
+import type {
+  BindingElement,
+  ParameterDeclaration,
+  PropertyAssignment,
+} from 'ts-morph'
 import { Node } from 'ts-morph'
 
 /** Gets the default values for a set of properties. */
 export function getDefaultValuesFromProperties(
-  properties: Array<PropertyAssignment | BindingElement>
+  properties: Array<BindingElement | ParameterDeclaration | PropertyAssignment>
 ) {
   const defaultValues: Record<string, string | boolean | number | null> = {}
 
