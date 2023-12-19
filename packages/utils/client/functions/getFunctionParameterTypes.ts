@@ -4,6 +4,7 @@ import type {
   FunctionExpression,
   Symbol,
   Type,
+  ts,
 } from 'ts-morph'
 import { Node, TypeFormatFlags, TypeChecker } from 'ts-morph'
 import { getDefaultValuesFromProperties, getSymbolDescription } from '../index'
@@ -69,6 +70,7 @@ function processType(
     required: boolean
     type: string
     properties?: ReturnType<typeof processTypeProperties> | null
+    unionProperties?: ReturnType<typeof processUnionType> | null
   } = {
     defaultValue,
     required,
@@ -112,23 +114,59 @@ function processType(
     ? getDefaultValuesFromProperties(firstChild.getElements())
     : {}
 
-  metadata.properties = processTypeProperties(
-    parameterType,
-    declaration,
-    typeChecker,
-    defaultValues
-  )
+  if (!isPrimitiveType(parameterType)) {
+    metadata.properties = processTypeProperties(
+      parameterType,
+      declaration,
+      typeChecker,
+      defaultValues
+    )
+
+    if (parameterType.isUnion()) {
+      metadata.unionProperties = processUnionType(
+        parameterType,
+        declaration,
+        typeChecker,
+        defaultValues
+      )
+    }
+  }
 
   return metadata
 }
 
 export interface PropertyMetadata {
-  name: string
+  name: string | null
   description: string | null
   defaultValue: any
   required: boolean
   type: string
   properties: (PropertyMetadata | null)[] | null
+  unionProperties?: PropertyMetadata[][]
+}
+
+/** Processes union types into an array of property arrays. */
+function processUnionType(
+  unionType: Type<ts.UnionType>,
+  declaration: Node,
+  typeChecker: TypeChecker,
+  defaultValues: Record<string, any>
+): PropertyMetadata[][] {
+  const baseProperties = new Set(
+    unionType.getProperties().map((prop) => prop.getName())
+  )
+  return unionType.getUnionTypes().map((subType) => {
+    const subTypeProperties = processTypeProperties(
+      subType,
+      declaration,
+      typeChecker,
+      defaultValues
+    )
+
+    return subTypeProperties.filter((prop) =>
+      prop.name ? !baseProperties.has(prop.name) : true
+    )
+  })
 }
 
 /** Processes the properties of a type. */
@@ -138,6 +176,19 @@ function processTypeProperties(
   typeChecker: TypeChecker,
   defaultValues: Record<string, any>
 ) {
+  if (!isLocalType(type, declaration)) {
+    return [
+      {
+        name: null,
+        description: null,
+        defaultValue: undefined,
+        required: true,
+        type: type.getText(),
+        properties: null,
+      },
+    ]
+  }
+
   return type
     .getApparentProperties()
     .map((property) =>
@@ -213,4 +264,59 @@ function processProperty(
   }
 
   return propertyMetadata
+}
+
+/** Attempts to get the implementation of a symbol. */
+function getSymbolImplementation(symbol: Symbol | undefined): Node | undefined {
+  if (!symbol) {
+    return undefined
+  }
+
+  const declarations = symbol.getDeclarations()
+
+  for (const declaration of declarations) {
+    if (
+      Node.isFunctionDeclaration(declaration) ||
+      Node.isMethodDeclaration(declaration)
+    ) {
+      if (declaration.isImplementation()) {
+        return declaration
+      }
+    }
+  }
+
+  return declarations.at(0)
+}
+
+/** Checks if a type is local to the source file. */
+function isLocalType(type: Type<ts.Type>, declaration: Node) {
+  const implementation = getSymbolImplementation(type.getSymbol())
+  const implementationSourceFile = implementation?.getSourceFile()
+
+  if (implementationSourceFile?.isInNodeModules() || isPrimitiveType(type)) {
+    return false
+  }
+
+  return implementationSourceFile
+    ? implementationSourceFile.getFilePath() ===
+        declaration.getSourceFile().getFilePath()
+    : true
+}
+
+/** Checks if a type is a primitive type. */
+function isPrimitiveType(type: Type<ts.Type>) {
+  return (
+    type.isBoolean() ||
+    type.isBooleanLiteral() ||
+    type.isNumber() ||
+    type.isNumberLiteral() ||
+    type.isString() ||
+    type.isStringLiteral() ||
+    type.isTemplateLiteral() ||
+    type.isUndefined() ||
+    type.isNull() ||
+    type.isAny() ||
+    type.isUnknown() ||
+    type.isNever()
+  )
 }

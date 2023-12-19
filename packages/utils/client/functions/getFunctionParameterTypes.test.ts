@@ -22,7 +22,7 @@ describe('getFunctionParameterTypes', () => {
       type: 'number',
       defaultValue: '0',
       required: false,
-      properties: [],
+      properties: null,
       description,
     })
   })
@@ -116,7 +116,7 @@ describe('getFunctionParameterTypes', () => {
       type: 'number',
       defaultValue: '0',
       required: false,
-      properties: [],
+      properties: null,
       description: null,
     })
   })
@@ -138,7 +138,7 @@ describe('getFunctionParameterTypes', () => {
       type: 'number',
       defaultValue: '0',
       required: false,
-      properties: [],
+      properties: null,
       description: null,
     })
   })
@@ -227,6 +227,103 @@ describe('getFunctionParameterTypes', () => {
           properties: null,
           description: null,
         },
+      ],
+      description: null,
+    })
+  })
+
+  test('handles union types', () => {
+    const sourceFile = project.createSourceFile(
+      'test.ts',
+      `type BaseProps = { color: string }; type Props = BaseProps & { source: string } | BaseProps & { value: string }; function Component(props: Props) {}`,
+      { overwrite: true }
+    )
+    const functionDeclaration = sourceFile.getFirstDescendantByKind(
+      SyntaxKind.FunctionDeclaration
+    )
+    const types = getFunctionParameterTypes(functionDeclaration!)
+    const [type] = types!
+
+    expect(type).toEqual({
+      name: 'props',
+      type: 'Props',
+      defaultValue: undefined,
+      required: true,
+      properties: [
+        {
+          name: 'color',
+          type: 'string',
+          defaultValue: undefined,
+          properties: null,
+          required: true,
+          description: null,
+        },
+      ],
+      unionProperties: [
+        [
+          {
+            defaultValue: undefined,
+            description: null,
+            name: 'source',
+            properties: null,
+            required: true,
+            type: 'string',
+          },
+        ],
+        [
+          {
+            defaultValue: undefined,
+            description: null,
+            name: 'value',
+            properties: null,
+            required: true,
+            type: 'string',
+          },
+        ],
+      ],
+      description: null,
+    })
+  })
+
+  test('handles union types with external types', () => {
+    const sourceFile = project.createSourceFile(
+      'test.ts',
+      `type Props = { color: string } | string; function Component(props: Props) {}`,
+      { overwrite: true }
+    )
+    const functionDeclaration = sourceFile.getFirstDescendantByKind(
+      SyntaxKind.FunctionDeclaration
+    )
+    const types = getFunctionParameterTypes(functionDeclaration!)
+    const [type] = types!
+
+    expect(type).toEqual({
+      name: 'props',
+      type: 'Props',
+      defaultValue: undefined,
+      required: true,
+      properties: [],
+      unionProperties: [
+        [
+          {
+            defaultValue: undefined,
+            description: null,
+            name: null,
+            properties: null,
+            required: true,
+            type: 'string',
+          },
+        ],
+        [
+          {
+            name: 'color',
+            type: 'string',
+            defaultValue: undefined,
+            properties: null,
+            required: true,
+            description: null,
+          },
+        ],
       ],
       description: null,
     })
