@@ -70,7 +70,9 @@ function processType(
     required: boolean
     type: string
     properties?: ReturnType<typeof processTypeProperties> | null
-    unionProperties?: ReturnType<typeof processUnionType> | null
+    unionProperties?:
+      | ReturnType<typeof processUnionType>['unionProperties']
+      | null
   } = {
     defaultValue,
     required,
@@ -115,15 +117,17 @@ function processType(
     : {}
 
   if (!isPrimitiveType(parameterType)) {
-    metadata.properties = processTypeProperties(
-      parameterType,
-      declaration,
-      typeChecker,
-      defaultValues
-    )
-
     if (parameterType.isUnion()) {
-      metadata.unionProperties = processUnionType(
+      const { properties, unionProperties } = processUnionType(
+        parameterType,
+        declaration,
+        typeChecker,
+        defaultValues
+      )
+      metadata.properties = properties
+      metadata.unionProperties = unionProperties
+    } else {
+      metadata.properties = processTypeProperties(
         parameterType,
         declaration,
         typeChecker,
@@ -142,7 +146,7 @@ export interface PropertyMetadata {
   required: boolean
   type: string
   properties: (PropertyMetadata | null)[] | null
-  unionProperties?: PropertyMetadata[][]
+  unionProperties?: (PropertyMetadata | PropertyMetadata[])[][]
 }
 
 /** Processes union types into an array of property arrays. */
@@ -151,22 +155,21 @@ function processUnionType(
   declaration: Node,
   typeChecker: TypeChecker,
   defaultValues: Record<string, any>
-): PropertyMetadata[][] {
-  const baseProperties = new Set(
-    unionType.getProperties().map((prop) => prop.getName())
+) {
+  const allUnionTypes = unionType
+    .getUnionTypes()
+    .map((subType) =>
+      processTypeProperties(subType, declaration, typeChecker, defaultValues)
+    )
+  const { duplicates, filtered } = parseDuplicates(
+    allUnionTypes,
+    (item) => item.name || item.type
   )
-  return unionType.getUnionTypes().map((subType) => {
-    const subTypeProperties = processTypeProperties(
-      subType,
-      declaration,
-      typeChecker,
-      defaultValues
-    )
 
-    return subTypeProperties.filter((prop) =>
-      prop.name ? !baseProperties.has(prop.name) : true
-    )
-  })
+  return {
+    properties: duplicates,
+    unionProperties: filtered,
+  }
 }
 
 /** Processes the properties of a type. */
@@ -175,7 +178,19 @@ function processTypeProperties(
   declaration: Node,
   typeChecker: TypeChecker,
   defaultValues: Record<string, any>
-) {
+): PropertyMetadata[] {
+  if (type.isIntersection()) {
+    const intersectionTypes = type.getIntersectionTypes()
+    return intersectionTypes.flatMap((intersectType) =>
+      processTypeProperties(
+        intersectType,
+        declaration,
+        typeChecker,
+        defaultValues
+      )
+    )
+  }
+
   if (!isLocalType(type, declaration)) {
     return [
       {
@@ -183,7 +198,10 @@ function processTypeProperties(
         description: null,
         defaultValue: undefined,
         required: true,
-        type: type.getText(),
+        type: type.getText(
+          declaration,
+          TypeFormatFlags.UseAliasDefinedOutsideCurrentScope
+        ),
         properties: null,
       },
     ]
@@ -288,7 +306,10 @@ function getSymbolImplementation(symbol: Symbol | undefined): Node | undefined {
   return declarations.at(0)
 }
 
-/** Checks if a type is local to the source file. */
+/**
+ * Checks if a type is local to the source file.
+ * TODO: "local" needs to account for public/private, is there a private js doc tag, exported from package.json, index.js, etc.
+ */
 function isLocalType(type: Type<ts.Type>, declaration: Node) {
   const implementation = getSymbolImplementation(type.getSymbol())
   const implementationSourceFile = implementation?.getSourceFile()
@@ -319,4 +340,37 @@ function isPrimitiveType(type: Type<ts.Type>) {
     type.isUnknown() ||
     type.isNever()
   )
+}
+
+/** Parses duplicates from an array of arrays. */
+function parseDuplicates<Item>(
+  arrays: Item[][],
+  resolveId: (item: Item) => string
+): { duplicates: Item[]; filtered: Item[][] } {
+  const itemCounts: Record<string, number> = {}
+  const itemReferences: Record<string, Item> = {}
+  const duplicates: Item[] = []
+
+  // Count the occurrences of each item and store a reference to the first occurrence
+  arrays.flat().forEach((item) => {
+    const itemId = resolveId(item)
+    if (!itemCounts[itemId]) {
+      itemReferences[itemId] = item
+    }
+    itemCounts[itemId] = (itemCounts[itemId] || 0) + 1
+  })
+
+  // Identify duplicates using the stored references
+  for (const key in itemCounts) {
+    if (itemCounts[key] > 1) {
+      duplicates.push(itemReferences[key])
+    }
+  }
+
+  // Remove duplicates from original arrays
+  const filtered = arrays.map((subArray) =>
+    subArray.filter((item) => itemCounts[resolveId(item)] === 1)
+  )
+
+  return { duplicates, filtered }
 }

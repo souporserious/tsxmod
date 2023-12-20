@@ -285,7 +285,7 @@ describe('getFunctionParameterTypes', () => {
     })
   })
 
-  test('handles union types with external types', () => {
+  test('handles union types with primitive types', () => {
     const sourceFile = project.createSourceFile(
       'test.ts',
       `type Props = { color: string } | string; function Component(props: Props) {}`,
@@ -322,6 +322,64 @@ describe('getFunctionParameterTypes', () => {
             properties: null,
             required: true,
             description: null,
+          },
+        ],
+      ],
+      description: null,
+    })
+  })
+
+  test('handles union types with external types', () => {
+    project.createSourceFile(
+      'types.ts',
+      `export type BaseProps = { color: string }`,
+      { overwrite: true }
+    )
+    const sourceFile = project.createSourceFile(
+      'test.ts',
+      `import { BaseProps } from './types'; type Props = BaseProps & { source: string } | BaseProps & { value: string }; function Component(props: Props) {}`,
+      { overwrite: true }
+    )
+    const functionDeclaration = sourceFile.getFirstDescendantByKind(
+      SyntaxKind.FunctionDeclaration
+    )
+    const types = getFunctionParameterTypes(functionDeclaration!)
+    const [type] = types!
+
+    expect(type).toEqual({
+      name: 'props',
+      type: 'Props',
+      defaultValue: undefined,
+      required: true,
+      properties: [
+        {
+          name: null,
+          type: 'BaseProps',
+          defaultValue: undefined,
+          required: true,
+          properties: null,
+          description: null,
+        },
+      ],
+      unionProperties: [
+        [
+          {
+            defaultValue: undefined,
+            description: null,
+            name: 'source',
+            properties: null,
+            required: true,
+            type: 'string',
+          },
+        ],
+        [
+          {
+            defaultValue: undefined,
+            description: null,
+            name: 'value',
+            properties: null,
+            required: true,
+            type: 'string',
           },
         ],
       ],
