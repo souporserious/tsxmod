@@ -4,7 +4,7 @@
     "build": "turbo run build",
     "build:packages": "turbo run build --filter=tsxmod --filter=utils",
     "ci:version": "pnpm changeset version && pnpm install --no-frozen-lockfile && git add .",
-    "ci:publish": "pnpm build:packages && pnpm publish -r --access public --publish-branch main"
+    "ci:publish": "pnpm build:packages && pnpm publish -r --access public --publish-branch main && pnpm changeset tag"
   },
   "devDependencies": {
     "@changesets/cli": "^2.27.1",
