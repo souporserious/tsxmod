@@ -28,6 +28,18 @@ describe('isJsxFunctionComponent', () => {
     expect(isJsxComponent(functionDeclaration!)).toBe(true)
   })
 
+  it('should return true for a function expression', () => {
+    const sourceFile = project.createSourceFile(
+      'test.ts',
+      `const Component = function() { return <div /> }`,
+      { overwrite: true }
+    )
+    const functionExpression = sourceFile.getFirstDescendantByKind(
+      SyntaxKind.FunctionExpression
+    )
+    expect(isJsxComponent(functionExpression!)).toBe(true)
+  })
+
   it('should return true for an arrow function component', () => {
     const sourceFile = project.createSourceFile(
       'test.ts',

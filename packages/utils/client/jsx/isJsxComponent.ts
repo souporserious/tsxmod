@@ -12,9 +12,9 @@ export function isJsxComponent(
   // Check if the function name (if present) starts with a capital letter
   let name: string | undefined
 
-  if (Node.isFunctionDeclaration(node) || Node.isFunctionExpression(node)) {
+  if (Node.isFunctionDeclaration(node)) {
     name = node.getName()
-  } else if (Node.isArrowFunction(node)) {
+  } else if (Node.isFunctionExpression(node) || Node.isArrowFunction(node)) {
     // For arrow functions, check the variable name they are assigned to, if any
     const variableDeclaration = node.getFirstAncestorByKind(
       SyntaxKind.VariableDeclaration
