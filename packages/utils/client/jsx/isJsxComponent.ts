@@ -15,14 +15,13 @@ export function isJsxComponent(
   if (Node.isFunctionDeclaration(node)) {
     name = node.getName()
   } else if (Node.isFunctionExpression(node) || Node.isArrowFunction(node)) {
-    // For arrow functions, check the variable name they are assigned to, if any
     const variableDeclaration = node.getFirstAncestorByKind(
       SyntaxKind.VariableDeclaration
     )
     name = variableDeclaration?.getName()
   }
 
-  if (!name || name[0] !== name[0].toUpperCase()) {
+  if (!name || !/[A-Z]/.test(name.charAt(0))) {
     return false
   }
 
