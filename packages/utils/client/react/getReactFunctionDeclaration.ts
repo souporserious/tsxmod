@@ -1,34 +1,42 @@
-import { CallExpression } from 'ts-morph'
-import { Node } from 'ts-morph'
+import {
+  Node,
+  ArrowFunction,
+  FunctionDeclaration,
+  FunctionExpression,
+} from 'ts-morph'
+import { isJsxComponent } from '../jsx/isJsxComponent'
 import { isForwardRefExpression } from './isForwardRefExpression'
 
 /** Returns a functional component declaration, unwrapping forwardRef if needed. */
-export function getReactFunctionDeclaration(declaration: Node): Node | null {
-  if (Node.isVariableDeclaration(declaration)) {
-    const name = declaration.getName()
-    const initializer = declaration.getInitializer()
-
-    if (/[A-Z]/.test(name.charAt(0))) {
-      /**
-       * If we're dealing with a 'forwardRef' call we take the first argument of
-       * the function since that is the component declaration.
-       */
-      if (initializer && isForwardRefExpression(initializer)) {
-        const callExpression = initializer as CallExpression
-        const [declaration] = callExpression.getArguments()
-
-        return declaration
-      }
-
+export function getReactFunctionDeclaration(
+  declaration: Node
+): ArrowFunction | FunctionDeclaration | FunctionExpression | null {
+  if (Node.isFunctionDeclaration(declaration)) {
+    if (isJsxComponent(declaration)) {
       return declaration
     }
   }
 
-  if (Node.isFunctionDeclaration(declaration)) {
-    const name = declaration.getName()
+  if (Node.isVariableDeclaration(declaration)) {
+    const initializer = declaration.getInitializer()
 
-    if (name && /[A-Z]/.test(name.charAt(0))) {
-      return declaration
+    if (isForwardRefExpression(initializer)) {
+      const [declaration] = initializer.getArguments()
+      if (
+        Node.isFunctionDeclaration(declaration) ||
+        Node.isFunctionExpression(declaration) ||
+        Node.isArrowFunction(declaration)
+      ) {
+        return declaration
+      }
+    } else if (
+      Node.isFunctionDeclaration(initializer) ||
+      Node.isFunctionExpression(initializer) ||
+      Node.isArrowFunction(initializer)
+    ) {
+      if (isJsxComponent(initializer)) {
+        return initializer
+      }
     }
   }
 
