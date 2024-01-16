@@ -19,6 +19,7 @@ export function getFunctionParameterTypes(
     return null
   }
 
+  // TODO: Handle multiple signatures (overloads)
   const parameters = signatures.at(0)!.getParameters()
 
   if (parameters.length === 0) {
@@ -68,7 +69,7 @@ function processType(
     description: string | null
     defaultValue: any
     required: boolean
-    type: string
+    text: string
     properties?: ReturnType<typeof processTypeProperties> | null
     unionProperties?:
       | ReturnType<typeof processUnionType>['unionProperties']
@@ -78,7 +79,7 @@ function processType(
     required,
     name: isObjectBindingPattern ? null : parameter.getName(),
     description: getSymbolDescription(parameter),
-    type: parameter
+    text: parameter
       .getTypeAtLocation(declaration)
       .getText(declaration, TypeFormatFlags.UseAliasDefinedOutsideCurrentScope),
     properties: null,
@@ -105,7 +106,7 @@ function processType(
     // the type name and don't process the properties any further.
     if (isParameterDeclaration) {
       const parameterTypeNode = valueDeclaration.getTypeNodeOrThrow()
-      metadata.type = parameterTypeNode.getText()
+      metadata.text = parameterTypeNode.getText()
     }
 
     return metadata
@@ -144,7 +145,7 @@ export interface PropertyMetadata {
   description: string | null
   defaultValue: any
   required: boolean
-  type: string
+  text: string
   properties: (PropertyMetadata | null)[] | null
   unionProperties?: PropertyMetadata[][]
 }
@@ -163,7 +164,7 @@ function processUnionType(
     )
   const { duplicates, filtered } = parseDuplicates(
     allUnionTypes,
-    (item) => item.name || item.type
+    (item) => item.name || item.text
   )
 
   return {
@@ -198,7 +199,7 @@ function processTypeProperties(
         description: null,
         defaultValue: undefined,
         required: true,
-        type: type.getText(
+        text: type.getText(
           declaration,
           TypeFormatFlags.UseAliasDefinedOutsideCurrentScope
         ),
@@ -257,7 +258,7 @@ function processProperty(
     required: Node.isPropertySignature(valueDeclaration)
       ? !valueDeclaration?.hasQuestionToken() && !defaultValue
       : !defaultValue,
-    type: typeText,
+    text: typeText,
     properties: null,
   }
 

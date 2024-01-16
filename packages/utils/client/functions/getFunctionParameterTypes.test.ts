@@ -19,7 +19,7 @@ describe('getFunctionParameterTypes', () => {
 
     expect(type).toEqual({
       name: 'initialCount',
-      type: 'number',
+      text: 'number',
       defaultValue: '0',
       required: false,
       properties: null,
@@ -42,14 +42,14 @@ describe('getFunctionParameterTypes', () => {
 
     expect(type).toEqual({
       name: null,
-      type: '{ initialCount?: number; }',
+      text: '{ initialCount?: number; }',
       defaultValue: undefined,
       required: true,
       description: null,
       properties: [
         {
           name: 'initialCount',
-          type: 'number',
+          text: 'number',
           defaultValue: '0',
           required: false,
           properties: null,
@@ -73,20 +73,20 @@ describe('getFunctionParameterTypes', () => {
 
     expect(type).toEqual({
       name: null,
-      type: '{ initial?: {    count: number;}; }',
+      text: '{ initial?: {    count: number;}; }',
       defaultValue: '{}',
       required: false,
       description: null,
       properties: [
         {
           name: 'initial',
-          type: '{ count: number }',
+          text: '{ count: number }',
           defaultValue: '{ count: 0 }',
           required: false,
           properties: [
             {
               name: 'count',
-              type: 'number',
+              text: 'number',
               defaultValue: undefined,
               required: true,
               properties: null,
@@ -113,7 +113,7 @@ describe('getFunctionParameterTypes', () => {
 
     expect(type).toEqual({
       name: 'initialCount',
-      type: 'number',
+      text: 'number',
       defaultValue: '0',
       required: false,
       properties: null,
@@ -135,7 +135,7 @@ describe('getFunctionParameterTypes', () => {
 
     expect(type).toEqual({
       name: 'initialCount',
-      type: 'number',
+      text: 'number',
       defaultValue: '0',
       required: false,
       properties: null,
@@ -161,7 +161,7 @@ describe('getFunctionParameterTypes', () => {
 
     expect(type).toEqual({
       name: null,
-      type: 'CounterOptions',
+      text: 'CounterOptions',
       defaultValue: undefined,
       required: true,
       properties: null,
@@ -188,7 +188,7 @@ describe('getFunctionParameterTypes', () => {
 
     expect(type).toEqual({
       name: null,
-      type: 'ReturnType<typeof useCounter>',
+      text: 'ReturnType<typeof useCounter>',
       defaultValue: undefined,
       required: true,
       properties: null,
@@ -215,13 +215,13 @@ describe('getFunctionParameterTypes', () => {
 
     expect(type).toEqual({
       name: null,
-      type: '{ counterState: ReturnType<typeof useCounter>; }',
+      text: '{ counterState: ReturnType<typeof useCounter>; }',
       defaultValue: undefined,
       required: true,
       properties: [
         {
           name: 'counterState',
-          type: 'ReturnType<typeof useCounter>',
+          text: 'ReturnType<typeof useCounter>',
           defaultValue: undefined,
           required: true,
           properties: null,
@@ -246,13 +246,13 @@ describe('getFunctionParameterTypes', () => {
 
     expect(type).toEqual({
       name: 'props',
-      type: 'Props',
+      text: 'Props',
       defaultValue: undefined,
       required: true,
       properties: [
         {
           name: 'color',
-          type: 'string',
+          text: 'string',
           defaultValue: undefined,
           properties: null,
           required: true,
@@ -267,7 +267,7 @@ describe('getFunctionParameterTypes', () => {
             name: 'source',
             properties: null,
             required: true,
-            type: 'string',
+            text: 'string',
           },
         ],
         [
@@ -277,7 +277,7 @@ describe('getFunctionParameterTypes', () => {
             name: 'value',
             properties: null,
             required: true,
-            type: 'string',
+            text: 'string',
           },
         ],
       ],
@@ -299,7 +299,7 @@ describe('getFunctionParameterTypes', () => {
 
     expect(type).toEqual({
       name: 'props',
-      type: 'Props',
+      text: 'Props',
       defaultValue: undefined,
       required: true,
       properties: [],
@@ -311,13 +311,13 @@ describe('getFunctionParameterTypes', () => {
             name: null,
             properties: null,
             required: true,
-            type: 'string',
+            text: 'string',
           },
         ],
         [
           {
             name: 'color',
-            type: 'string',
+            text: 'string',
             defaultValue: undefined,
             properties: null,
             required: true,
@@ -348,13 +348,13 @@ describe('getFunctionParameterTypes', () => {
 
     expect(type).toEqual({
       name: 'props',
-      type: 'Props',
+      text: 'Props',
       defaultValue: undefined,
       required: true,
       properties: [
         {
           name: null,
-          type: 'BaseProps',
+          text: 'BaseProps',
           defaultValue: undefined,
           required: true,
           properties: null,
@@ -369,7 +369,7 @@ describe('getFunctionParameterTypes', () => {
             name: 'source',
             properties: null,
             required: true,
-            type: 'string',
+            text: 'string',
           },
         ],
         [
@@ -379,7 +379,7 @@ describe('getFunctionParameterTypes', () => {
             name: 'value',
             properties: null,
             required: true,
-            type: 'string',
+            text: 'string',
           },
         ],
       ],
