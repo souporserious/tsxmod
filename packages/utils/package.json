@@ -56,6 +56,7 @@
   },
   "devDependencies": {
     "clsx": "2.0.0",
+    "dedent": "1.5.1",
     "ts-morph": "^21.0.1"
   },
   "dependencies": {

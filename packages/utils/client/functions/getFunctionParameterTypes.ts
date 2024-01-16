@@ -227,7 +227,7 @@ function processProperty(
 ) {
   const valueDeclaration = property.getValueDeclaration()
 
-  if (!valueDeclaration || valueDeclaration.getSourceFile().isInNodeModules()) {
+  if (valueDeclaration?.getSourceFile().isInNodeModules()) {
     return null
   }
 

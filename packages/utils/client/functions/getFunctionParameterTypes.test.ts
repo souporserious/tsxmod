@@ -1,3 +1,4 @@
+import dedent from 'dedent'
 import { Project, SyntaxKind } from 'ts-morph'
 import { getFunctionParameterTypes } from './getFunctionParameterTypes'
 
@@ -385,5 +386,103 @@ describe('getFunctionParameterTypes', () => {
       ],
       description: null,
     })
+  })
+
+  test('handle mapped types', () => {
+    project.createSourceFile(
+      'theme.ts',
+      `export const textStyles = { heading1: {}, heading2: {}, heading3: {}, body1: {}, }`
+    )
+    const sourceFile = project.createSourceFile(
+      'test.ts',
+      dedent`
+      import { textStyles } from './theme'
+
+      export type DropDollarPrefix<T> = {
+        [K in keyof T as K extends \`$\${infer I}\` ? I : K]: T[K]
+      }
+      
+      export type TextVariants = keyof typeof textStyles
+      
+      type StyledTextProps = {
+        $variant?: TextVariants
+        $alignment?: 'start' | 'center' | 'end'
+        $width?: string | number
+        $lineHeight?: string
+      }
+      
+      export type TextProps = {
+        className?: string
+        children: ReactNode
+      } & DropDollarPrefix<StyledTextProps>
+      
+      export const Text = ({
+        variant = 'body1',
+        alignment,
+        width,
+        lineHeight,
+        children,
+      }: TextProps) => {}`,
+      { overwrite: true }
+    )
+
+    const functionDeclaration = sourceFile.getFirstDescendantByKind(
+      SyntaxKind.ArrowFunction
+    )
+    const types = getFunctionParameterTypes(functionDeclaration!)
+    const [type] = types!
+
+    expect(type.properties).toMatchInlineSnapshot(`
+      [
+        {
+          "defaultValue": undefined,
+          "description": null,
+          "name": "className",
+          "properties": null,
+          "required": false,
+          "text": "string",
+        },
+        {
+          "defaultValue": undefined,
+          "description": null,
+          "name": "children",
+          "properties": null,
+          "required": true,
+          "text": "ReactNode",
+        },
+        {
+          "defaultValue": "'body1'",
+          "description": null,
+          "name": "variant",
+          "properties": null,
+          "required": false,
+          "text": ""heading1" | "heading2" | "heading3" | "body1"",
+        },
+        {
+          "defaultValue": undefined,
+          "description": null,
+          "name": "alignment",
+          "properties": null,
+          "required": true,
+          "text": ""start" | "center" | "end"",
+        },
+        {
+          "defaultValue": undefined,
+          "description": null,
+          "name": "width",
+          "properties": null,
+          "required": true,
+          "text": "string | number",
+        },
+        {
+          "defaultValue": undefined,
+          "description": null,
+          "name": "lineHeight",
+          "properties": null,
+          "required": true,
+          "text": "string",
+        },
+      ]
+    `)
   })
 })
