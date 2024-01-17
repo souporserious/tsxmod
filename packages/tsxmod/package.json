@@ -1,7 +1,7 @@
 {
   "name": "tsxmod",
   "description": "Analyze and run codemods for TypeScript or JavaScript using TS Morph.",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "bin": {
     "tsxmod": "dist/index.js"
   },
