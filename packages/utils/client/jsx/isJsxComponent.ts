@@ -1,7 +1,19 @@
+import type {
+  FunctionDeclaration,
+  FunctionExpression,
+  ArrowFunction,
+  ClassDeclaration,
+} from 'ts-morph'
 import { Node, SyntaxKind } from 'ts-morph'
 
 /** Determines if a node is a JSX component. */
-export function isJsxComponent(node: Node): boolean {
+export function isJsxComponent(
+  node: Node
+): node is
+  | FunctionDeclaration
+  | FunctionExpression
+  | ArrowFunction
+  | ClassDeclaration {
   let name: string | undefined
 
   if (
@@ -18,9 +30,7 @@ export function isJsxComponent(node: Node): boolean {
       )
       name = variableDeclaration?.getName()
     }
-
-    return name ? /[A-Z]/.test(name.charAt(0)) : false
   }
 
-  return false
+  return name ? /[A-Z]/.test(name.charAt(0)) : false
 }
