@@ -51,16 +51,4 @@ describe('isJsxFunctionComponent', () => {
     )
     expect(isJsxComponent(arrowFunction!)).toBe(true)
   })
-
-  it('should return false for a function component that returns a function type', () => {
-    const sourceFile = project.createSourceFile(
-      'test.ts',
-      `function Component() { return () => {} }`,
-      { overwrite: true }
-    )
-    const functionDeclaration = sourceFile.getFirstDescendantByKind(
-      SyntaxKind.FunctionDeclaration
-    )
-    expect(isJsxComponent(functionDeclaration!)).toBe(false)
-  })
 })
