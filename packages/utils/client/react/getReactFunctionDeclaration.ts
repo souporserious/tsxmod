@@ -11,31 +11,31 @@ import { isForwardRefExpression } from './isForwardRefExpression'
 export function getReactFunctionDeclaration(
   declaration: Node
 ): ArrowFunction | FunctionDeclaration | FunctionExpression | null {
-  if (Node.isFunctionDeclaration(declaration)) {
-    if (isJsxComponent(declaration)) {
+  if (isJsxComponent(declaration)) {
+    if (Node.isFunctionDeclaration(declaration)) {
       return declaration
     }
-  }
 
-  if (Node.isVariableDeclaration(declaration)) {
-    const initializer = declaration.getInitializer()
+    if (Node.isVariableDeclaration(declaration)) {
+      const initializer = declaration.getInitializer()
 
-    if (isForwardRefExpression(initializer)) {
-      const [declaration] = initializer.getArguments()
-      if (
-        Node.isFunctionDeclaration(declaration) ||
-        Node.isFunctionExpression(declaration) ||
-        Node.isArrowFunction(declaration)
-      ) {
-        return declaration
-      }
-    } else if (
-      Node.isFunctionDeclaration(initializer) ||
-      Node.isFunctionExpression(initializer) ||
-      Node.isArrowFunction(initializer)
-    ) {
-      if (isJsxComponent(initializer)) {
-        return initializer
+      if (initializer) {
+        if (isForwardRefExpression(initializer)) {
+          const [initializerDeclaration] = initializer.getArguments()
+          if (
+            Node.isFunctionDeclaration(initializerDeclaration) ||
+            Node.isFunctionExpression(initializerDeclaration) ||
+            Node.isArrowFunction(initializerDeclaration)
+          ) {
+            return initializerDeclaration
+          }
+        } else if (
+          Node.isFunctionDeclaration(initializer) ||
+          Node.isFunctionExpression(initializer) ||
+          Node.isArrowFunction(initializer)
+        ) {
+          return initializer
+        }
       }
     }
   }
