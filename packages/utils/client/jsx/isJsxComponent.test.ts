@@ -1,7 +1,7 @@
 import { Project, SyntaxKind } from 'ts-morph'
 import { isJsxComponent } from './isJsxComponent'
 
-describe('isJsxFunctionComponent', () => {
+describe('isJsxComponent', () => {
   const project = new Project()
 
   it('should return true for a function component', () => {

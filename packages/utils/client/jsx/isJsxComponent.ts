@@ -1,19 +1,7 @@
-import type {
-  ArrowFunction,
-  FunctionDeclaration,
-  FunctionExpression,
-  ClassDeclaration,
-} from 'ts-morph'
 import { Node, SyntaxKind } from 'ts-morph'
 
-/** Determines if a function or class node is a JSX component. */
-export function isJsxComponent(
-  node:
-    | ArrowFunction
-    | FunctionDeclaration
-    | FunctionExpression
-    | ClassDeclaration
-): boolean {
+/** Determines if a node is a JSX component. */
+export function isJsxComponent(node: Node): boolean {
   let name: string | undefined
 
   if (
