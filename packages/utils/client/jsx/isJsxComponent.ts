@@ -1,4 +1,5 @@
 import type {
+  VariableDeclaration,
   FunctionDeclaration,
   FunctionExpression,
   ArrowFunction,
@@ -10,6 +11,7 @@ import { Node, SyntaxKind } from 'ts-morph'
 export function isJsxComponent(
   node: Node
 ): node is
+  | VariableDeclaration
   | FunctionDeclaration
   | FunctionExpression
   | ArrowFunction
@@ -17,19 +19,16 @@ export function isJsxComponent(
   let name: string | undefined
 
   if (
+    Node.isVariableDeclaration(node) ||
     Node.isFunctionDeclaration(node) ||
-    Node.isFunctionExpression(node) ||
-    Node.isArrowFunction(node) ||
     Node.isClassDeclaration(node)
   ) {
-    if (Node.isFunctionDeclaration(node) || Node.isClassDeclaration(node)) {
-      name = node.getName()
-    } else if (Node.isFunctionExpression(node) || Node.isArrowFunction(node)) {
-      const variableDeclaration = node.getFirstAncestorByKind(
-        SyntaxKind.VariableDeclaration
-      )
-      name = variableDeclaration?.getName()
-    }
+    name = node.getName()
+  } else if (Node.isFunctionExpression(node) || Node.isArrowFunction(node)) {
+    const variableDeclaration = node.getFirstAncestorByKind(
+      SyntaxKind.VariableDeclaration
+    )
+    name = variableDeclaration?.getName()
   }
 
   return name ? /[A-Z]/.test(name.charAt(0)) : false
