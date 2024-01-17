@@ -1,4 +1,5 @@
 import dedent from 'dedent'
+import type { VariableDeclaration } from 'ts-morph'
 import { Project, SyntaxKind } from 'ts-morph'
 import { getFunctionParameterTypes } from './getFunctionParameterTypes'
 
@@ -481,6 +482,62 @@ describe('getFunctionParameterTypes', () => {
           "properties": null,
           "required": true,
           "text": "string",
+        },
+      ]
+    `)
+  })
+
+  test('handles library generic types', () => {
+    const sourceFile = project.createSourceFile(
+      'test.ts',
+      dedent`
+      import styled from 'styled-components'
+
+      export type GridProps = {
+        gridTemplateColumns: string
+        gridTemplateRows?: string
+      }
+
+      export const Grid = styled.div<GridProps>((props) => ({
+        display: 'grid',
+        gridTemplateColumns: props.gridTemplateColumns,
+        gridTemplateRows: props.gridTemplateRows,
+      }))
+      `,
+      { overwrite: true }
+    )
+    const variableDeclaration = sourceFile
+      .getExportedDeclarations()
+      .get('Grid')!
+      .at(0)! as VariableDeclaration
+    const types = getFunctionParameterTypes(variableDeclaration)
+
+    expect(types).toMatchInlineSnapshot(`
+      [
+        {
+          "defaultValue": undefined,
+          "description": null,
+          "name": "props",
+          "properties": [
+            {
+              "defaultValue": undefined,
+              "description": null,
+              "name": "gridTemplateColumns",
+              "properties": null,
+              "required": true,
+              "text": "string",
+            },
+            {
+              "defaultValue": undefined,
+              "description": null,
+              "name": "gridTemplateRows",
+              "properties": null,
+              "required": false,
+              "text": "string",
+            },
+          ],
+          "required": true,
+          "text": "{ slot?: string; style?: React.CSSProperties; title?: string; ref?: React.Ref<HTMLDivElement>; key?: React.Key; defaultChecked?: boolean; defaultValue?: string | ... 1 more ... | readonly string[]; ... 261 more ...; gridTemplateRows?: string; } & { ...; } & { ...; }",
         },
       ]
     `)

@@ -2,16 +2,21 @@ import type {
   ArrowFunction,
   FunctionDeclaration,
   FunctionExpression,
+  VariableDeclaration,
   Symbol,
   Type,
   ts,
 } from 'ts-morph'
-import { Node, TypeFormatFlags, TypeChecker } from 'ts-morph'
+import { Node, SyntaxKind, TypeFormatFlags, TypeChecker } from 'ts-morph'
 import { getDefaultValuesFromProperties, getSymbolDescription } from '../index'
 
 /** Gets the types for a function declaration. */
 export function getFunctionParameterTypes(
-  declaration: ArrowFunction | FunctionDeclaration | FunctionExpression
+  declaration:
+    | ArrowFunction
+    | FunctionDeclaration
+    | FunctionExpression
+    | VariableDeclaration
 ) {
   const signatures = declaration.getType().getCallSignatures()
 
@@ -89,7 +94,10 @@ function processType(
     return metadata
   }
 
-  const parameterType = typeChecker.getTypeAtLocation(valueDeclaration)
+  const parameterType = typeChecker.getTypeOfSymbolAtLocation(
+    parameter,
+    valueDeclaration!
+  )
   const typeDeclaration = parameterType.getSymbol()?.getDeclarations()?.at(0)
   const isTypeInNodeModules = parameterType
     .getSymbol()
@@ -192,7 +200,20 @@ function processTypeProperties(
     )
   }
 
-  if (!isLocalType(type, declaration)) {
+  /**
+   * Skip primitives, external, and mapped types. Mapped types need to be processed through
+   * apparent properties below to determine which properties are actually external.
+   * TODO: a mapped type could end up using an external type which needs to be handled
+   */
+  if (
+    isPrimitiveType(type) ||
+    (isExternalType(type, declaration) && !isMappedType(type))
+  ) {
+    /** Return an empty array if in node_modules since we only document external types local to the project. */
+    if (isNodeModulesType(type)) {
+      return []
+    }
+
     return [
       {
         name: null,
@@ -225,12 +246,17 @@ function processProperty(
   typeChecker: TypeChecker,
   defaultValues: Record<string, any>
 ) {
-  const valueDeclaration = property.getValueDeclaration()
+  const declarations = property.getDeclarations()
 
-  if (valueDeclaration?.getSourceFile().isInNodeModules()) {
+  if (
+    declarations.some((declaration) =>
+      declaration.getSourceFile().isInNodeModules()
+    )
+  ) {
     return null
   }
 
+  const primaryDeclaration = declarations.at(0)
   const propertyName = property.getName()
   const propertyType = property.getTypeAtLocation(declaration)
   const defaultValue = defaultValues[propertyName]
@@ -238,11 +264,11 @@ function processProperty(
   let typeText
 
   if (
-    Node.isParameterDeclaration(valueDeclaration) ||
-    Node.isVariableDeclaration(valueDeclaration) ||
-    Node.isPropertySignature(valueDeclaration)
+    Node.isParameterDeclaration(primaryDeclaration) ||
+    Node.isVariableDeclaration(primaryDeclaration) ||
+    Node.isPropertySignature(primaryDeclaration)
   ) {
-    const typeNode = valueDeclaration.getTypeNodeOrThrow()
+    const typeNode = primaryDeclaration.getTypeNodeOrThrow()
     typeText = typeNode.getText()
   } else {
     typeText = propertyType.getText(
@@ -255,8 +281,8 @@ function processProperty(
     defaultValue,
     name: propertyName,
     description: getSymbolDescription(property),
-    required: Node.isPropertySignature(valueDeclaration)
-      ? !valueDeclaration?.hasQuestionToken() && !defaultValue
+    required: Node.isPropertySignature(primaryDeclaration)
+      ? !primaryDeclaration.hasQuestionToken() && !defaultValue
       : !defaultValue,
     text: typeText,
     properties: null,
@@ -270,7 +296,7 @@ function processProperty(
       : false
 
     if (isLocalType) {
-      const firstChild = valueDeclaration?.getFirstChild()
+      const firstChild = primaryDeclaration?.getFirstChild()
       propertyMetadata.properties = processTypeProperties(
         propertyType,
         declaration,
@@ -285,44 +311,59 @@ function processProperty(
   return propertyMetadata
 }
 
-/** Attempts to get the implementation of a symbol. */
-function getSymbolImplementation(symbol: Symbol | undefined): Node | undefined {
-  if (!symbol) {
-    return undefined
-  }
-
-  const declarations = symbol.getDeclarations()
-
-  for (const declaration of declarations) {
-    if (
-      Node.isFunctionDeclaration(declaration) ||
-      Node.isMethodDeclaration(declaration)
-    ) {
-      if (declaration.isImplementation()) {
-        return declaration
-      }
-    }
-  }
-
-  return declarations.at(0)
-}
-
 /**
- * Checks if a type is local to the source file.
+ * Checks if a type is external to the current source file.
  * TODO: "local" needs to account for public/private, is there a private js doc tag, exported from package.json, index.js, etc.
  */
-function isLocalType(type: Type<ts.Type>, declaration: Node) {
-  const implementation = getSymbolImplementation(type.getSymbol())
-  const implementationSourceFile = implementation?.getSourceFile()
-
-  if (implementationSourceFile?.isInNodeModules() || isPrimitiveType(type)) {
+function isExternalType(type: Type<ts.Type>, declaration: Node) {
+  const typeSymbol = type.getSymbol()
+  if (!typeSymbol) {
     return false
   }
 
-  return implementationSourceFile
-    ? implementationSourceFile.getFilePath() ===
-        declaration.getSourceFile().getFilePath()
-    : true
+  const declarations = typeSymbol.getDeclarations()
+  if (declarations.length === 0) {
+    return false
+  }
+
+  const sourceFile = declaration.getSourceFile()
+  return declarations.every(
+    (declaration) => declaration.getSourceFile() !== sourceFile
+  )
+}
+
+/** Checks if a type is a mapped type. */
+function isMappedType(type: Type<ts.Type>) {
+  const typeSymbol = type.getSymbol()
+  if (!typeSymbol) {
+    return false
+  }
+
+  const declarations = typeSymbol.getDeclarations()
+  if (declarations.length === 0) {
+    return false
+  }
+
+  return declarations.every(
+    (declaration) => declaration.getKind() === SyntaxKind.MappedType
+  )
+}
+
+/** Checks if a type is located in node_modules. */
+function isNodeModulesType(type: Type<ts.Type>) {
+  const typeSymbol = type.getSymbol()
+  if (!typeSymbol) {
+    return false
+  }
+
+  const declarations = typeSymbol.getDeclarations()
+  if (declarations.length === 0) {
+    return false
+  }
+
+  return declarations.every((declaration) =>
+    declaration.getSourceFile().isInNodeModules()
+  )
 }
 
 /** Checks if a type is a primitive type. */
