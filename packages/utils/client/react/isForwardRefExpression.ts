@@ -2,9 +2,7 @@ import type { CallExpression } from 'ts-morph'
 import { Node } from 'ts-morph'
 
 /** Determines if an expression is using React.forwardRef. */
-export function isForwardRefExpression(
-  node: Node | undefined
-): node is CallExpression {
+export function isForwardRefExpression(node: Node): node is CallExpression {
   if (Node.isCallExpression(node)) {
     const expression = node.getExpression()
 
