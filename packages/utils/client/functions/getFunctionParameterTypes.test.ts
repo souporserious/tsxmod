@@ -13,10 +13,10 @@ describe('getFunctionParameterTypes', () => {
       `function useCounter(\n/** ${description} */ initialCount: number = 0) {}`,
       { overwrite: true }
     )
-    const functionDeclaration = sourceFile.getFirstDescendantByKind(
+    const functionDeclaration = sourceFile.getFirstDescendantByKindOrThrow(
       SyntaxKind.FunctionDeclaration
     )
-    const types = getFunctionParameterTypes(functionDeclaration!)
+    const types = getFunctionParameterTypes(functionDeclaration)
     const [type] = types!
 
     expect(type).toEqual({
@@ -36,10 +36,10 @@ describe('getFunctionParameterTypes', () => {
       `function useCounter({ initialCount = 0 }: {\n/** ${description} */ initialCount?: number }) {}`,
       { overwrite: true }
     )
-    const functionDeclaration = sourceFile.getFirstDescendantByKind(
+    const functionDeclaration = sourceFile.getFirstDescendantByKindOrThrow(
       SyntaxKind.FunctionDeclaration
     )
-    const types = getFunctionParameterTypes(functionDeclaration!)
+    const types = getFunctionParameterTypes(functionDeclaration)
     const [type] = types!
 
     expect(type).toEqual({
@@ -67,10 +67,10 @@ describe('getFunctionParameterTypes', () => {
       `function useCounter({ initial = { count: 0 } }?: { initial?: { count: number } } = {}) {}`,
       { overwrite: true }
     )
-    const functionDeclaration = sourceFile.getFirstDescendantByKind(
+    const functionDeclaration = sourceFile.getFirstDescendantByKindOrThrow(
       SyntaxKind.FunctionDeclaration
     )
-    const types = getFunctionParameterTypes(functionDeclaration!)
+    const types = getFunctionParameterTypes(functionDeclaration)
     const [type] = types!
 
     expect(type).toEqual({
@@ -107,10 +107,10 @@ describe('getFunctionParameterTypes', () => {
       `const useCounter = (initialCount: number = 0) => {}`,
       { overwrite: true }
     )
-    const functionDeclaration = sourceFile.getFirstDescendantByKind(
+    const functionDeclaration = sourceFile.getFirstDescendantByKindOrThrow(
       SyntaxKind.ArrowFunction
     )
-    const types = getFunctionParameterTypes(functionDeclaration!)
+    const types = getFunctionParameterTypes(functionDeclaration)
     const [type] = types!
 
     expect(type).toEqual({
@@ -129,10 +129,10 @@ describe('getFunctionParameterTypes', () => {
       `const useCounter = function (initialCount: number = 0) {}`,
       { overwrite: true }
     )
-    const functionDeclaration = sourceFile.getFirstDescendantByKind(
+    const functionDeclaration = sourceFile.getFirstDescendantByKindOrThrow(
       SyntaxKind.FunctionExpression
     )
-    const types = getFunctionParameterTypes(functionDeclaration!)
+    const types = getFunctionParameterTypes(functionDeclaration)
     const [type] = types!
 
     expect(type).toEqual({
@@ -155,10 +155,10 @@ describe('getFunctionParameterTypes', () => {
       `import { CounterOptions } from './types' function useCounter({ initialCount = 0 }: CounterOptions) {}`,
       { overwrite: true }
     )
-    const functionDeclaration = sourceFile.getFirstDescendantByKind(
+    const functionDeclaration = sourceFile.getFirstDescendantByKindOrThrow(
       SyntaxKind.FunctionDeclaration
     )
-    const types = getFunctionParameterTypes(functionDeclaration!)
+    const types = getFunctionParameterTypes(functionDeclaration)
     const [type] = types!
 
     expect(type).toEqual({
@@ -182,10 +182,10 @@ describe('getFunctionParameterTypes', () => {
       `import { useCounter } from './types' function useCounterOverride({ initialCount = 0 }: ReturnType<typeof useCounter>) {}`,
       { overwrite: true }
     )
-    const functionDeclaration = sourceFile.getFirstDescendantByKind(
+    const functionDeclaration = sourceFile.getFirstDescendantByKindOrThrow(
       SyntaxKind.FunctionDeclaration
     )
-    const types = getFunctionParameterTypes(functionDeclaration!)
+    const types = getFunctionParameterTypes(functionDeclaration)
     const [type] = types!
 
     expect(type).toEqual({
@@ -209,10 +209,10 @@ describe('getFunctionParameterTypes', () => {
       `import { useCounter } from './types' function useCounterOverride({ counterState }: { counterState: ReturnType<typeof useCounter> }) {}`,
       { overwrite: true }
     )
-    const functionDeclaration = sourceFile.getFirstDescendantByKind(
+    const functionDeclaration = sourceFile.getFirstDescendantByKindOrThrow(
       SyntaxKind.FunctionDeclaration
     )
-    const types = getFunctionParameterTypes(functionDeclaration!)
+    const types = getFunctionParameterTypes(functionDeclaration)
     const [type] = types!
 
     expect(type).toEqual({
@@ -240,10 +240,10 @@ describe('getFunctionParameterTypes', () => {
       `type BaseProps = { color: string }; type Props = BaseProps & { source: string } | BaseProps & { value: string }; function Component(props: Props) {}`,
       { overwrite: true }
     )
-    const functionDeclaration = sourceFile.getFirstDescendantByKind(
+    const functionDeclaration = sourceFile.getFirstDescendantByKindOrThrow(
       SyntaxKind.FunctionDeclaration
     )
-    const types = getFunctionParameterTypes(functionDeclaration!)
+    const types = getFunctionParameterTypes(functionDeclaration)
     const [type] = types!
 
     expect(type).toEqual({
@@ -293,10 +293,10 @@ describe('getFunctionParameterTypes', () => {
       `type Props = { color: string } | string; function Component(props: Props) {}`,
       { overwrite: true }
     )
-    const functionDeclaration = sourceFile.getFirstDescendantByKind(
+    const functionDeclaration = sourceFile.getFirstDescendantByKindOrThrow(
       SyntaxKind.FunctionDeclaration
     )
-    const types = getFunctionParameterTypes(functionDeclaration!)
+    const types = getFunctionParameterTypes(functionDeclaration)
     const [type] = types!
 
     expect(type).toEqual({
@@ -342,10 +342,10 @@ describe('getFunctionParameterTypes', () => {
       `import { BaseProps } from './types'; type Props = BaseProps & { source: string } | BaseProps & { value: string }; function Component(props: Props) {}`,
       { overwrite: true }
     )
-    const functionDeclaration = sourceFile.getFirstDescendantByKind(
+    const functionDeclaration = sourceFile.getFirstDescendantByKindOrThrow(
       SyntaxKind.FunctionDeclaration
     )
-    const types = getFunctionParameterTypes(functionDeclaration!)
+    const types = getFunctionParameterTypes(functionDeclaration)
     const [type] = types!
 
     expect(type).toEqual({
@@ -389,7 +389,7 @@ describe('getFunctionParameterTypes', () => {
     })
   })
 
-  test('handle mapped types', () => {
+  test('handles mapped types', () => {
     project.createSourceFile(
       'theme.ts',
       `export const textStyles = { heading1: {}, heading2: {}, heading3: {}, body1: {}, }`
@@ -427,10 +427,10 @@ describe('getFunctionParameterTypes', () => {
       { overwrite: true }
     )
 
-    const functionDeclaration = sourceFile.getFirstDescendantByKind(
+    const functionDeclaration = sourceFile.getFirstDescendantByKindOrThrow(
       SyntaxKind.ArrowFunction
     )
-    const types = getFunctionParameterTypes(functionDeclaration!)
+    const types = getFunctionParameterTypes(functionDeclaration)
     const [type] = types!
 
     expect(type.properties).toMatchInlineSnapshot(`
@@ -487,7 +487,7 @@ describe('getFunctionParameterTypes', () => {
     `)
   })
 
-  test('handles library generic types', () => {
+  test('handles library call expression generic types', () => {
     const sourceFile = project.createSourceFile(
       'test.ts',
       dedent`
@@ -510,7 +510,10 @@ describe('getFunctionParameterTypes', () => {
       .getExportedDeclarations()
       .get('Grid')!
       .at(0)! as VariableDeclaration
-    const types = getFunctionParameterTypes(variableDeclaration)
+    const initializer = variableDeclaration.getInitializerIfKindOrThrow(
+      SyntaxKind.CallExpression
+    )
+    const types = getFunctionParameterTypes(initializer)
 
     expect(types).toMatchInlineSnapshot(`
       [
@@ -537,7 +540,62 @@ describe('getFunctionParameterTypes', () => {
             },
           ],
           "required": true,
-          "text": "{ slot?: string; style?: React.CSSProperties; title?: string; ref?: React.Ref<HTMLDivElement>; key?: React.Key; defaultChecked?: boolean; defaultValue?: string | ... 1 more ... | readonly string[]; ... 261 more ...; gridTemplateRows?: string; } & { ...; } & { ...; }",
+          "text": "PolymorphicComponentProps<"web", Substitute<React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>, GridProps>, AsTarget, ForwardedAsTarget, AsTarget extends any ? React.ComponentPropsWithRef<...> : {}, ForwardedAsTarget extends any ? React.ComponentPropsWithRef<...> : {}>",
+        },
+      ]
+    `)
+  })
+
+  test('handles library tagged template literal generic types', () => {
+    const sourceFile = project.createSourceFile(
+      'test.ts',
+      dedent`
+      import * as React from 'react'
+      import styled from 'styled-components'
+
+      export const Grid = styled.div<{
+        $gridTemplateColumns: string
+        $gridTemplateRows: string
+      }>\`
+        display: grid;
+        grid-template-columns: \${({ $gridTemplateColumns }) => $gridTemplateColumns};
+        grid-template-rows: \${({ $gridTemplateRows }) => $gridTemplateRows};
+      \`
+      `,
+      { overwrite: true }
+    )
+    const variableDeclaration = sourceFile.getVariableDeclarationOrThrow('Grid')
+    const initializer = variableDeclaration.getInitializerIfKindOrThrow(
+      SyntaxKind.TaggedTemplateExpression
+    )
+    const types = getFunctionParameterTypes(initializer)
+
+    expect(types).toMatchInlineSnapshot(`
+      [
+        {
+          "defaultValue": undefined,
+          "description": null,
+          "name": "props",
+          "properties": [
+            {
+              "defaultValue": undefined,
+              "description": null,
+              "name": "$gridTemplateColumns",
+              "properties": null,
+              "required": true,
+              "text": "string",
+            },
+            {
+              "defaultValue": undefined,
+              "description": null,
+              "name": "$gridTemplateRows",
+              "properties": null,
+              "required": true,
+              "text": "string",
+            },
+          ],
+          "required": true,
+          "text": "PolymorphicComponentProps<"web", Substitute<React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>, { $gridTemplateColumns: string; $gridTemplateRows: string; }>, AsTarget, ForwardedAsTarget, AsTarget extends any ? React.ComponentPropsWithRef<...> : {}, ForwardedAsTarget extends any ? React.Co...",
         },
       ]
     `)

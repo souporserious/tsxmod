@@ -2,7 +2,8 @@ import type {
   ArrowFunction,
   FunctionDeclaration,
   FunctionExpression,
-  VariableDeclaration,
+  TaggedTemplateExpression,
+  CallExpression,
   Symbol,
   Type,
   ts,
@@ -16,7 +17,8 @@ export function getFunctionParameterTypes(
     | ArrowFunction
     | FunctionDeclaration
     | FunctionExpression
-    | VariableDeclaration
+    | TaggedTemplateExpression
+    | CallExpression
 ) {
   const signatures = declaration.getType().getCallSignatures()
 
@@ -96,7 +98,7 @@ function processType(
 
   const parameterType = typeChecker.getTypeOfSymbolAtLocation(
     parameter,
-    valueDeclaration!
+    valueDeclaration
   )
   const typeDeclaration = parameterType.getSymbol()?.getDeclarations()?.at(0)
   const isTypeInNodeModules = parameterType
@@ -229,8 +231,17 @@ function processTypeProperties(
     ]
   }
 
-  return type
-    .getApparentProperties()
+  let properties = type.getApparentProperties()
+
+  // Check declaration's type arguments if there are no apparent properties
+  if (properties.length === 0) {
+    const declarationType = declaration.getType()
+    properties = declarationType
+      .getTypeArguments()
+      .flatMap((typeArgument) => typeArgument.getProperties())
+  }
+
+  return properties
     .map((property) =>
       processProperty(property, declaration, typeChecker, defaultValues)
     )
