@@ -13,14 +13,14 @@ import { getDefaultValuesFromProperties, getSymbolDescription } from '../index'
 
 /** Analyzes metadata and parameter types from functions, tagged templates, and call expressions. */
 export function getTypeDocumentation(
-  declaration:
-    | ArrowFunction
+  declarationOrExpression:
     | FunctionDeclaration
     | FunctionExpression
+    | ArrowFunction
     | TaggedTemplateExpression
     | CallExpression
 ) {
-  const signatures = declaration.getType().getCallSignatures()
+  const signatures = declarationOrExpression.getType().getCallSignatures()
 
   if (signatures.length === 0) {
     return null
@@ -33,11 +33,13 @@ export function getTypeDocumentation(
     return null
   }
 
-  const typeChecker = declaration.getProject().getTypeChecker()
-  let parameterTypes: ReturnType<typeof processType>[] = []
+  let parameterTypes: ReturnType<typeof processParameterType>[] = []
 
   for (const parameter of parameters) {
-    const parameterType = processType(parameter, declaration, typeChecker)
+    const parameterType = processParameterType(
+      parameter,
+      declarationOrExpression
+    )
     parameterTypes.push(parameterType)
   }
 
@@ -45,11 +47,8 @@ export function getTypeDocumentation(
 }
 
 /** Processes a signature parameter into a metadata object. */
-function processType(
-  parameter: Symbol,
-  declaration: Node,
-  typeChecker: TypeChecker
-) {
+function processParameterType(parameter: Symbol, enclosingNode: Node) {
+  const typeChecker = enclosingNode.getProject().getTypeChecker()
   const valueDeclaration = parameter.getValueDeclaration()
   const isParameterDeclaration = Node.isParameterDeclaration(valueDeclaration)
   let isObjectBindingPattern = false
@@ -87,8 +86,11 @@ function processType(
     name: isObjectBindingPattern ? null : parameter.getName(),
     description: getSymbolDescription(parameter),
     text: parameter
-      .getTypeAtLocation(declaration)
-      .getText(declaration, TypeFormatFlags.UseAliasDefinedOutsideCurrentScope),
+      .getTypeAtLocation(enclosingNode)
+      .getText(
+        enclosingNode,
+        TypeFormatFlags.UseAliasDefinedOutsideCurrentScope
+      ),
     properties: null,
   }
 
@@ -107,7 +109,7 @@ function processType(
     ?.getSourceFile()
     .isInNodeModules()
   const isLocalType = typeDeclaration
-    ? declaration.getSourceFile().getFilePath() ===
+    ? enclosingNode.getSourceFile().getFilePath() ===
       typeDeclaration.getSourceFile().getFilePath()
     : true
 
@@ -131,7 +133,7 @@ function processType(
     if (parameterType.isUnion()) {
       const { properties, unionProperties } = processUnionType(
         parameterType,
-        declaration,
+        enclosingNode,
         typeChecker,
         defaultValues
       )
@@ -140,7 +142,7 @@ function processType(
     } else {
       metadata.properties = processTypeProperties(
         parameterType,
-        declaration,
+        enclosingNode,
         typeChecker,
         defaultValues
       )
