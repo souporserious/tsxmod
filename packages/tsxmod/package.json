@@ -31,7 +31,7 @@
   "dependencies": {
     "@tsxmod/utils": "workspace:*",
     "chokidar": "^3.5.3",
-    "esbuild": "^0.19.9",
+    "esbuild": "^0.19.11",
     "esbuild-register": "^3.5.0",
     "ts-morph": "^21.0.1"
   }
