@@ -1,5 +1,11 @@
 # @tsxmod/utils
 
+## 0.3.1
+
+### Patch Changes
+
+- 836a321: Use explicitly defined exports.
+
 ## 0.3.0
 
 ### Minor Changes

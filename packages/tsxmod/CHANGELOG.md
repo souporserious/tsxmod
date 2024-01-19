@@ -1,5 +1,12 @@
 # tsxmod
 
+## 0.2.1
+
+### Patch Changes
+
+- Updated dependencies [836a321]
+  - @tsxmod/utils@0.3.1
+
 ## 0.2.0
 
 ### Minor Changes
