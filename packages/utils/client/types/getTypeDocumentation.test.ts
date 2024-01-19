@@ -1,9 +1,9 @@
 import dedent from 'dedent'
 import type { VariableDeclaration } from 'ts-morph'
 import { Project, SyntaxKind } from 'ts-morph'
-import { getFunctionParameterTypes } from './getFunctionParameterTypes'
+import { getTypeDocumentation } from './getTypeDocumentation'
 
-describe('getFunctionParameterTypes', () => {
+describe('getTypeDocumentation', () => {
   const project = new Project()
 
   it('should parse a function with parameters', () => {
@@ -16,7 +16,7 @@ describe('getFunctionParameterTypes', () => {
     const functionDeclaration = sourceFile.getFirstDescendantByKindOrThrow(
       SyntaxKind.FunctionDeclaration
     )
-    const types = getFunctionParameterTypes(functionDeclaration)
+    const types = getTypeDocumentation(functionDeclaration)
     const [type] = types!
 
     expect(type).toEqual({
@@ -39,7 +39,7 @@ describe('getFunctionParameterTypes', () => {
     const functionDeclaration = sourceFile.getFirstDescendantByKindOrThrow(
       SyntaxKind.FunctionDeclaration
     )
-    const types = getFunctionParameterTypes(functionDeclaration)
+    const types = getTypeDocumentation(functionDeclaration)
     const [type] = types!
 
     expect(type).toEqual({
@@ -70,7 +70,7 @@ describe('getFunctionParameterTypes', () => {
     const functionDeclaration = sourceFile.getFirstDescendantByKindOrThrow(
       SyntaxKind.FunctionDeclaration
     )
-    const types = getFunctionParameterTypes(functionDeclaration)
+    const types = getTypeDocumentation(functionDeclaration)
     const [type] = types!
 
     expect(type).toEqual({
@@ -110,7 +110,7 @@ describe('getFunctionParameterTypes', () => {
     const functionDeclaration = sourceFile.getFirstDescendantByKindOrThrow(
       SyntaxKind.ArrowFunction
     )
-    const types = getFunctionParameterTypes(functionDeclaration)
+    const types = getTypeDocumentation(functionDeclaration)
     const [type] = types!
 
     expect(type).toEqual({
@@ -132,7 +132,7 @@ describe('getFunctionParameterTypes', () => {
     const functionDeclaration = sourceFile.getFirstDescendantByKindOrThrow(
       SyntaxKind.FunctionExpression
     )
-    const types = getFunctionParameterTypes(functionDeclaration)
+    const types = getTypeDocumentation(functionDeclaration)
     const [type] = types!
 
     expect(type).toEqual({
@@ -158,7 +158,7 @@ describe('getFunctionParameterTypes', () => {
     const functionDeclaration = sourceFile.getFirstDescendantByKindOrThrow(
       SyntaxKind.FunctionDeclaration
     )
-    const types = getFunctionParameterTypes(functionDeclaration)
+    const types = getTypeDocumentation(functionDeclaration)
     const [type] = types!
 
     expect(type).toEqual({
@@ -185,7 +185,7 @@ describe('getFunctionParameterTypes', () => {
     const functionDeclaration = sourceFile.getFirstDescendantByKindOrThrow(
       SyntaxKind.FunctionDeclaration
     )
-    const types = getFunctionParameterTypes(functionDeclaration)
+    const types = getTypeDocumentation(functionDeclaration)
     const [type] = types!
 
     expect(type).toEqual({
@@ -212,7 +212,7 @@ describe('getFunctionParameterTypes', () => {
     const functionDeclaration = sourceFile.getFirstDescendantByKindOrThrow(
       SyntaxKind.FunctionDeclaration
     )
-    const types = getFunctionParameterTypes(functionDeclaration)
+    const types = getTypeDocumentation(functionDeclaration)
     const [type] = types!
 
     expect(type).toEqual({
@@ -243,7 +243,7 @@ describe('getFunctionParameterTypes', () => {
     const functionDeclaration = sourceFile.getFirstDescendantByKindOrThrow(
       SyntaxKind.FunctionDeclaration
     )
-    const types = getFunctionParameterTypes(functionDeclaration)
+    const types = getTypeDocumentation(functionDeclaration)
     const [type] = types!
 
     expect(type).toEqual({
@@ -296,7 +296,7 @@ describe('getFunctionParameterTypes', () => {
     const functionDeclaration = sourceFile.getFirstDescendantByKindOrThrow(
       SyntaxKind.FunctionDeclaration
     )
-    const types = getFunctionParameterTypes(functionDeclaration)
+    const types = getTypeDocumentation(functionDeclaration)
     const [type] = types!
 
     expect(type).toEqual({
@@ -345,7 +345,7 @@ describe('getFunctionParameterTypes', () => {
     const functionDeclaration = sourceFile.getFirstDescendantByKindOrThrow(
       SyntaxKind.FunctionDeclaration
     )
-    const types = getFunctionParameterTypes(functionDeclaration)
+    const types = getTypeDocumentation(functionDeclaration)
     const [type] = types!
 
     expect(type).toEqual({
@@ -430,7 +430,7 @@ describe('getFunctionParameterTypes', () => {
     const functionDeclaration = sourceFile.getFirstDescendantByKindOrThrow(
       SyntaxKind.ArrowFunction
     )
-    const types = getFunctionParameterTypes(functionDeclaration)
+    const types = getTypeDocumentation(functionDeclaration)
     const [type] = types!
 
     expect(type.properties).toMatchInlineSnapshot(`
@@ -513,7 +513,7 @@ describe('getFunctionParameterTypes', () => {
     const initializer = variableDeclaration.getInitializerIfKindOrThrow(
       SyntaxKind.CallExpression
     )
-    const types = getFunctionParameterTypes(initializer)
+    const types = getTypeDocumentation(initializer)
 
     expect(types).toMatchInlineSnapshot(`
       [
@@ -568,7 +568,7 @@ describe('getFunctionParameterTypes', () => {
     const initializer = variableDeclaration.getInitializerIfKindOrThrow(
       SyntaxKind.TaggedTemplateExpression
     )
-    const types = getFunctionParameterTypes(initializer)
+    const types = getTypeDocumentation(initializer)
 
     expect(types).toMatchInlineSnapshot(`
       [

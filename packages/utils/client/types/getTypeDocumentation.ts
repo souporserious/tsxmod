@@ -11,8 +11,8 @@ import type {
 import { Node, SyntaxKind, TypeFormatFlags, TypeChecker } from 'ts-morph'
 import { getDefaultValuesFromProperties, getSymbolDescription } from '../index'
 
-/** Gets the types for a function declaration. */
-export function getFunctionParameterTypes(
+/** Analyzes metadata and parameter types from functions, tagged templates, and call expressions. */
+export function getTypeDocumentation(
   declaration:
     | ArrowFunction
     | FunctionDeclaration
