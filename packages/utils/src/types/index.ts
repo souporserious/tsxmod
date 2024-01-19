@@ -1,1 +1,4 @@
-export { getTypeDocumentation } from './getTypeDocumentation'
+export {
+  getTypeDocumentation,
+  type PropertyMetadata,
+} from './getTypeDocumentation'

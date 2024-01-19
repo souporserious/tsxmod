@@ -1,1 +1,1 @@
-export * from './getDefaultValuesFromProperties'
+export { getDefaultValuesFromProperties } from './getDefaultValuesFromProperties'

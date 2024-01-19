@@ -1,1 +1,1 @@
-export * from './getSymbolDescription'
+export { getSymbolDescription } from './getSymbolDescription'
