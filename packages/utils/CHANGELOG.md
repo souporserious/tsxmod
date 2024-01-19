@@ -1,5 +1,13 @@
 # @tsxmod/utils
 
+## 0.3.0
+
+### Minor Changes
+
+- 298edc5: Remove server specific utilities.
+- 86b0ab3: Rename `getFunctionParameterTypes` to `getTypeDocumentation`.
+- bba6f87: Use type argument properties if no parameter apparent properties found in `getFunctionParameterTypes`.
+
 ## 0.2.0
 
 ### Minor Changes
