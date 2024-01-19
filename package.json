@@ -4,7 +4,8 @@
     "build": "turbo run build",
     "build:packages": "turbo run build --filter=tsxmod --filter=utils",
     "ci:version": "pnpm changeset version && pnpm install --no-frozen-lockfile && git add .",
-    "ci:publish": "pnpm build:packages && pnpm publish -r --access public --publish-branch main && pnpm changeset tag"
+    "ci:publish": "pnpm build:packages && pnpm publish -r --access public --publish-branch main && pnpm changeset tag",
+    "clean": "node -e \"(function rm(directory) { ['.next', '.turbo', 'node_modules', 'dist'].includes(path.basename(directory)) ? fs.rmSync(directory, { recursive: true, force: true }) : fs.existsSync(directory) && fs.statSync(directory).isDirectory() && fs.readdirSync(directory).forEach(filePath => rm(path.join(directory, filePath))); })('.');\""
   },
   "devDependencies": {
     "@changesets/cli": "^2.27.1",
