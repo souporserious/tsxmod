@@ -1,4 +1,4 @@
-import FilterWarningsPlugin from 'webpack-filter-warnings-plugin'
+import webpack from 'webpack'
 import { readFile, writeFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
 
@@ -16,14 +16,18 @@ export default async function () {
   }
 
   return {
-    webpack: (config, options) => {
+    webpack: (config) => {
       config.plugins.push(
-        // TODO: #8 silencing ts-morph critical dependency warnings for now
-        new FilterWarningsPlugin({
-          exclude: [
-            /Critical dependency: the request of a dependency is an expression/,
-          ],
-        })
+        // silence ts-morph warnings
+        new webpack.ContextReplacementPlugin(
+          /\/@ts-morph\/common\//,
+          (data) => {
+            for (const dependency of data.dependencies) {
+              delete dependency.critical
+            }
+            return data
+          }
+        )
       )
 
       return config
