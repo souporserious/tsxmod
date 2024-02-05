@@ -1,3 +1,4 @@
+export * from './diagnostics'
 export * from './exports'
 export * from './expressions'
 export * from './identifiers'
