@@ -1,5 +1,13 @@
 # @tsxmod/utils
 
+## 0.4.0
+
+### Minor Changes
+
+- ca26b21: Adds `getDiagnosticMessageText` utility for parsing diagnostic messages returned from `getPreEmitDiagnostics`.
+- 247dd74: Adds `addComputedTypes` utility for adding a `Computed` utility type to a project that wraps type aliases in the provided source file.
+- 195a001: Adds `getComputedQuickInfoAtPosition` utility to get the computed quick info at a source file position using the `Computed` utility type.
+
 ## 0.3.1
 
 ### Patch Changes
