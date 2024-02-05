@@ -1,6 +1,6 @@
 {
   "name": "@tsxmod/utils",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "description": "Utilities to help make TS Morph even easier to work with.",
   "author": "Travis Arnold",
   "license": "MIT",
