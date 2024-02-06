@@ -1,5 +1,8 @@
 import * as ts_morph from 'ts-morph';
-import { SourceFile, Expression, Identifier, Node, Project, ts, ImportClause, ImportDeclaration, ImportSpecifier, JsxOpeningElement, JsxSelfClosingElement, JsxElement, VariableDeclaration, FunctionDeclaration, FunctionExpression, ArrowFunction, ClassDeclaration, JsxAttribute, ObjectLiteralExpression, BindingElement, ParameterDeclaration, PropertyAssignment, CallExpression, Symbol, TaggedTemplateExpression } from 'ts-morph';
+import { DiagnosticMessageChain, SourceFile, Expression, Identifier, Node, Project, ts, ImportClause, ImportDeclaration, ImportSpecifier, JsxOpeningElement, JsxSelfClosingElement, JsxElement, VariableDeclaration, FunctionDeclaration, FunctionExpression, ArrowFunction, ClassDeclaration, JsxAttribute, ObjectLiteralExpression, BindingElement, ParameterDeclaration, PropertyAssignment, CallExpression, Symbol, TaggedTemplateExpression } from 'ts-morph';
+
+/** Parses a diagnostic message into a string. */
+declare function getDiagnosticMessageText(message: string | DiagnosticMessageChain): string;
 
 /** Extract a single export and its local dependencies from a source file. */
 declare function extractExportByIdentifier(sourceFile: SourceFile, identifier: string): string;
@@ -124,6 +127,15 @@ declare function isForwardRefExpression(node: Node): node is CallExpression;
 /** Gets the description from a symbol's jsdocs or leading comment range. */
 declare function getSymbolDescription(symbol: Symbol): string | null;
 
+/** Modifies a source file to add computed types to all eligible type aliases. */
+declare function addComputedTypes(sourceFile: SourceFile): void;
+
+/**
+ * Get the computed quick info at a position in a source file.
+ * Note, this will modify the source file by adding computed types.
+ */
+declare function getComputedQuickInfoAtPosition(sourceFile: SourceFile, position: number): ts.QuickInfo | undefined;
+
 /** Analyzes metadata and parameter types from functions, tagged templates, and call expressions. */
 declare function getTypeDocumentation(declarationOrExpression: FunctionDeclaration | FunctionExpression | ArrowFunction | TaggedTemplateExpression | CallExpression): {
     name: string | null;
@@ -144,4 +156,4 @@ interface PropertyMetadata {
     unionProperties?: PropertyMetadata[][];
 }
 
-export { TreeMode, extractExportByIdentifier, findClosestComponentDeclaration, findNamedImportReferences, findReferencesAsJsxElements, findReferencesInSourceFile, findRootComponentReferences, getChildrenFunction, getClassNamesForJsxElement, getDefaultValuesFromProperties, getDescendantAtRange, getImportClause, getImportDeclaration, getImportSpecifier, getJsxElement, getJsxElements, getPropTypes, getReactFunctionDeclaration, getSymbolDescription, getTypeDeclarationsFromProject, getTypeDocumentation, isForwardRefExpression, isJsxComponent, renameJsxIdentifier, resolveExpression, resolveJsxAttributeValue, resolveObject };
+export { type PropertyMetadata, TreeMode, addComputedTypes, extractExportByIdentifier, findClosestComponentDeclaration, findNamedImportReferences, findReferencesAsJsxElements, findReferencesInSourceFile, findRootComponentReferences, getChildrenFunction, getClassNamesForJsxElement, getComputedQuickInfoAtPosition, getDefaultValuesFromProperties, getDescendantAtRange, getDiagnosticMessageText, getImportClause, getImportDeclaration, getImportSpecifier, getJsxElement, getJsxElements, getPropTypes, getReactFunctionDeclaration, getSymbolDescription, getTypeDeclarationsFromProject, getTypeDocumentation, isForwardRefExpression, isJsxComponent, renameJsxIdentifier, resolveExpression, resolveJsxAttributeValue, resolveObject };
