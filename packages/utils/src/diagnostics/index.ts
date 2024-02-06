@@ -1,1 +1,1 @@
-export * from './getDiagnosticMessageText'
+export { getDiagnosticMessageText } from './getDiagnosticMessageText'
