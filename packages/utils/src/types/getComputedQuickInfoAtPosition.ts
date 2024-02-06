@@ -1,4 +1,4 @@
-import type { SourceFile } from 'ts-morph'
+import type { SourceFile, ts } from 'ts-morph'
 import { addComputedTypes } from './addComputedTypes'
 
 /**
@@ -8,7 +8,7 @@ import { addComputedTypes } from './addComputedTypes'
 export function getComputedQuickInfoAtPosition(
   sourceFile: SourceFile,
   position: number
-) {
+): ts.QuickInfo | undefined {
   const languageService = sourceFile
     .getProject()
     .getLanguageService().compilerObject
