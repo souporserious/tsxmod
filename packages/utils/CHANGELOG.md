@@ -1,5 +1,12 @@
 # @tsxmod/utils
 
+## 0.4.1
+
+### Patch Changes
+
+- bdd2ceb: Add return type for `getComputedQuickInfoAtPosition` to fix build error.
+- b14a7e6: Re-export `addComputedTypes` and `getComputedQuickInfoAtPosition` from main export.
+
 ## 0.4.0
 
 ### Minor Changes
