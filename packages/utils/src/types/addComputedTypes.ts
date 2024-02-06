@@ -26,6 +26,10 @@ export function addComputedTypes(sourceFile: SourceFile) {
 
     const typeNode = typeAlias.getTypeNodeOrThrow()
 
+    if (typeNode.getText().startsWith('Compute<')) {
+      return
+    }
+
     if (
       typeNode.getKind() === SyntaxKind.IntersectionType ||
       typeNode.getKind() === SyntaxKind.MappedType ||
