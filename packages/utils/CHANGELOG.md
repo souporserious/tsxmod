@@ -1,5 +1,12 @@
 # @tsxmod/utils
 
+## 0.4.2
+
+### Patch Changes
+
+- 64d39c0: Skip existing computed types in `addComputedTypes`.
+- 25bc458: Fix `getComputedQuickInfoAtPosition` returning `undefined` by passing full `filePath` to `getQuickInfoAtPosition`.
+
 ## 0.4.1
 
 ### Patch Changes
