@@ -64,9 +64,8 @@ describe('getComputedQuickInfoAtPosition', () => {
 
   it('should handle complex types', () => {
     const sourceFile = project.createSourceFile(
-      'test.ts',
-      complexSourceFileText,
-      { overwrite: true }
+      'nested/path.ts',
+      complexSourceFileText
     )
     const position = sourceFile
       .getDescendantsOfKind(SyntaxKind.Identifier)

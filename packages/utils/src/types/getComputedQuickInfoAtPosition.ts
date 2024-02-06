@@ -12,7 +12,6 @@ export function getComputedQuickInfoAtPosition(
   const languageService = sourceFile
     .getProject()
     .getLanguageService().compilerObject
-  const fileName = sourceFile.getBaseName()
   const node = sourceFile.getDescendantAtPos(position)
 
   if (!node) {
@@ -21,5 +20,8 @@ export function getComputedQuickInfoAtPosition(
 
   addComputedTypes(sourceFile)
 
-  return languageService.getQuickInfoAtPosition(fileName, node.getStart())
+  return languageService.getQuickInfoAtPosition(
+    sourceFile.getFilePath(),
+    node.getStart()
+  )
 }
