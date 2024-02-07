@@ -1,5 +1,11 @@
 # @tsxmod/utils
 
+## 0.4.3
+
+### Patch Changes
+
+- 216346d: Fix external types when using `getComputedQuickInfoAtPosition` by also modifying external source files.
+
 ## 0.4.2
 
 ### Patch Changes
