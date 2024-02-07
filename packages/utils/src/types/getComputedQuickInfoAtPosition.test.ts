@@ -1,7 +1,7 @@
 import { Project, SyntaxKind } from 'ts-morph'
 import { getComputedQuickInfoAtPosition } from './getComputedQuickInfoAtPosition'
 
-const complexSourceFileText = `
+export const complexSourceFileText = `
 function getExportedTypes() {
     return undefined as unknown as { name: string, id: string, filePath: string }[]
 }
@@ -35,6 +35,10 @@ type Module = {
   headings: Headings
   metadata?: { title: string; description: string }
 } & Omit<ModuleData, 'mdxPath' | 'tsPath' | 'examples'>
+
+export async function getData<T>() {
+  return undefined as unknown as Module & T
+}
 `
 
 describe('getComputedQuickInfoAtPosition', () => {
@@ -76,6 +80,47 @@ describe('getComputedQuickInfoAtPosition', () => {
 
     expect(resultText).toMatchInlineSnapshot(`
       "type Module = {
+          pathname: string;
+          frontMatter?: {
+              [x: string]: any;
+          };
+          headings: {
+              id: any;
+              text: string;
+              depth: number;
+          }[];
+          metadata?: {
+              title: string;
+              description: string;
+          };
+          title: string;
+          exportedTypes: {
+              id: string;
+              name: string;
+              pathname: string;
+              sourcePath: string;
+              isMainExport: boolean;
+          }[];
+      }"
+    `)
+  })
+
+  it('handles external types', () => {
+    project.createSourceFile(
+      'node_modules/complex/index.d.ts',
+      complexSourceFileText
+    )
+    const sourceFile = project.createSourceFile(
+      'test.ts',
+      `import { getData } from 'complex'; const data = await getData();`,
+      { overwrite: true }
+    )
+    const position = sourceFile.getVariableDeclarationOrThrow('data').getStart()
+    const result = getComputedQuickInfoAtPosition(sourceFile, position)
+    const resultText = result?.displayParts?.map((part) => part.text).join('')
+
+    expect(resultText).toMatchInlineSnapshot(`
+      "const data: {
           pathname: string;
           frontMatter?: {
               [x: string]: any;
