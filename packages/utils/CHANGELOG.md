@@ -1,5 +1,15 @@
 # @tsxmod/utils
 
+## 0.5.0
+
+### Minor Changes
+
+- d4ff47a: Add `hasJsDocTag` utility.
+
+### Patch Changes
+
+- cd01c40: Fix `getSymbolDescription` not parsing exported variable declaration comments correctly.
+
 ## 0.4.3
 
 ### Patch Changes
