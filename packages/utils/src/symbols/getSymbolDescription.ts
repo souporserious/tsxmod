@@ -1,10 +1,20 @@
 import { Symbol, Node } from 'ts-morph'
 
-/** Gets the description from a symbol's jsdocs or leading comment range. */
+/** Gets the description from a symbol's JSDoc or leading comment range. */
 export function getSymbolDescription(symbol: Symbol) {
   const declarations = symbol.getDeclarations().map((declaration) => {
     if (Node.isVariableDeclaration(declaration)) {
-      return declaration.getFirstAncestorOrThrow(Node.isVariableDeclarationList)
+      const ancestor = declaration.getFirstAncestor((node) => {
+        if (Node.isSourceFile(node)) {
+          return false
+        }
+        return (
+          Node.isJSDocable(node) || node.getLeadingCommentRanges().length > 0
+        )
+      })
+      if (ancestor) {
+        return ancestor
+      }
     }
     return declaration
   })
