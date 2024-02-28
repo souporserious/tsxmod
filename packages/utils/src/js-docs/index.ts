@@ -1,0 +1,1 @@
+export { hasJsDocTag } from './hasJsDocTag'
