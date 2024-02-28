@@ -1,5 +1,13 @@
 # tsxmod
 
+## 0.2.6
+
+### Patch Changes
+
+- Updated dependencies [cd01c40]
+- Updated dependencies [d4ff47a]
+  - @tsxmod/utils@0.5.0
+
 ## 0.2.5
 
 ### Patch Changes
