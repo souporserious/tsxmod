@@ -6,10 +6,13 @@ import type {
   CallExpression,
   Symbol,
   Type,
-  ts,
 } from 'ts-morph'
-import { Node, SyntaxKind, TypeFormatFlags, TypeChecker } from 'ts-morph'
-import { getDefaultValuesFromProperties, getSymbolDescription } from '../index'
+import { ts, Node, SyntaxKind, TypeFormatFlags, TypeChecker } from 'ts-morph'
+import {
+  getDefaultValuesFromProperties,
+  getSymbolDescription,
+  getSymbolTags,
+} from '../index'
 
 /** Analyzes metadata and parameter types from functions, tagged templates, and call expressions. */
 export function getTypeDocumentation(
@@ -73,6 +76,7 @@ function processParameterType(parameter: Symbol, enclosingNode: Node) {
   const metadata: {
     name: string | null
     description: string | null
+    tags: Array<{ name: string; text: string }>
     defaultValue: any
     required: boolean
     text: string
@@ -85,6 +89,7 @@ function processParameterType(parameter: Symbol, enclosingNode: Node) {
     required,
     name: isObjectBindingPattern ? null : parameter.getName(),
     description: getSymbolDescription(parameter),
+    tags: getSymbolTags(parameter),
     text: parameter
       .getTypeAtLocation(enclosingNode)
       .getText(
@@ -155,6 +160,7 @@ function processParameterType(parameter: Symbol, enclosingNode: Node) {
 export interface PropertyMetadata {
   name: string | null
   description: string | null
+  tags: Array<{ name: string; text: string }>
   defaultValue: any
   required: boolean
   text: string
@@ -222,6 +228,7 @@ function processTypeProperties(
       {
         name: null,
         description: null,
+        tags: [],
         defaultValue: undefined,
         required: true,
         text: type.getText(
@@ -294,6 +301,7 @@ function processProperty(
     defaultValue,
     name: propertyName,
     description: getSymbolDescription(property),
+    tags: getSymbolTags(property),
     required: Node.isPropertySignature(primaryDeclaration)
       ? !primaryDeclaration.hasQuestionToken() && !defaultValue
       : !defaultValue,

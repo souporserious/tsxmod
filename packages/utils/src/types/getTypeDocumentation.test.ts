@@ -26,6 +26,7 @@ describe('getTypeDocumentation', () => {
       required: false,
       properties: null,
       description,
+      tags: [],
     })
   })
 
@@ -48,6 +49,7 @@ describe('getTypeDocumentation', () => {
       defaultValue: undefined,
       required: true,
       description: null,
+      tags: [],
       properties: [
         {
           name: 'initialCount',
@@ -56,6 +58,7 @@ describe('getTypeDocumentation', () => {
           required: false,
           properties: null,
           description,
+          tags: [],
         },
       ],
     })
@@ -79,6 +82,7 @@ describe('getTypeDocumentation', () => {
       defaultValue: '{}',
       required: false,
       description: null,
+      tags: [],
       properties: [
         {
           name: 'initial',
@@ -93,9 +97,11 @@ describe('getTypeDocumentation', () => {
               required: true,
               properties: null,
               description: null,
+              tags: [],
             },
           ],
           description: null,
+          tags: [],
         },
       ],
     })
@@ -120,6 +126,7 @@ describe('getTypeDocumentation', () => {
       required: false,
       properties: null,
       description: null,
+      tags: [],
     })
   })
 
@@ -142,6 +149,7 @@ describe('getTypeDocumentation', () => {
       required: false,
       properties: null,
       description: null,
+      tags: [],
     })
   })
 
@@ -168,6 +176,7 @@ describe('getTypeDocumentation', () => {
       required: true,
       properties: null,
       description: null,
+      tags: [],
     })
   })
 
@@ -195,6 +204,7 @@ describe('getTypeDocumentation', () => {
       required: true,
       properties: null,
       description: null,
+      tags: [],
     })
   })
 
@@ -228,9 +238,11 @@ describe('getTypeDocumentation', () => {
           required: true,
           properties: null,
           description: null,
+          tags: [],
         },
       ],
       description: null,
+      tags: [],
     })
   })
 
@@ -259,6 +271,7 @@ describe('getTypeDocumentation', () => {
           properties: null,
           required: true,
           description: null,
+          tags: [],
         },
       ],
       unionProperties: [
@@ -266,6 +279,7 @@ describe('getTypeDocumentation', () => {
           {
             defaultValue: undefined,
             description: null,
+            tags: [],
             name: 'source',
             properties: null,
             required: true,
@@ -276,6 +290,7 @@ describe('getTypeDocumentation', () => {
           {
             defaultValue: undefined,
             description: null,
+            tags: [],
             name: 'value',
             properties: null,
             required: true,
@@ -284,6 +299,7 @@ describe('getTypeDocumentation', () => {
         ],
       ],
       description: null,
+      tags: [],
     })
   })
 
@@ -310,6 +326,7 @@ describe('getTypeDocumentation', () => {
           {
             defaultValue: undefined,
             description: null,
+            tags: [],
             name: null,
             properties: null,
             required: true,
@@ -324,10 +341,12 @@ describe('getTypeDocumentation', () => {
             properties: null,
             required: true,
             description: null,
+            tags: [],
           },
         ],
       ],
       description: null,
+      tags: [],
     })
   })
 
@@ -361,6 +380,7 @@ describe('getTypeDocumentation', () => {
           required: true,
           properties: null,
           description: null,
+          tags: [],
         },
       ],
       unionProperties: [
@@ -368,6 +388,7 @@ describe('getTypeDocumentation', () => {
           {
             defaultValue: undefined,
             description: null,
+            tags: [],
             name: 'source',
             properties: null,
             required: true,
@@ -378,6 +399,7 @@ describe('getTypeDocumentation', () => {
           {
             defaultValue: undefined,
             description: null,
+            tags: [],
             name: 'value',
             properties: null,
             required: true,
@@ -386,6 +408,7 @@ describe('getTypeDocumentation', () => {
         ],
       ],
       description: null,
+      tags: [],
     })
   })
 
@@ -441,6 +464,7 @@ describe('getTypeDocumentation', () => {
           "name": "className",
           "properties": null,
           "required": false,
+          "tags": [],
           "text": "string",
         },
         {
@@ -449,6 +473,7 @@ describe('getTypeDocumentation', () => {
           "name": "children",
           "properties": null,
           "required": true,
+          "tags": [],
           "text": "ReactNode",
         },
         {
@@ -457,6 +482,7 @@ describe('getTypeDocumentation', () => {
           "name": "variant",
           "properties": null,
           "required": false,
+          "tags": [],
           "text": ""heading1" | "heading2" | "heading3" | "body1"",
         },
         {
@@ -465,6 +491,7 @@ describe('getTypeDocumentation', () => {
           "name": "alignment",
           "properties": null,
           "required": true,
+          "tags": [],
           "text": ""start" | "center" | "end"",
         },
         {
@@ -473,6 +500,7 @@ describe('getTypeDocumentation', () => {
           "name": "width",
           "properties": null,
           "required": true,
+          "tags": [],
           "text": "string | number",
         },
         {
@@ -481,6 +509,7 @@ describe('getTypeDocumentation', () => {
           "name": "lineHeight",
           "properties": null,
           "required": true,
+          "tags": [],
           "text": "string",
         },
       ]
@@ -528,6 +557,7 @@ describe('getTypeDocumentation', () => {
               "name": "gridTemplateColumns",
               "properties": null,
               "required": true,
+              "tags": [],
               "text": "string",
             },
             {
@@ -536,10 +566,12 @@ describe('getTypeDocumentation', () => {
               "name": "gridTemplateRows",
               "properties": null,
               "required": false,
+              "tags": [],
               "text": "string",
             },
           ],
           "required": true,
+          "tags": [],
           "text": "PolymorphicComponentProps<"web", Substitute<React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>, GridProps>, AsTarget, ForwardedAsTarget, AsTarget extends any ? React.ComponentPropsWithRef<...> : {}, ForwardedAsTarget extends any ? React.ComponentPropsWithRef<...> : {}>",
         },
       ]
@@ -583,6 +615,7 @@ describe('getTypeDocumentation', () => {
               "name": "$gridTemplateColumns",
               "properties": null,
               "required": true,
+              "tags": [],
               "text": "string",
             },
             {
@@ -591,10 +624,12 @@ describe('getTypeDocumentation', () => {
               "name": "$gridTemplateRows",
               "properties": null,
               "required": true,
+              "tags": [],
               "text": "string",
             },
           ],
           "required": true,
+          "tags": [],
           "text": "PolymorphicComponentProps<"web", Substitute<React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>, { $gridTemplateColumns: string; $gridTemplateRows: string; }>, AsTarget, ForwardedAsTarget, AsTarget extends any ? React.ComponentPropsWithRef<...> : {}, ForwardedAsTarget extends any ? React.Co...",
         },
       ]

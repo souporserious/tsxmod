@@ -36,9 +36,10 @@ export default function App() {
 
   return (
     <>
-      <Button onClick={() => setOpen(true)} children="Open" />
+      <Button disabled onClick={() => setOpen(true)} children="Open" />
       <Dialog onClose={() => setOpen(false)} open={open}>
         Hello Dialog
+        <Button disabled onClick={() => setOpen(false)} children="Close" />
       </Dialog>
     </>
   )
@@ -51,10 +52,21 @@ export default function App() {
 import React from 'react'
 
 export const Button = (props: {
+  /** @deprecated use \`isDisabled\` instead */
+  disabled?: boolean
+  /** @see {@link https://github.com/souporserious/tsxmod tsxmod} */
+  isDisabled?: boolean
   onClick: () => void
   children: React.ReactNode
 }) => {
-  return <button onClick={props.onClick}>{props.children}</button>
+  return (
+    <button
+      disabled={props.disabled || props.isDisabled}
+      onClick={props.onClick}
+    >
+      {props.children}
+    </button>
+  )
 }
 `.trim(),
   },
@@ -65,11 +77,13 @@ import React from 'react'
 import { Button } from './Button'
 
 export function Dialog(props: {
-  open: boolean
-  onClose: () => void
+  /** @deprecated use \`isOpen\` instead */
+  open?: boolean
+  isOpen?: boolean
+  onClose?: () => void
   children: React.ReactNode
 }) {
-  if (!props.open) return null
+  if (!props.open || !props.isOpen) return null
 
   return (
     <dialog>
@@ -83,18 +97,40 @@ export function Dialog(props: {
 ]
 
 const initialTransformSource = `
-import { Project } from 'ts-morph';
-import { getJsxElement, getPropTypes } from '@tsxmod/utils';
+import { Node, Project } from 'ts-morph'
+import { getJsxElements, getTypeDocumentation } from '@tsxmod/utils'
 
 export default function (project: Project) {
-  const appSourceFile = project.getSourceFileOrThrow('App.tsx');
-  const buttonSourceFile = project.getSourceFileOrThrow('Button.tsx');
-  const dialogSourceFile = project.getSourceFileOrThrow('Dialog.tsx');
-  
-  const appElement = getJsxElement(appSourceFile, 'App')
-  const buttonPropTypes = getPropTypes(buttonSourceFile.getVariableDeclaration('Button'))
-  
+  const typeChecker = project.getTypeChecker()
+  const appSourceFile = project.getSourceFileOrThrow('App.tsx')
+
   // Write codemod here
+  const elements = getJsxElements(appSourceFile)
+
+  elements.forEach((element) => {
+    const node = Node.isJsxElement(element)
+      ? element.getOpeningElement()
+      : element
+    const declaration = typeChecker.getResolvedSignature(node).getDeclaration()
+    if (
+      Node.isExpression(declaration) ||
+      Node.isFunctionDeclaration(declaration)
+    ) {
+      const typeDoc = getTypeDocumentation(declaration)[0]
+      typeDoc.properties.forEach((property) => {
+        const deprecatedTag = property.tags.find(
+          (tag) => tag.name === 'deprecated'
+        )
+        if (!deprecatedTag) return
+
+        const newName = deprecatedTag.text.match(/^use \`(\\w+)\`/)?.[1]
+        if (!newName) return
+
+        const attribute = node.getAttribute(property.name)
+        attribute?.replaceWithText(newName)
+      })
+    }
+  })
 }
 `.trim()
 
