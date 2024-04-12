@@ -4,10 +4,10 @@ import { addComputedTypes } from './addComputedTypes'
 describe('addComputedTypes', () => {
   const project = new Project()
 
-  it('wraps exisiting literal type with Computed type', () => {
+  it('wraps exisiting object type with Computed type', () => {
     const sourceFile = project.createSourceFile(
       'test.ts',
-      `export type Intersected = { a: number; b: number; c: number; };`,
+      `export type ObjectType = { a: number; b: number; c: number; };`,
       { overwrite: true }
     )
     addComputedTypes(sourceFile)
@@ -15,14 +15,14 @@ describe('addComputedTypes', () => {
     const result = sourceFile.getFullText()
 
     expect(result).toMatchInlineSnapshot(
-      `"export type Intersected = Compute<{ a: number; b: number; c: number; }>;"`
+      `"export type ObjectType = Compute<{ a: number; b: number; c: number; }>;"`
     )
   })
 
   it('wraps exisiting mapped type with Computed type', () => {
     const sourceFile = project.createSourceFile(
       'test.ts',
-      `export type Intersected = { [Key in string]: number; };`,
+      `export type MappedType = { [Key in string]: number; };`,
       { overwrite: true }
     )
     addComputedTypes(sourceFile)
@@ -30,7 +30,7 @@ describe('addComputedTypes', () => {
     const result = sourceFile.getFullText()
 
     expect(result).toMatchInlineSnapshot(
-      `"export type Intersected = Compute<{ [Key in string]: number; }>;"`
+      `"export type MappedType = Compute<{ [Key in string]: number; }>;"`
     )
   })
 
@@ -60,6 +60,37 @@ describe('addComputedTypes', () => {
     const result = sourceFile.getFullText()
 
     expect(result).toMatchInlineSnapshot(`"export type UserId = number;"`)
+  })
+
+  it('does not wrap built-in object types', () => {
+    const sourceFile = project.createSourceFile(
+      'test.ts',
+      `export type PublishedDate = Date;`,
+      { overwrite: true }
+    )
+    const beforeSourceFileText = sourceFile.getFullText()
+
+    addComputedTypes(sourceFile)
+
+    expect(beforeSourceFileText).toMatch(sourceFile.getFullText())
+  })
+
+  it('skips built-in object types', () => {
+    const sourceFile = project.createSourceFile(
+      'test.ts',
+      `type Title = string;\ntype AuthorsMeta = { authors: Map<string, string>; }\nexport type ObjectType = { title: Title; date: Date; } & AuthorsMeta;`,
+      { overwrite: true }
+    )
+    addComputedTypes(sourceFile)
+
+    const type = sourceFile
+      .getTypeAliasOrThrow('ObjectType')
+      .getType()
+      .getText()
+
+    expect(type).toMatchInlineSnapshot(
+      `"{ title: string; date: Date; authors: Map<string, string>; }"`
+    )
   })
 
   it('skips existing Computed type', () => {
