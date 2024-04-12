@@ -1,5 +1,11 @@
 # @tsxmod/utils
 
+## 0.5.1
+
+### Patch Changes
+
+- 18dc524: Don't unfurl built-in types for `addComputedTypes`.
+
 ## 0.5.0
 
 ### Minor Changes
