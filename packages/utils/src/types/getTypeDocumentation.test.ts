@@ -1,94 +1,94 @@
-import dedent from "dedent";
-import type { VariableDeclaration } from "ts-morph";
-import { Project, SyntaxKind } from "ts-morph";
-import { getTypeDocumentation } from "./getTypeDocumentation";
+import dedent from 'dedent'
+import type { VariableDeclaration } from 'ts-morph'
+import { Project, SyntaxKind } from 'ts-morph'
+import { getTypeDocumentation } from './getTypeDocumentation'
 
-describe("getTypeDocumentation", () => {
-  const project = new Project();
+describe('getTypeDocumentation', () => {
+  const project = new Project()
 
-  it("should parse a function with parameters", () => {
-    const description = "Provides the initial count.";
+  it('should parse a function with parameters', () => {
+    const description = 'Provides the initial count.'
     const sourceFile = project.createSourceFile(
-      "test.ts",
+      'test.ts',
       `function useCounter(\n/** ${description} */ initialCount: number = 0) {}`,
       { overwrite: true }
-    );
+    )
     const functionDeclaration = sourceFile.getFirstDescendantByKindOrThrow(
       SyntaxKind.FunctionDeclaration
-    );
-    const types = getTypeDocumentation(functionDeclaration);
-    const [type] = types!;
+    )
+    const types = getTypeDocumentation(functionDeclaration)
+    const [type] = types!
 
     expect(type).toEqual({
-      name: "initialCount",
-      text: "number",
-      defaultValue: "0",
+      name: 'initialCount',
+      text: 'number',
+      defaultValue: '0',
       required: false,
       properties: null,
       description,
-    });
-  });
+    })
+  })
 
-  it("should parse a function with an object parameter", () => {
-    const description = "Provides the initial count.";
+  it('should parse a function with an object parameter', () => {
+    const description = 'Provides the initial count.'
     const sourceFile = project.createSourceFile(
-      "test.ts",
+      'test.ts',
       `function useCounter({ initialCount = 0 }: {\n/** ${description} */ initialCount?: number }) {}`,
       { overwrite: true }
-    );
+    )
     const functionDeclaration = sourceFile.getFirstDescendantByKindOrThrow(
       SyntaxKind.FunctionDeclaration
-    );
-    const types = getTypeDocumentation(functionDeclaration);
-    const [type] = types!;
+    )
+    const types = getTypeDocumentation(functionDeclaration)
+    const [type] = types!
 
     expect(type).toEqual({
       name: null,
-      text: "{ initialCount?: number; }",
+      text: '{ initialCount?: number; }',
       defaultValue: undefined,
       required: true,
       description: null,
       properties: [
         {
-          name: "initialCount",
-          text: "number",
-          defaultValue: "0",
+          name: 'initialCount',
+          text: 'number',
+          defaultValue: '0',
           required: false,
           properties: null,
           description,
         },
       ],
-    });
-  });
+    })
+  })
 
-  it("should parse a function with an object parameter with a nested object", () => {
+  it('should parse a function with an object parameter with a nested object', () => {
     const sourceFile = project.createSourceFile(
-      "test.ts",
+      'test.ts',
       `function useCounter({ initial = { count: 0 } }?: { initial?: { count: number } } = {}) {}`,
       { overwrite: true }
-    );
+    )
     const functionDeclaration = sourceFile.getFirstDescendantByKindOrThrow(
       SyntaxKind.FunctionDeclaration
-    );
-    const types = getTypeDocumentation(functionDeclaration);
-    const [type] = types!;
+    )
+    const types = getTypeDocumentation(functionDeclaration)
+    const [type] = types!
 
     expect(type).toEqual({
       name: null,
-      text: "{ initial?: {    count: number;}; }",
-      defaultValue: "{}",
+      text: '{ initial?: {    count: number;}; }',
+      defaultValue: '{}',
       required: false,
       description: null,
       properties: [
         {
-          name: "initial",
-          text: "{ count: number }",
-          defaultValue: "{ count: 0 }",
+          name: 'initial',
+          text: '{ count: number }',
+          defaultValue: '{ count: 0 }',
           required: false,
           properties: [
             {
-              name: "count",
-              text: "number",
+              name: 'count',
+              text: 'number',
               defaultValue: undefined,
               required: true,
               properties: null,
@@ -98,132 +98,132 @@ describe("getTypeDocumentation", () => {
           description: null,
         },
       ],
-    });
-  });
+    })
+  })
 
-  it("should parse arrow function parameters", () => {
+  it('should parse arrow function parameters', () => {
     const sourceFile = project.createSourceFile(
-      "test.ts",
+      'test.ts',
       `const useCounter = (initialCount: number = 0) => {}`,
       { overwrite: true }
-    );
+    )
     const functionDeclaration = sourceFile.getFirstDescendantByKindOrThrow(
       SyntaxKind.ArrowFunction
-    );
-    const types = getTypeDocumentation(functionDeclaration);
-    const [type] = types!;
+    )
+    const types = getTypeDocumentation(functionDeclaration)
+    const [type] = types!
 
     expect(type).toEqual({
-      name: "initialCount",
-      text: "number",
-      defaultValue: "0",
+      name: 'initialCount',
+      text: 'number',
+      defaultValue: '0',
       required: false,
       properties: null,
       description: null,
-    });
-  });
+    })
+  })
 
-  it("should parse function expression parameters", () => {
+  it('should parse function expression parameters', () => {
     const sourceFile = project.createSourceFile(
-      "test.ts",
+      'test.ts',
       `const useCounter = function (initialCount: number = 0) {}`,
       { overwrite: true }
-    );
+    )
     const functionDeclaration = sourceFile.getFirstDescendantByKindOrThrow(
       SyntaxKind.FunctionExpression
-    );
-    const types = getTypeDocumentation(functionDeclaration);
-    const [type] = types!;
+    )
+    const types = getTypeDocumentation(functionDeclaration)
+    const [type] = types!
 
     expect(type).toEqual({
-      name: "initialCount",
-      text: "number",
-      defaultValue: "0",
+      name: 'initialCount',
+      text: 'number',
+      defaultValue: '0',
       required: false,
       properties: null,
       description: null,
-    });
-  });
+    })
+  })
 
-  test("imported type should not be parsed", () => {
+  test('imported type should not be parsed', () => {
     project.createSourceFile(
-      "types.ts",
+      'types.ts',
       `export type CounterOptions = { initialCount?: number }`
-    );
+    )
     const sourceFile = project.createSourceFile(
-      "test.ts",
+      'test.ts',
       `import { CounterOptions } from './types' function useCounter({ initialCount = 0 }: CounterOptions) {}`,
       { overwrite: true }
-    );
+    )
     const functionDeclaration = sourceFile.getFirstDescendantByKindOrThrow(
       SyntaxKind.FunctionDeclaration
-    );
-    const types = getTypeDocumentation(functionDeclaration);
-    const [type] = types!;
+    )
+    const types = getTypeDocumentation(functionDeclaration)
+    const [type] = types!
 
     expect(type).toEqual({
       name: null,
-      text: "CounterOptions",
+      text: 'CounterOptions',
       defaultValue: undefined,
       required: true,
       properties: null,
       description: null,
-    });
-  });
+    })
+  })
 
-  test("imported function return types should not be parsed", () => {
+  test('imported function return types should not be parsed', () => {
     project.createSourceFile(
-      "types.ts",
+      'types.ts',
       `export function useCounter() { return { initialCount: 0 } }`,
       { overwrite: true }
-    );
+    )
     const sourceFile = project.createSourceFile(
-      "test.ts",
+      'test.ts',
       `import { useCounter } from './types' function useCounterOverride({ initialCount = 0 }: ReturnType<typeof useCounter>) {}`,
       { overwrite: true }
-    );
+    )
     const functionDeclaration = sourceFile.getFirstDescendantByKindOrThrow(
       SyntaxKind.FunctionDeclaration
-    );
-    const types = getTypeDocumentation(functionDeclaration);
-    const [type] = types!;
+    )
+    const types = getTypeDocumentation(functionDeclaration)
+    const [type] = types!
 
     expect(type).toEqual({
       name: null,
-      text: "ReturnType<typeof useCounter>",
+      text: 'ReturnType<typeof useCounter>',
       defaultValue: undefined,
       required: true,
       properties: null,
       description: null,
-    });
-  });
+    })
+  })
 
-  test("imported function object return types should not be parsed", () => {
+  test('imported function object return types should not be parsed', () => {
     project.createSourceFile(
-      "types.ts",
+      'types.ts',
       `export function useCounter() { return { initialCount: 0 } }`,
       { overwrite: true }
-    );
+    )
     const sourceFile = project.createSourceFile(
-      "test.ts",
+      'test.ts',
       `import { useCounter } from './types' function useCounterOverride({ counterState }: { counterState: ReturnType<typeof useCounter> }) {}`,
       { overwrite: true }
-    );
+    )
     const functionDeclaration = sourceFile.getFirstDescendantByKindOrThrow(
       SyntaxKind.FunctionDeclaration
-    );
-    const types = getTypeDocumentation(functionDeclaration);
-    const [type] = types!;
+    )
+    const types = getTypeDocumentation(functionDeclaration)
+    const [type] = types!
 
     expect(type).toEqual({
       name: null,
-      text: "{ counterState: ReturnType<typeof useCounter>; }",
+      text: '{ counterState: ReturnType<typeof useCounter>; }',
       defaultValue: undefined,
       required: true,
       properties: [
         {
-          name: "counterState",
-          text: "ReturnType<typeof useCounter>",
+          name: 'counterState',
+          text: 'ReturnType<typeof useCounter>',
           defaultValue: undefined,
           required: true,
           properties: null,
@@ -231,30 +231,30 @@ describe("getTypeDocumentation", () => {
         },
       ],
       description: null,
-    });
-  });
+    })
+  })
 
-  test("handles union types", () => {
+  test('handles union types', () => {
     const sourceFile = project.createSourceFile(
-      "test.ts",
+      'test.ts',
       `type BaseProps = { color: string }; type Props = BaseProps & { source: string } | BaseProps & { value: string }; function Component(props: Props) {}`,
       { overwrite: true }
-    );
+    )
     const functionDeclaration = sourceFile.getFirstDescendantByKindOrThrow(
       SyntaxKind.FunctionDeclaration
-    );
-    const types = getTypeDocumentation(functionDeclaration);
-    const [type] = types!;
+    )
+    const types = getTypeDocumentation(functionDeclaration)
+    const [type] = types!
 
     expect(type).toEqual({
-      name: "props",
-      text: "Props",
+      name: 'props',
+      text: 'Props',
       defaultValue: undefined,
       required: true,
       properties: [
         {
-          name: "color",
-          text: "string",
+          name: 'color',
+          text: 'string',
           defaultValue: undefined,
           properties: null,
           required: true,
@@ -266,42 +266,42 @@ describe("getTypeDocumentation", () => {
           {
             defaultValue: undefined,
             description: null,
-            name: "source",
+            name: 'source',
             properties: null,
             required: true,
-            text: "string",
+            text: 'string',
           },
         ],
         [
           {
             defaultValue: undefined,
             description: null,
-            name: "value",
+            name: 'value',
             properties: null,
             required: true,
-            text: "string",
+            text: 'string',
           },
         ],
       ],
       description: null,
-    });
-  });
+    })
+  })
 
-  test("handles union types with primitive types", () => {
+  test('handles union types with primitive types', () => {
     const sourceFile = project.createSourceFile(
-      "test.ts",
+      'test.ts',
       `type Props = { color: string } | string; function Component(props: Props) {}`,
       { overwrite: true }
-    );
+    )
     const functionDeclaration = sourceFile.getFirstDescendantByKindOrThrow(
       SyntaxKind.FunctionDeclaration
-    );
-    const types = getTypeDocumentation(functionDeclaration);
-    const [type] = types!;
+    )
+    const types = getTypeDocumentation(functionDeclaration)
+    const [type] = types!
 
     expect(type).toEqual({
-      name: "props",
-      text: "Props",
+      name: 'props',
+      text: 'Props',
       defaultValue: undefined,
       required: true,
       properties: [],
@@ -313,13 +313,13 @@ describe("getTypeDocumentation", () => {
             name: null,
             properties: null,
             required: true,
-            text: "string",
+            text: 'string',
           },
         ],
         [
           {
-            name: "color",
-            text: "string",
+            name: 'color',
+            text: 'string',
             defaultValue: undefined,
             properties: null,
             required: true,
@@ -328,35 +328,35 @@ describe("getTypeDocumentation", () => {
         ],
       ],
       description: null,
-    });
-  });
+    })
+  })
 
-  test("handles union types with external types", () => {
+  test('handles union types with external types', () => {
     project.createSourceFile(
-      "types.ts",
+      'types.ts',
       `export type BaseProps = { color: string }`,
       { overwrite: true }
-    );
+    )
     const sourceFile = project.createSourceFile(
-      "test.ts",
+      'test.ts',
       `import { BaseProps } from './types'; type Props = BaseProps & { source: string } | BaseProps & { value: string }; function Component(props: Props) {}`,
       { overwrite: true }
-    );
+    )
     const functionDeclaration = sourceFile.getFirstDescendantByKindOrThrow(
       SyntaxKind.FunctionDeclaration
-    );
-    const types = getTypeDocumentation(functionDeclaration);
-    const [type] = types!;
+    )
+    const types = getTypeDocumentation(functionDeclaration)
+    const [type] = types!
 
     expect(type).toEqual({
-      name: "props",
-      text: "Props",
+      name: 'props',
+      text: 'Props',
       defaultValue: undefined,
       required: true,
       properties: [
         {
           name: null,
-          text: "BaseProps",
+          text: 'BaseProps',
           defaultValue: undefined,
           required: true,
           properties: null,
@@ -368,34 +368,34 @@ describe("getTypeDocumentation", () => {
           {
             defaultValue: undefined,
             description: null,
-            name: "source",
+            name: 'source',
             properties: null,
             required: true,
-            text: "string",
+            text: 'string',
           },
         ],
         [
           {
             defaultValue: undefined,
             description: null,
-            name: "value",
+            name: 'value',
             properties: null,
             required: true,
-            text: "string",
+            text: 'string',
           },
         ],
       ],
       description: null,
-    });
-  });
+    })
+  })
 
-  test("handles mapped types", () => {
+  test('handles mapped types', () => {
     project.createSourceFile(
-      "theme.ts",
+      'theme.ts',
       `export const textStyles = { heading1: {}, heading2: {}, heading3: {}, body1: {}, }`
-    );
+    )
     const sourceFile = project.createSourceFile(
-      "test.ts",
+      'test.ts',
       dedent`
       import { textStyles } from './theme'
 
@@ -425,13 +425,13 @@ describe("getTypeDocumentation", () => {
         children,
       }: TextProps) => {}`,
       { overwrite: true }
-    );
+    )
 
     const functionDeclaration = sourceFile.getFirstDescendantByKindOrThrow(
       SyntaxKind.ArrowFunction
-    );
-    const types = getTypeDocumentation(functionDeclaration);
-    const [type] = types!;
+    )
+    const types = getTypeDocumentation(functionDeclaration)
+    const [type] = types!
 
     expect(type.properties).toMatchInlineSnapshot(`
       [
@@ -484,12 +484,12 @@ describe("getTypeDocumentation", () => {
           "text": "string",
         },
       ]
-    `);
-  });
+    `)
+  })
 
-  test("handles library call expression generic types", () => {
+  test('handles library call expression generic types', () => {
     const sourceFile = project.createSourceFile(
-      "test.ts",
+      'test.ts',
       dedent`
       import styled from 'styled-components'
 
@@ -505,15 +505,15 @@ describe("getTypeDocumentation", () => {
       }))
       `,
       { overwrite: true }
-    );
+    )
     const variableDeclaration = sourceFile
       .getExportedDeclarations()
-      .get("Grid")!
-      .at(0)! as VariableDeclaration;
+      .get('Grid')!
+      .at(0)! as VariableDeclaration
     const initializer = variableDeclaration.getInitializerIfKindOrThrow(
       SyntaxKind.CallExpression
-    );
-    const types = getTypeDocumentation(initializer);
+    )
+    const types = getTypeDocumentation(initializer)
 
     expect(types).toMatchInlineSnapshot(`
       [
@@ -543,12 +543,12 @@ describe("getTypeDocumentation", () => {
           "text": "PolymorphicComponentProps<"web", Substitute<React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>, GridProps>, AsTarget, ForwardedAsTarget, AsTarget extends any ? React.ComponentPropsWithRef<...> : {}, ForwardedAsTarget extends any ? React.ComponentPropsWithRef<...> : {}>",
         },
       ]
-    `);
-  });
+    `)
+  })
 
-  test("handles library tagged template literal generic types", () => {
+  test('handles library tagged template literal generic types', () => {
     const sourceFile = project.createSourceFile(
-      "test.ts",
+      'test.ts',
       dedent`
       import * as React from 'react'
       import styled from 'styled-components'
@@ -563,13 +563,12 @@ describe("getTypeDocumentation", () => {
       \`
       `,
       { overwrite: true }
-    );
-    const variableDeclaration =
-      sourceFile.getVariableDeclarationOrThrow("Grid");
+    )
+    const variableDeclaration = sourceFile.getVariableDeclarationOrThrow('Grid')
     const initializer = variableDeclaration.getInitializerIfKindOrThrow(
       SyntaxKind.TaggedTemplateExpression
-    );
-    const types = getTypeDocumentation(initializer);
+    )
+    const types = getTypeDocumentation(initializer)
 
     expect(types).toMatchInlineSnapshot(`
       [
@@ -599,12 +598,12 @@ describe("getTypeDocumentation", () => {
           "text": "PolymorphicComponentProps<"web", Substitute<React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>, { $gridTemplateColumns: string; $gridTemplateRows: string; }>, AsTarget, ForwardedAsTarget, AsTarget extends any ? React.ComponentPropsWithRef<...> : {}, ForwardedAsTarget extends any ? React.Co...",
         },
       ]
-    `);
-  });
+    `)
+  })
 
-  test("type alias with mapped type", () => {
+  test('type alias with mapped type', () => {
     const sourceFile = project.createSourceFile(
-      "test.ts",
+      'test.ts',
       dedent`
       export type Props = {
         variant: 'heading1' | 'heading2' | 'heading3' | 'body1' | 'body2'
@@ -612,9 +611,9 @@ describe("getTypeDocumentation", () => {
       }
       `,
       { overwrite: true }
-    );
-    const typeAlias = sourceFile.getTypeAliasOrThrow("Props");
-    const types = getTypeDocumentation(typeAlias);
+    )
+    const typeAlias = sourceFile.getTypeAliasOrThrow('Props')
+    const types = getTypeDocumentation(typeAlias)
 
     expect(types).toMatchInlineSnapshot(`
       [
@@ -635,6 +634,53 @@ describe("getTypeDocumentation", () => {
           "text": "string | number",
         },
       ]
-    `);
-  });
-});
+    `)
+  })
+
+  test('interfaces with mapped type', () => {
+    const sourceFile = project.createSourceFile(
+      'test.ts',
+      dedent`
+      interface BaseProps {
+        color: string
+      }
+      interface Props extends BaseProps {
+        variant: 'heading1' | 'heading2' | 'heading3' | 'body1' | 'body2'
+        width?: string | number
+      }
+      `,
+      { overwrite: true }
+    )
+    const interfaceDeclaration = sourceFile.getInterfaceOrThrow('Props')
+    const types = getTypeDocumentation(interfaceDeclaration)
+
+    expect(types).toMatchInlineSnapshot(`
+      [
+        {
+          "defaultValue": undefined,
+          "description": null,
+          "name": "variant",
+          "properties": null,
+          "required": true,
+          "text": "'heading1' | 'heading2' | 'heading3' | 'body1' | 'body2'",
+        },
+        {
+          "defaultValue": undefined,
+          "description": null,
+          "name": "width",
+          "properties": null,
+          "required": false,
+          "text": "string | number",
+        },
+        {
+          "defaultValue": undefined,
+          "description": null,
+          "name": "color",
+          "properties": null,
+          "required": true,
+          "text": "string",
+        },
+      ]
+    `)
+  })
+})

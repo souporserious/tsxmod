@@ -5,6 +5,7 @@ import type {
   FunctionExpression,
   TaggedTemplateExpression,
   TypeAliasDeclaration,
+  InterfaceDeclaration,
   Symbol,
   Type,
   ts,
@@ -21,9 +22,14 @@ export function getTypeDocumentation(
     | TaggedTemplateExpression
     | CallExpression
     | TypeAliasDeclaration
+    | InterfaceDeclaration
 ) {
   if (Node.isTypeAliasDeclaration(declarationOrExpression)) {
     return processTypeAlias(declarationOrExpression)
+  }
+
+  if (Node.isInterfaceDeclaration(declarationOrExpression)) {
+    return processInterface(declarationOrExpression)
   }
 
   const signatures = declarationOrExpression.getType().getCallSignatures()
@@ -57,6 +63,18 @@ function processTypeAlias(typeAlias: TypeAliasDeclaration) {
   const typeChecker = typeAlias.getProject().getTypeChecker()
   const aliasType = typeAlias.getType()
   return processTypeProperties(aliasType, typeAlias, typeChecker, {})
+}
+
+/** Processes an interface into a metadata object. */
+function processInterface(interfaceDeclaration: InterfaceDeclaration) {
+  const typeChecker = interfaceDeclaration.getProject().getTypeChecker()
+  const interfaceType = interfaceDeclaration.getType()
+  return processTypeProperties(
+    interfaceType,
+    interfaceDeclaration,
+    typeChecker,
+    {}
+  )
 }
 
 /** Processes a signature parameter into a metadata object. */
