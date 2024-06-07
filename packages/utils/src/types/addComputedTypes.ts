@@ -7,9 +7,9 @@ type BuiltInObject = Date | RegExp | Set<any> | Map<any, any> | WeakSet<any> | W
 type Compute<Type> = Type extends Function | Primitive | BuiltInObject
   ? Type
   : { [Key in keyof Type]: Compute<Type[Key]> } & {};
-  `
+`
 
-/** Modifies a source file to add computed types to all eligible type aliases. */
+/** Modifies a source file to add computed types to all eligible type aliases and interfaces. */
 export function addComputedTypes(sourceFile: SourceFile) {
   const project = sourceFile.getProject()
 
@@ -35,5 +35,18 @@ export function addComputedTypes(sourceFile: SourceFile) {
     ) {
       typeAlias.setType(`Compute<${typeNode.getText()}>`)
     }
+  })
+
+  sourceFile.getInterfaces().forEach((interfaceDeclaration) => {
+    const originalInterfaceName = interfaceDeclaration.getName()
+    const interfaceName = `_${originalInterfaceName}`
+
+    interfaceDeclaration.rename(interfaceName)
+
+    sourceFile.insertTypeAlias(interfaceDeclaration.getChildIndex() + 1, {
+      name: originalInterfaceName,
+      type: `Compute<${interfaceName}>`,
+      isExported: interfaceDeclaration.isExported(),
+    })
   })
 }

@@ -49,6 +49,33 @@ describe('addComputedTypes', () => {
     )
   })
 
+  it('replaces interfaces with Computed type', () => {
+    const sourceFile = project.createSourceFile(
+      'test.ts',
+      `interface InterfaceA { a: number; }
+       interface InterfaceB extends InterfaceA { b: number; }
+      `,
+      { overwrite: true }
+    )
+
+    addComputedTypes(sourceFile)
+
+    expect(sourceFile.getFullText()).toMatchInlineSnapshot(`
+      "interface _InterfaceA { a: number; }
+
+      type InterfaceA = Compute<_InterfaceA>;
+
+             interface _InterfaceB extends _InterfaceA { b: number; }
+
+      type InterfaceB = Compute<_InterfaceB>;
+            "
+    `)
+
+    expect(
+      sourceFile.getTypeAliasOrThrow('InterfaceB').getType().getText()
+    ).toMatchInlineSnapshot(`"{ b: number; a: number; }"`)
+  })
+
   it('does not wrap literal types', () => {
     const sourceFile = project.createSourceFile(
       'test.ts',
