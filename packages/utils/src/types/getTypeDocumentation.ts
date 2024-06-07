@@ -1,9 +1,10 @@
 import type {
   ArrowFunction,
+  CallExpression,
   FunctionDeclaration,
   FunctionExpression,
   TaggedTemplateExpression,
-  CallExpression,
+  TypeAliasDeclaration,
   Symbol,
   Type,
   ts,
@@ -19,7 +20,12 @@ export function getTypeDocumentation(
     | ArrowFunction
     | TaggedTemplateExpression
     | CallExpression
+    | TypeAliasDeclaration
 ) {
+  if (Node.isTypeAliasDeclaration(declarationOrExpression)) {
+    return processTypeAlias(declarationOrExpression)
+  }
+
   const signatures = declarationOrExpression.getType().getCallSignatures()
 
   if (signatures.length === 0) {
@@ -44,6 +50,13 @@ export function getTypeDocumentation(
   }
 
   return parameterTypes
+}
+
+/** Processes a type alias into a metadata object. */
+function processTypeAlias(typeAlias: TypeAliasDeclaration) {
+  const typeChecker = typeAlias.getProject().getTypeChecker()
+  const aliasType = typeAlias.getType()
+  return processTypeProperties(aliasType, typeAlias, typeChecker, {})
 }
 
 /** Processes a signature parameter into a metadata object. */
