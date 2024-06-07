@@ -6,11 +6,7 @@ type Primitive = string | number | bigint | boolean | symbol | undefined | null;
 type BuiltInObject = Date | RegExp | Set<any> | Map<any, any> | WeakSet<any> | WeakMap<any, any> | Promise<any> | Error | ArrayBuffer | SharedArrayBuffer | Int8Array | Uint8Array | Uint8ClampedArray | Int16Array | Uint16Array | Int32Array | Uint32Array | Float32Array | Float64Array;
 type Compute<Type> = Type extends Function | Primitive | BuiltInObject
   ? Type
-  : {
-      [Key in keyof Type]: Type[Key] extends object
-        ? Compute<Type[Key]>
-        : Type[Key];
-    } & {};
+  : { [Key in keyof Type]: Compute<Type[Key]> } & {};
   `
 
 /** Modifies a source file to add computed types to all eligible type aliases. */

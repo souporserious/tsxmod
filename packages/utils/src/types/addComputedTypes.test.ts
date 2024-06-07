@@ -105,4 +105,25 @@ describe('addComputedTypes', () => {
 
     expect(beforeSourceFileText).toMatch(sourceFile.getFullText())
   })
+
+  it('flattens types', () => {
+    const sourceFile = project.createSourceFile(
+      'test.ts',
+      `type Tags = string[]
+       type Shared = { tags?: Tags }
+       type FrontMatter = { title: string; date: Date; summary?: string; } & Shared
+      `,
+      { overwrite: true }
+    )
+    addComputedTypes(sourceFile)
+
+    const result = sourceFile
+      .getTypeAliasOrThrow('FrontMatter')
+      .getType()
+      .getText()
+
+    expect(result).toMatchInlineSnapshot(
+      `"{ title: string; date: Date; summary?: string; tags?: string[]; }"`
+    )
+  })
 })
