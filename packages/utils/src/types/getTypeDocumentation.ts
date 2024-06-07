@@ -192,6 +192,7 @@ function processTypeProperties(
   typeChecker: TypeChecker,
   defaultValues: Record<string, any>
 ): PropertyMetadata[] {
+  // Handle intersection types by recursively processing each type in the intersection
   if (type.isIntersection()) {
     const intersectionTypes = type.getIntersectionTypes()
     return intersectionTypes.flatMap((intersectType) =>
@@ -237,10 +238,12 @@ function processTypeProperties(
 
   // Check declaration's type arguments if there are no apparent properties
   if (properties.length === 0) {
-    const declarationType = declaration.getType()
-    properties = declarationType
-      .getTypeArguments()
-      .flatMap((typeArgument) => typeArgument.getProperties())
+    const typeArguments = getTypeArgumentsIncludingIntersections(
+      declaration.getType()
+    )
+    properties = typeArguments.flatMap((typeArgument) =>
+      typeArgument.getProperties()
+    )
   }
 
   return properties
@@ -250,6 +253,16 @@ function processTypeProperties(
     .filter((property): property is NonNullable<typeof property> =>
       Boolean(property)
     )
+}
+
+/** Retrieves type arguments including intersection types. */
+function getTypeArgumentsIncludingIntersections(type: Type): Type[] {
+  if (type.isIntersection()) {
+    return type
+      .getIntersectionTypes()
+      .flatMap(getTypeArgumentsIncludingIntersections)
+  }
+  return type.getTypeArguments()
 }
 
 /** Processes a property into a metadata object. */
