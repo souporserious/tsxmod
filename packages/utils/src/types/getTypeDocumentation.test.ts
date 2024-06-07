@@ -540,7 +540,7 @@ describe('getTypeDocumentation', () => {
             },
           ],
           "required": true,
-          "text": "PolymorphicComponentProps<"web", Substitute<React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>, GridProps>, AsTarget, ForwardedAsTarget, AsTarget extends any ? React.ComponentPropsWithRef<...> : {}, ForwardedAsTarget extends any ? React.ComponentPropsWithRef<...> : {}>",
+          "text": "PolymorphicComponentProps<R, BaseProps, AsTarget, ForwardedAsTarget, AsTarget extends any ? React.ComponentPropsWithRef<AsTarget> : {}, ForwardedAsTarget extends any ? React.ComponentPropsWithRef<...> : {}>",
         },
       ]
     `)
@@ -595,13 +595,13 @@ describe('getTypeDocumentation', () => {
             },
           ],
           "required": true,
-          "text": "PolymorphicComponentProps<"web", Substitute<React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>, { $gridTemplateColumns: string; $gridTemplateRows: string; }>, AsTarget, ForwardedAsTarget, AsTarget extends any ? React.ComponentPropsWithRef<...> : {}, ForwardedAsTarget extends any ? React.Co...",
+          "text": "PolymorphicComponentProps<R, BaseProps, AsTarget, ForwardedAsTarget, AsTarget extends any ? React.ComponentPropsWithRef<AsTarget> : {}, ForwardedAsTarget extends any ? React.ComponentPropsWithRef<...> : {}>",
         },
       ]
     `)
   })
 
-  test('type alias with mapped type', () => {
+  test('type aliases', () => {
     const sourceFile = project.createSourceFile(
       'test.ts',
       dedent`
@@ -637,7 +637,7 @@ describe('getTypeDocumentation', () => {
     `)
   })
 
-  test('interfaces with mapped type', () => {
+  test('interface declarations', () => {
     const sourceFile = project.createSourceFile(
       'test.ts',
       dedent`

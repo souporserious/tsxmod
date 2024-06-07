@@ -6,6 +6,7 @@ import type {
   TaggedTemplateExpression,
   TypeAliasDeclaration,
   InterfaceDeclaration,
+  ParameterDeclaration,
   Symbol,
   Type,
   ts,
@@ -49,7 +50,7 @@ export function getTypeDocumentation(
 
   for (const parameter of parameters) {
     const parameterType = processParameterType(
-      parameter,
+      parameter.getValueDeclaration() as ParameterDeclaration,
       declarationOrExpression
     )
     parameterTypes.push(parameterType)
@@ -78,29 +79,16 @@ function processInterface(interfaceDeclaration: InterfaceDeclaration) {
 }
 
 /** Processes a signature parameter into a metadata object. */
-function processParameterType(parameter: Symbol, enclosingNode: Node) {
+function processParameterType(
+  parameterDeclaration: ParameterDeclaration,
+  enclosingNode: Node
+) {
   const typeChecker = enclosingNode.getProject().getTypeChecker()
-  const valueDeclaration = parameter.getValueDeclaration()
-  const isParameterDeclaration = Node.isParameterDeclaration(valueDeclaration)
-  let isObjectBindingPattern = false
-  let required = false
-  let defaultValue
-
-  if (isParameterDeclaration) {
-    isObjectBindingPattern = Node.isObjectBindingPattern(
-      valueDeclaration.getNameNode()
-    )
-
-    const initializer = valueDeclaration.getInitializer()
-    if (initializer) {
-      defaultValue = initializer.getText()
-    }
-
-    required = valueDeclaration
-      ? !valueDeclaration?.hasQuestionToken() && !defaultValue
-      : !defaultValue
-  }
-
+  const parameterType = parameterDeclaration.getType()
+  const defaultValue = parameterDeclaration.getInitializer()?.getText()
+  const isObjectBindingPattern = Node.isObjectBindingPattern(
+    parameterDeclaration.getNameNode()
+  )
   const metadata: {
     name: string | null
     description: string | null
@@ -113,26 +101,16 @@ function processParameterType(parameter: Symbol, enclosingNode: Node) {
       | null
   } = {
     defaultValue,
-    required,
-    name: isObjectBindingPattern ? null : parameter.getName(),
-    description: getSymbolDescription(parameter),
-    text: parameter
-      .getTypeAtLocation(enclosingNode)
-      .getText(
-        enclosingNode,
-        TypeFormatFlags.UseAliasDefinedOutsideCurrentScope
-      ),
+    name: isObjectBindingPattern ? null : parameterDeclaration.getName(),
+    description: getSymbolDescription(parameterDeclaration.getSymbolOrThrow()),
+    required: !parameterDeclaration.hasQuestionToken() && !defaultValue,
+    text: parameterType.getText(
+      enclosingNode,
+      TypeFormatFlags.UseAliasDefinedOutsideCurrentScope
+    ),
     properties: null,
   }
 
-  if (!valueDeclaration) {
-    return metadata
-  }
-
-  const parameterType = typeChecker.getTypeOfSymbolAtLocation(
-    parameter,
-    valueDeclaration
-  )
   const typeDeclaration = parameterType.getSymbol()?.getDeclarations()?.at(0)
   const isTypeInNodeModules = parameterType
     .getSymbol()
@@ -147,15 +125,12 @@ function processParameterType(parameter: Symbol, enclosingNode: Node) {
   if (isTypeInNodeModules || !isLocalType) {
     // If the type is imported from a node module or not in the same file, return
     // the type name and don't process the properties any further.
-    if (isParameterDeclaration) {
-      const parameterTypeNode = valueDeclaration.getTypeNodeOrThrow()
-      metadata.text = parameterTypeNode.getText()
-    }
-
+    const parameterTypeNode = parameterDeclaration.getTypeNodeOrThrow()
+    metadata.text = parameterTypeNode.getText()
     return metadata
   }
 
-  const firstChild = valueDeclaration.getFirstChild()
+  const firstChild = parameterDeclaration.getFirstChild()
   const defaultValues = Node.isObjectBindingPattern(firstChild)
     ? getDefaultValuesFromProperties(firstChild.getElements())
     : {}
