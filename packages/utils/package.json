@@ -35,9 +35,9 @@
     "ts-morph": ">=17.0.0"
   },
   "devDependencies": {
-    "clsx": "2.1.0",
-    "dedent": "1.5.1",
-    "ts-morph": "^21.0.1",
-    "styled-components": "6.1.8"
+    "clsx": "2.1.1",
+    "dedent": "1.5.3",
+    "ts-morph": "^22.0.0",
+    "styled-components": "6.1.11"
   }
 }

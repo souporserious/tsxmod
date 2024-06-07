@@ -46,6 +46,9 @@ declare function getImportDeclaration(sourceFile: SourceFile, moduleSpecifier: s
  */
 declare function getImportSpecifier(sourceFile: SourceFile, moduleSpecifier: string, importSpecifier: string): ImportSpecifier | undefined;
 
+/** Determines if a node has a specific JSDoc tag present. */
+declare function hasJsDocTag(node: Node, tagName: string): boolean;
+
 /** Finds the closest component declaration starting from a node. */
 declare function findClosestComponentDeclaration(node: Node): Node | undefined;
 
@@ -124,15 +127,16 @@ declare function getReactFunctionDeclaration(declaration: Node): ArrowFunction |
 /** Determines if an expression is using React.forwardRef. */
 declare function isForwardRefExpression(node: Node): node is CallExpression;
 
-/** Gets the description from a symbol's jsdocs or leading comment range. */
+/** Gets the description from a symbol's JSDoc or leading comment range. */
 declare function getSymbolDescription(symbol: Symbol): string | null;
 
-/** Modifies a source file to add computed types to all eligible type aliases. */
+/** Modifies a source file to add computed types to all eligible type aliases and interfaces. */
 declare function addComputedTypes(sourceFile: SourceFile): void;
 
 /**
- * Get the computed quick info at a position in a source file.
- * Note, this will modify the source file by adding computed types.
+ * Get the computed quick info at a position in a source file. This is similar to `getQuickInfoAtPosition`
+ * using the language service, but it will also flatten types. Note, type source files will be modified
+ * using `addComputedTypes`.
  */
 declare function getComputedQuickInfoAtPosition(sourceFile: SourceFile, position: number): ts.QuickInfo | undefined;
 
@@ -156,4 +160,4 @@ interface PropertyMetadata {
     unionProperties?: PropertyMetadata[][];
 }
 
-export { type PropertyMetadata, TreeMode, addComputedTypes, extractExportByIdentifier, findClosestComponentDeclaration, findNamedImportReferences, findReferencesAsJsxElements, findReferencesInSourceFile, findRootComponentReferences, getChildrenFunction, getClassNamesForJsxElement, getComputedQuickInfoAtPosition, getDefaultValuesFromProperties, getDescendantAtRange, getDiagnosticMessageText, getImportClause, getImportDeclaration, getImportSpecifier, getJsxElement, getJsxElements, getPropTypes, getReactFunctionDeclaration, getSymbolDescription, getTypeDeclarationsFromProject, getTypeDocumentation, isForwardRefExpression, isJsxComponent, renameJsxIdentifier, resolveExpression, resolveJsxAttributeValue, resolveObject };
+export { type PropertyMetadata, TreeMode, addComputedTypes, extractExportByIdentifier, findClosestComponentDeclaration, findNamedImportReferences, findReferencesAsJsxElements, findReferencesInSourceFile, findRootComponentReferences, getChildrenFunction, getClassNamesForJsxElement, getComputedQuickInfoAtPosition, getDefaultValuesFromProperties, getDescendantAtRange, getDiagnosticMessageText, getImportClause, getImportDeclaration, getImportSpecifier, getJsxElement, getJsxElements, getPropTypes, getReactFunctionDeclaration, getSymbolDescription, getTypeDeclarationsFromProject, getTypeDocumentation, hasJsDocTag, isForwardRefExpression, isJsxComponent, renameJsxIdentifier, resolveExpression, resolveJsxAttributeValue, resolveObject };
