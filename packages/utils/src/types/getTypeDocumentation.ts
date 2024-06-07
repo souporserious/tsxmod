@@ -1,20 +1,23 @@
 import type {
   ArrowFunction,
-  CallExpression,
   FunctionDeclaration,
   FunctionExpression,
   TaggedTemplateExpression,
+  CallExpression,
   TypeAliasDeclaration,
   InterfaceDeclaration,
-  ParameterDeclaration,
+  ClassDeclaration,
   Symbol,
   Type,
+  PropertyDeclaration,
+  MethodDeclaration,
+  ParameterDeclaration,
   ts,
 } from 'ts-morph'
 import { Node, SyntaxKind, TypeFormatFlags, TypeChecker } from 'ts-morph'
 import { getDefaultValuesFromProperties, getSymbolDescription } from '../index'
 
-/** Analyzes metadata and parameter types from functions, tagged templates, and call expressions. */
+/** Analyzes metadata and parameter types from functions, tagged templates, call expressions, type aliases, interfaces, or classes. */
 export function getTypeDocumentation(
   declarationOrExpression:
     | FunctionDeclaration
@@ -24,6 +27,7 @@ export function getTypeDocumentation(
     | CallExpression
     | TypeAliasDeclaration
     | InterfaceDeclaration
+    | ClassDeclaration
 ) {
   if (Node.isTypeAliasDeclaration(declarationOrExpression)) {
     return processTypeAlias(declarationOrExpression)
@@ -31,6 +35,10 @@ export function getTypeDocumentation(
 
   if (Node.isInterfaceDeclaration(declarationOrExpression)) {
     return processInterface(declarationOrExpression)
+  }
+
+  if (Node.isClassDeclaration(declarationOrExpression)) {
+    return processClass(declarationOrExpression)
   }
 
   const signatures = declarationOrExpression.getType().getCallSignatures()
@@ -76,6 +84,102 @@ function processInterface(interfaceDeclaration: InterfaceDeclaration) {
     typeChecker,
     {}
   )
+}
+
+/** Processes a class into a metadata object. */
+function processClass(classDeclaration: ClassDeclaration) {
+  const classMetadata: any = {
+    constructorParameters: [],
+    instanceMethods: [],
+    instanceProperties: [],
+    staticMethods: [],
+    staticProperties: [],
+  }
+  // TODO: Handle constructors and methods with multiple signatures
+  const constructor = classDeclaration.getConstructors()[0]
+
+  if (constructor) {
+    classMetadata.constructorParameters = constructor
+      .getParameters()
+      .map((parameter) => {
+        return processParameterType(parameter, constructor)
+      })
+  }
+
+  classDeclaration
+    .getInstanceMethods()
+    .filter((method) => !method.hasModifier(SyntaxKind.PrivateKeyword))
+    .forEach((method) => {
+      classMetadata.instanceMethods.push(processClassMethod(method))
+    })
+
+  classDeclaration
+    .getStaticMethods()
+    .filter((method) => !method.hasModifier(SyntaxKind.PrivateKeyword))
+    .forEach((method) => {
+      classMetadata.staticMethods.push(processClassMethod(method))
+    })
+
+  classDeclaration
+    .getInstanceProperties()
+    .filter(Node.isPropertyDeclaration)
+    .forEach((property) => {
+      if (property.hasModifier(SyntaxKind.PrivateKeyword)) {
+        return
+      }
+      classMetadata.instanceProperties.push(
+        processPropertyDeclaration(property)
+      )
+    })
+
+  classDeclaration
+    .getStaticProperties()
+    .filter(Node.isPropertyDeclaration)
+    .forEach((property) => {
+      if (property.hasModifier(SyntaxKind.PrivateKeyword)) {
+        return
+      }
+      classMetadata.staticProperties.push(processPropertyDeclaration(property))
+    })
+
+  return classMetadata
+}
+
+/** Processes a method declaration into a metadata object. */
+function processClassMethod(method: MethodDeclaration) {
+  const signatures = method.getType().getCallSignatures()
+  const parameters = signatures
+    .at(0)!
+    .getParameters()
+    .map((parameter) =>
+      processParameterType(
+        parameter.getValueDeclaration() as ParameterDeclaration,
+        method
+      )
+    )
+  const returnType = signatures
+    .at(0)!
+    .getReturnType()
+    .getText(method, TypeFormatFlags.UseAliasDefinedOutsideCurrentScope)
+
+  return {
+    parameters,
+    returnType,
+    name: method.getName(),
+    description: getSymbolDescription(method.getSymbolOrThrow()),
+  }
+}
+
+/** Processes a property declaration into a metadata object. */
+function processPropertyDeclaration(property: PropertyDeclaration) {
+  const type = property
+    .getType()
+    .getText(property, TypeFormatFlags.UseAliasDefinedOutsideCurrentScope)
+  return {
+    type,
+    name: property.getName(),
+    description: getSymbolDescription(property.getSymbolOrThrow()),
+  }
 }
 
 /** Processes a signature parameter into a metadata object. */

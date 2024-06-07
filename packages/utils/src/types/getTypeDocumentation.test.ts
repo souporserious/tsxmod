@@ -564,10 +564,9 @@ describe('getTypeDocumentation', () => {
       `,
       { overwrite: true }
     )
-    const variableDeclaration = sourceFile.getVariableDeclarationOrThrow('Grid')
-    const initializer = variableDeclaration.getInitializerIfKindOrThrow(
-      SyntaxKind.TaggedTemplateExpression
-    )
+    const initializer = sourceFile
+      .getVariableDeclarationOrThrow('Grid')
+      .getInitializerIfKindOrThrow(SyntaxKind.TaggedTemplateExpression)
     const types = getTypeDocumentation(initializer)
 
     expect(types).toMatchInlineSnapshot(`
@@ -681,6 +680,113 @@ describe('getTypeDocumentation', () => {
           "text": "string",
         },
       ]
+    `)
+  })
+
+  test('class declarations', () => {
+    const sourceFile = project.createSourceFile(
+      'test.ts',
+      dedent`
+      class Counter {
+        initialCount: number = 0;
+        private count: number = 0;
+        static instanceCount: number = 0;
+  
+        constructor(initialCount: number = 0) {
+          this.count = count;
+          this.initialCount = initialCount;
+          Counter.instanceCount++;
+        }
+  
+        /** Increments the count. */
+        increment() {
+          this.count++;
+        }
+
+        /** Decrements the count. */
+        decrement() {
+          this.count--;
+        }
+  
+        /** Returns the current count. */
+        public getCount(isFloored?: boolean = true): number {
+          return isFloored ? Math.floor(this.count) : this.count;
+        }
+  
+        static getInstanceCount(): number {
+          return Counter.instanceCount;
+        }
+      }
+      `,
+      { overwrite: true }
+    )
+    const classDeclaration = sourceFile.getClassOrThrow('Counter')
+    const types = getTypeDocumentation(classDeclaration)
+
+    expect(types).toMatchInlineSnapshot(`
+      {
+        "constructorParameters": [
+          {
+            "defaultValue": "0",
+            "description": null,
+            "name": "initialCount",
+            "properties": null,
+            "required": false,
+            "text": "number",
+          },
+        ],
+        "instanceMethods": [
+          {
+            "description": "Increments the count.",
+            "name": "increment",
+            "parameters": [],
+            "returnType": "void",
+          },
+          {
+            "description": "Decrements the count.",
+            "name": "decrement",
+            "parameters": [],
+            "returnType": "void",
+          },
+          {
+            "description": "Returns the current count.",
+            "name": "getCount",
+            "parameters": [
+              {
+                "defaultValue": "true",
+                "description": null,
+                "name": "isFloored",
+                "properties": null,
+                "required": false,
+                "text": "boolean",
+              },
+            ],
+            "returnType": "number",
+          },
+        ],
+        "instanceProperties": [
+          {
+            "description": null,
+            "name": "initialCount",
+            "type": "number",
+          },
+        ],
+        "staticMethods": [
+          {
+            "description": null,
+            "name": "getInstanceCount",
+            "parameters": [],
+            "returnType": "number",
+          },
+        ],
+        "staticProperties": [
+          {
+            "description": null,
+            "name": "instanceCount",
+            "type": "number",
+          },
+        ],
+      }
     `)
   })
 })
