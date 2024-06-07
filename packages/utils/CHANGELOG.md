@@ -1,5 +1,12 @@
 # @tsxmod/utils
 
+## 0.5.2
+
+### Patch Changes
+
+- 537efde: Fixes `addComputedTypes` not flattening interfaces.
+- 389adf6: Fixes `addComputedTypes` not flattening property values that point to other types.
+
 ## 0.5.1
 
 ### Patch Changes
