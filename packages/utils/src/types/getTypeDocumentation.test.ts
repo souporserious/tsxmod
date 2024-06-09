@@ -799,4 +799,34 @@ describe("getTypeDocumentation", () => {
       }
     `);
   });
+
+  test("handles multiple arguments", () => {
+    const sourceFile = project.createSourceFile(
+      "test.ts",
+      `function add(a: number, b: number = 0): number { return a + b }`,
+      { overwrite: true }
+    );
+    const types = getTypeDocumentation(sourceFile.getFunctionOrThrow("add"));
+
+    expect(types).toMatchInlineSnapshot(`
+      [
+        {
+          "defaultValue": undefined,
+          "description": null,
+          "name": "a",
+          "properties": null,
+          "required": true,
+          "text": "number",
+        },
+        {
+          "defaultValue": "0",
+          "description": null,
+          "name": "b",
+          "properties": null,
+          "required": false,
+          "text": "number",
+        },
+      ]
+    `);
+  });
 });
