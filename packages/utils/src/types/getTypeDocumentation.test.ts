@@ -1,5 +1,4 @@
 import dedent from 'dedent'
-import type { VariableDeclaration } from 'ts-morph'
 import { Project, SyntaxKind } from 'ts-morph'
 import { getTypeDocumentation } from './getTypeDocumentation'
 
@@ -13,10 +12,9 @@ describe('getTypeDocumentation', () => {
       `function useCounter(\n/** ${description} */ initialCount: number = 0) {}`,
       { overwrite: true }
     )
-    const functionDeclaration = sourceFile.getFirstDescendantByKindOrThrow(
-      SyntaxKind.FunctionDeclaration
+    const types = getTypeDocumentation(
+      sourceFile.getFunctionOrThrow('useCounter')
     )
-    const types = getTypeDocumentation(functionDeclaration)
     const [type] = types!
 
     expect(type).toEqual({
@@ -36,10 +34,9 @@ describe('getTypeDocumentation', () => {
       `function useCounter({ initialCount = 0 }: {\n/** ${description} */ initialCount?: number }) {}`,
       { overwrite: true }
     )
-    const functionDeclaration = sourceFile.getFirstDescendantByKindOrThrow(
-      SyntaxKind.FunctionDeclaration
+    const types = getTypeDocumentation(
+      sourceFile.getFunctionOrThrow('useCounter')
     )
-    const types = getTypeDocumentation(functionDeclaration)
     const [type] = types!
 
     expect(type).toEqual({
@@ -67,10 +64,9 @@ describe('getTypeDocumentation', () => {
       `function useCounter({ initial = { count: 0 } }?: { initial?: { count: number } } = {}) {}`,
       { overwrite: true }
     )
-    const functionDeclaration = sourceFile.getFirstDescendantByKindOrThrow(
-      SyntaxKind.FunctionDeclaration
+    const types = getTypeDocumentation(
+      sourceFile.getFunctionOrThrow('useCounter')
     )
-    const types = getTypeDocumentation(functionDeclaration)
     const [type] = types!
 
     expect(type).toEqual({
@@ -107,10 +103,9 @@ describe('getTypeDocumentation', () => {
       `const useCounter = (initialCount: number = 0) => {}`,
       { overwrite: true }
     )
-    const functionDeclaration = sourceFile.getFirstDescendantByKindOrThrow(
-      SyntaxKind.ArrowFunction
+    const types = getTypeDocumentation(
+      sourceFile.getVariableDeclarationOrThrow('useCounter')
     )
-    const types = getTypeDocumentation(functionDeclaration)
     const [type] = types!
 
     expect(type).toEqual({
@@ -129,10 +124,9 @@ describe('getTypeDocumentation', () => {
       `const useCounter = function (initialCount: number = 0) {}`,
       { overwrite: true }
     )
-    const functionDeclaration = sourceFile.getFirstDescendantByKindOrThrow(
-      SyntaxKind.FunctionExpression
+    const types = getTypeDocumentation(
+      sourceFile.getVariableDeclarationOrThrow('useCounter')
     )
-    const types = getTypeDocumentation(functionDeclaration)
     const [type] = types!
 
     expect(type).toEqual({
@@ -155,10 +149,9 @@ describe('getTypeDocumentation', () => {
       `import { CounterOptions } from './types' function useCounter({ initialCount = 0 }: CounterOptions) {}`,
       { overwrite: true }
     )
-    const functionDeclaration = sourceFile.getFirstDescendantByKindOrThrow(
-      SyntaxKind.FunctionDeclaration
+    const types = getTypeDocumentation(
+      sourceFile.getFunctionOrThrow('useCounter')
     )
-    const types = getTypeDocumentation(functionDeclaration)
     const [type] = types!
 
     expect(type).toEqual({
@@ -182,10 +175,9 @@ describe('getTypeDocumentation', () => {
       `import { useCounter } from './types' function useCounterOverride({ initialCount = 0 }: ReturnType<typeof useCounter>) {}`,
       { overwrite: true }
     )
-    const functionDeclaration = sourceFile.getFirstDescendantByKindOrThrow(
-      SyntaxKind.FunctionDeclaration
+    const types = getTypeDocumentation(
+      sourceFile.getFunctionOrThrow('useCounterOverride')
     )
-    const types = getTypeDocumentation(functionDeclaration)
     const [type] = types!
 
     expect(type).toEqual({
@@ -209,10 +201,9 @@ describe('getTypeDocumentation', () => {
       `import { useCounter } from './types' function useCounterOverride({ counterState }: { counterState: ReturnType<typeof useCounter> }) {}`,
       { overwrite: true }
     )
-    const functionDeclaration = sourceFile.getFirstDescendantByKindOrThrow(
-      SyntaxKind.FunctionDeclaration
+    const types = getTypeDocumentation(
+      sourceFile.getFunctionOrThrow('useCounterOverride')
     )
-    const types = getTypeDocumentation(functionDeclaration)
     const [type] = types!
 
     expect(type).toEqual({
@@ -240,10 +231,9 @@ describe('getTypeDocumentation', () => {
       `type BaseProps = { color: string }; type Props = BaseProps & { source: string } | BaseProps & { value: string }; function Component(props: Props) {}`,
       { overwrite: true }
     )
-    const functionDeclaration = sourceFile.getFirstDescendantByKindOrThrow(
-      SyntaxKind.FunctionDeclaration
+    const types = getTypeDocumentation(
+      sourceFile.getFunctionOrThrow('Component')
     )
-    const types = getTypeDocumentation(functionDeclaration)
     const [type] = types!
 
     expect(type).toEqual({
@@ -293,10 +283,9 @@ describe('getTypeDocumentation', () => {
       `type Props = { color: string } | string; function Component(props: Props) {}`,
       { overwrite: true }
     )
-    const functionDeclaration = sourceFile.getFirstDescendantByKindOrThrow(
-      SyntaxKind.FunctionDeclaration
+    const types = getTypeDocumentation(
+      sourceFile.getFunctionOrThrow('Component')
     )
-    const types = getTypeDocumentation(functionDeclaration)
     const [type] = types!
 
     expect(type).toEqual({
@@ -426,11 +415,9 @@ describe('getTypeDocumentation', () => {
       }: TextProps) => {}`,
       { overwrite: true }
     )
-
-    const functionDeclaration = sourceFile.getFirstDescendantByKindOrThrow(
-      SyntaxKind.ArrowFunction
+    const types = getTypeDocumentation(
+      sourceFile.getVariableDeclarationOrThrow('Text')
     )
-    const types = getTypeDocumentation(functionDeclaration)
     const [type] = types!
 
     expect(type.properties).toMatchInlineSnapshot(`
@@ -506,14 +493,9 @@ describe('getTypeDocumentation', () => {
       `,
       { overwrite: true }
     )
-    const variableDeclaration = sourceFile
-      .getExportedDeclarations()
-      .get('Grid')!
-      .at(0)! as VariableDeclaration
-    const initializer = variableDeclaration.getInitializerIfKindOrThrow(
-      SyntaxKind.CallExpression
+    const types = getTypeDocumentation(
+      sourceFile.getVariableDeclarationOrThrow('Grid')
     )
-    const types = getTypeDocumentation(initializer)
 
     expect(types).toMatchInlineSnapshot(`
       [
@@ -564,10 +546,9 @@ describe('getTypeDocumentation', () => {
       `,
       { overwrite: true }
     )
-    const initializer = sourceFile
-      .getVariableDeclarationOrThrow('Grid')
-      .getInitializerIfKindOrThrow(SyntaxKind.TaggedTemplateExpression)
-    const types = getTypeDocumentation(initializer)
+    const types = getTypeDocumentation(
+      sourceFile.getVariableDeclarationOrThrow('Grid')
+    )
 
     expect(types).toMatchInlineSnapshot(`
       [
@@ -611,8 +592,7 @@ describe('getTypeDocumentation', () => {
       `,
       { overwrite: true }
     )
-    const typeAlias = sourceFile.getTypeAliasOrThrow('Props')
-    const types = getTypeDocumentation(typeAlias)
+    const types = getTypeDocumentation(sourceFile.getTypeAliasOrThrow('Props'))
 
     expect(types).toMatchInlineSnapshot(`
       [
@@ -650,8 +630,7 @@ describe('getTypeDocumentation', () => {
       `,
       { overwrite: true }
     )
-    const interfaceDeclaration = sourceFile.getInterfaceOrThrow('Props')
-    const types = getTypeDocumentation(interfaceDeclaration)
+    const types = getTypeDocumentation(sourceFile.getInterfaceOrThrow('Props'))
 
     expect(types).toMatchInlineSnapshot(`
       [
@@ -720,8 +699,7 @@ describe('getTypeDocumentation', () => {
       `,
       { overwrite: true }
     )
-    const classDeclaration = sourceFile.getClassOrThrow('Counter')
-    const types = getTypeDocumentation(classDeclaration)
+    const types = getTypeDocumentation(sourceFile.getClassOrThrow('Counter'))
 
     expect(types).toMatchInlineSnapshot(`
       {

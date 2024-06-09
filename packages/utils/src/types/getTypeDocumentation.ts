@@ -7,6 +7,7 @@ import type {
   TypeAliasDeclaration,
   InterfaceDeclaration,
   ClassDeclaration,
+  VariableDeclaration,
   Symbol,
   Type,
   PropertyDeclaration,
@@ -20,35 +21,64 @@ import { getDefaultValuesFromProperties, getSymbolDescription } from '../index'
 /** Analyzes metadata and parameter types from functions, tagged templates, call expressions, type aliases, interfaces, or classes. */
 export function getTypeDocumentation(
   declarationOrExpression:
-    | FunctionDeclaration
-    | FunctionExpression
-    | ArrowFunction
-    | TaggedTemplateExpression
-    | CallExpression
     | TypeAliasDeclaration
     | InterfaceDeclaration
     | ClassDeclaration
+    | FunctionDeclaration
+    | VariableDeclaration
 ) {
-  if (Node.isTypeAliasDeclaration(declarationOrExpression)) {
-    return processTypeAlias(declarationOrExpression)
-  }
-
   if (Node.isInterfaceDeclaration(declarationOrExpression)) {
     return processInterface(declarationOrExpression)
+  }
+
+  if (Node.isTypeAliasDeclaration(declarationOrExpression)) {
+    return processTypeAlias(declarationOrExpression)
   }
 
   if (Node.isClassDeclaration(declarationOrExpression)) {
     return processClass(declarationOrExpression)
   }
 
-  const signatures = declarationOrExpression.getType().getCallSignatures()
+  if (Node.isFunctionDeclaration(declarationOrExpression)) {
+    return processFunctionOrExpression(declarationOrExpression)
+  }
+
+  if (Node.isVariableDeclaration(declarationOrExpression)) {
+    const initializer = declarationOrExpression.getInitializer()
+    if (
+      Node.isArrowFunction(initializer) ||
+      Node.isFunctionExpression(initializer) ||
+      Node.isCallExpression(initializer) ||
+      Node.isTaggedTemplateExpression(initializer)
+    ) {
+      return processFunctionOrExpression(initializer)
+    }
+  }
+
+  throw new Error(
+    `Unsupported declaration or expression while processing type documentation: ${declarationOrExpression.getText()}`
+  )
+}
+
+/** Processes a function declaration into a metadata object. */
+function processFunctionOrExpression(
+  functionDeclarationOrExpression:
+    | FunctionDeclaration
+    | ArrowFunction
+    | FunctionExpression
+    | TaggedTemplateExpression
+    | CallExpression
+) {
+  const signatures = functionDeclarationOrExpression
+    .getType()
+    .getCallSignatures()
 
   if (signatures.length === 0) {
     return null
   }
 
-  // TODO: Handle multiple signatures (overloads)
-  const parameters = signatures.at(0)!.getParameters()
+  const signature = signatures[0]
+  const parameters = signature.getParameters()
 
   if (parameters.length === 0) {
     return null
@@ -59,7 +89,7 @@ export function getTypeDocumentation(
   for (const parameter of parameters) {
     const parameterType = processParameterType(
       parameter.getValueDeclaration() as ParameterDeclaration,
-      declarationOrExpression
+      functionDeclarationOrExpression
     )
     parameterTypes.push(parameterType)
   }
@@ -71,19 +101,14 @@ export function getTypeDocumentation(
 function processTypeAlias(typeAlias: TypeAliasDeclaration) {
   const typeChecker = typeAlias.getProject().getTypeChecker()
   const aliasType = typeAlias.getType()
-  return processTypeProperties(aliasType, typeAlias, typeChecker, {})
+  return processTypeProperties(aliasType, typeAlias, typeChecker)
 }
 
 /** Processes an interface into a metadata object. */
 function processInterface(interfaceDeclaration: InterfaceDeclaration) {
   const typeChecker = interfaceDeclaration.getProject().getTypeChecker()
   const interfaceType = interfaceDeclaration.getType()
-  return processTypeProperties(
-    interfaceType,
-    interfaceDeclaration,
-    typeChecker,
-    {}
-  )
+  return processTypeProperties(interfaceType, interfaceDeclaration, typeChecker)
 }
 
 /** Processes a class into a metadata object. */
@@ -300,7 +325,7 @@ function processTypeProperties(
   type: Type,
   declaration: Node,
   typeChecker: TypeChecker,
-  defaultValues: Record<string, any>
+  defaultValues: Record<string, any> = {}
 ): PropertyMetadata[] {
   // Handle intersection types by recursively processing each type in the intersection
   if (type.isIntersection()) {
