@@ -12,11 +12,14 @@ export function getDefaultValuesFromProperties(
   const defaultValues: Record<string, string | boolean | number | null> = {}
 
   properties.forEach((property) => {
-    if (Node.isSpreadAssignment(property) || !property.getName()) {
+    if (Node.isSpreadAssignment(property) || !property.getNameNode()) {
       return
     }
 
-    const name = property.getName()
+    const name = Node.isBindingElement(property)
+      ? property.getPropertyNameNode()?.getText() || property.getName()
+      : property.getName()
+
     const initializer = property.getInitializer()
 
     if (initializer) {

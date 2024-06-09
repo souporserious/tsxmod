@@ -21,4 +21,22 @@ describe('getDefaultValuesFromProperties', () => {
       options: '{ incrementBy: 1 }',
     })
   })
+
+  test('handles renamed property default values', () => {
+    const sourceFile = project.createSourceFile(
+      'test.ts',
+      `function useCounter({ initialCount: renamedInitialCount = 0 }: { initialCount: number }) {}`,
+      { overwrite: true }
+    )
+    const [parameter] = sourceFile
+      .getFunctionOrThrow('useCounter')
+      .getParameters()
+    const types = getDefaultValuesFromProperties(
+      parameter.getDescendantsOfKind(SyntaxKind.BindingElement)
+    )
+
+    expect(types).toEqual({
+      initialCount: '0',
+    })
+  })
 })
