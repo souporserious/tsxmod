@@ -18,33 +18,33 @@ import type {
 import { Node, SyntaxKind, TypeFormatFlags, TypeChecker } from 'ts-morph'
 import { getDefaultValuesFromProperties, getSymbolDescription } from '../index'
 
-/** Analyzes metadata and parameter types from functions, tagged templates, call expressions, type aliases, interfaces, or classes. */
+/** Analyzes metadata from interfaces, type aliases, classes, functions, and variable declarations. */
 export function getTypeDocumentation(
-  declarationOrExpression:
-    | TypeAliasDeclaration
+  declaration:
     | InterfaceDeclaration
+    | TypeAliasDeclaration
     | ClassDeclaration
     | FunctionDeclaration
     | VariableDeclaration
 ) {
-  if (Node.isInterfaceDeclaration(declarationOrExpression)) {
-    return processInterface(declarationOrExpression)
+  if (Node.isInterfaceDeclaration(declaration)) {
+    return processInterface(declaration)
   }
 
-  if (Node.isTypeAliasDeclaration(declarationOrExpression)) {
-    return processTypeAlias(declarationOrExpression)
+  if (Node.isTypeAliasDeclaration(declaration)) {
+    return processTypeAlias(declaration)
   }
 
-  if (Node.isClassDeclaration(declarationOrExpression)) {
-    return processClass(declarationOrExpression)
+  if (Node.isClassDeclaration(declaration)) {
+    return processClass(declaration)
   }
 
-  if (Node.isFunctionDeclaration(declarationOrExpression)) {
-    return processFunctionOrExpression(declarationOrExpression)
+  if (Node.isFunctionDeclaration(declaration)) {
+    return processFunctionOrExpression(declaration)
   }
 
-  if (Node.isVariableDeclaration(declarationOrExpression)) {
-    const initializer = declarationOrExpression.getInitializer()
+  if (Node.isVariableDeclaration(declaration)) {
+    const initializer = declaration.getInitializer()
     if (
       Node.isArrowFunction(initializer) ||
       Node.isFunctionExpression(initializer) ||
@@ -56,7 +56,7 @@ export function getTypeDocumentation(
   }
 
   throw new Error(
-    `Unsupported declaration or expression while processing type documentation: ${declarationOrExpression.getText()}`
+    `Unsupported declaration while processing type documentation for: ${declaration.getText()}`
   )
 }
 
