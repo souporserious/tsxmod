@@ -18,7 +18,11 @@ import type {
   ts,
 } from 'ts-morph'
 import { Node, SyntaxKind, TypeFormatFlags, TypeChecker } from 'ts-morph'
-import { getDefaultValuesFromProperties, getSymbolDescription } from '../index'
+import {
+  getDefaultValuesFromProperties,
+  getJsDocMetadata,
+  getSymbolDescription,
+} from '../index'
 
 /** Analyzes metadata from interfaces, type aliases, classes, functions, and variable declarations. */
 export function getTypeDocumentation(
@@ -69,12 +73,12 @@ function processInterface(interfaceDeclaration: InterfaceDeclaration) {
 
   return {
     name: interfaceDeclaration.getName(),
-    description: getJsDocDescription(interfaceDeclaration),
     properties: processTypeProperties(
       interfaceType,
       interfaceDeclaration,
       typeChecker
     ),
+    ...getJsDocMetadata(interfaceDeclaration),
   }
 }
 
@@ -85,8 +89,8 @@ function processTypeAlias(typeAlias: TypeAliasDeclaration) {
 
   return {
     name: typeAlias.getName(),
-    description: getJsDocDescription(typeAlias),
     properties: processTypeProperties(aliasType, typeAlias, typeChecker),
+    ...getJsDocMetadata(typeAlias),
   }
 }
 
@@ -130,9 +134,6 @@ function processFunctionOrExpression(
     name: variableDeclaration
       ? variableDeclaration.getName()
       : (functionDeclarationOrExpression as FunctionDeclaration).getName(),
-    description: getJsDocDescription(
-      variableDeclaration || functionDeclarationOrExpression
-    ),
     parameters: parameterTypes,
     type: functionDeclarationOrExpression
       .getType()
@@ -146,6 +147,7 @@ function processFunctionOrExpression(
         functionDeclarationOrExpression,
         TypeFormatFlags.UseAliasDefinedOutsideCurrentScope
       ),
+    ...getJsDocMetadata(variableDeclaration || functionDeclarationOrExpression),
   }
 }
 
@@ -215,26 +217,15 @@ function getScope(
   return null
 }
 
-function getJsDocDescription(node: Node): string | null {
-  if (Node.isJSDocable(node)) {
-    const docs = node.getJsDocs()
-    const content = docs.map((doc) => doc.getInnerText()).join('\n')
-    if (content.length > 0) {
-      return content
-    }
-  }
-  return null
-}
-
 /** Processes a class into a metadata object. */
 function processClass(classDeclaration: ClassDeclaration) {
   const classMetadata: any = {
     name: classDeclaration.getName(),
-    description: getJsDocDescription(classDeclaration),
     constructor: null,
     accessors: [],
     methods: [],
     properties: [],
+    ...getJsDocMetadata(classDeclaration),
   }
 
   // TODO: add support for multiple constructors
@@ -243,10 +234,10 @@ function processClass(classDeclaration: ClassDeclaration) {
   if (constructor) {
     classMetadata.constructor = {
       name: 'constructor',
-      description: getJsDocDescription(constructor),
       parameters: constructor
         .getParameters()
         .map((parameter) => processParameterType(parameter, constructor)),
+      ...getJsDocMetadata(constructor),
     }
   }
 

@@ -18,7 +18,6 @@ describe('getTypeDocumentation', () => {
 
     expect(types).toMatchInlineSnapshot(`
       {
-        "description": null,
         "name": "useCounter",
         "parameters": [
           {
@@ -40,7 +39,7 @@ describe('getTypeDocumentation', () => {
     const description = 'Provides the initial count.'
     const sourceFile = project.createSourceFile(
       'test.ts',
-      `function useCounter({ initialCount = 0 }: {\n/** ${description} */ initialCount?: number }) {}`,
+      `/** Provides a counter state. \n* @deprecated use \`Counter\` component\n */\nfunction useCounter({ initialCount = 0 }: {\n/** ${description} */ initialCount?: number }) {}`,
       { overwrite: true }
     )
     const types = getTypeDocumentation(
@@ -49,7 +48,7 @@ describe('getTypeDocumentation', () => {
 
     expect(types).toMatchInlineSnapshot(`
       {
-        "description": null,
+        "description": "Provides a counter state. ",
         "name": "useCounter",
         "parameters": [
           {
@@ -71,6 +70,12 @@ describe('getTypeDocumentation', () => {
           },
         ],
         "returnType": "void",
+        "tags": [
+          {
+            "tagName": "deprecated",
+            "text": "use \`Counter\` component",
+          },
+        ],
         "type": "({ initialCount }: {    initialCount?: number;}) => void",
       }
     `)
@@ -88,7 +93,6 @@ describe('getTypeDocumentation', () => {
 
     expect(types).toMatchInlineSnapshot(`
       {
-        "description": null,
         "name": "useCounter",
         "parameters": [
           {
@@ -136,7 +140,6 @@ describe('getTypeDocumentation', () => {
 
     expect(types).toMatchInlineSnapshot(`
       {
-        "description": null,
         "name": "useCounter",
         "parameters": [
           {
@@ -166,7 +169,6 @@ describe('getTypeDocumentation', () => {
 
     expect(types).toMatchInlineSnapshot(`
       {
-        "description": null,
         "name": "useCounter",
         "parameters": [
           {
@@ -200,7 +202,6 @@ describe('getTypeDocumentation', () => {
 
     expect(types).toMatchInlineSnapshot(`
       {
-        "description": null,
         "name": "useCounter",
         "parameters": [
           {
@@ -235,7 +236,6 @@ describe('getTypeDocumentation', () => {
 
     expect(types).toMatchInlineSnapshot(`
       {
-        "description": null,
         "name": "useCounterOverride",
         "parameters": [
           {
@@ -270,7 +270,6 @@ describe('getTypeDocumentation', () => {
 
     expect(types).toMatchInlineSnapshot(`
       {
-        "description": null,
         "name": "useCounterOverride",
         "parameters": [
           {
@@ -309,7 +308,6 @@ describe('getTypeDocumentation', () => {
 
     expect(types).toMatchInlineSnapshot(`
       {
-        "description": null,
         "name": "Component",
         "parameters": [
           {
@@ -370,7 +368,6 @@ describe('getTypeDocumentation', () => {
 
     expect(types).toMatchInlineSnapshot(`
       {
-        "description": null,
         "name": "Component",
         "parameters": [
           {
@@ -428,7 +425,6 @@ describe('getTypeDocumentation', () => {
 
     expect(types).toMatchInlineSnapshot(`
       {
-        "description": null,
         "name": "Component",
         "parameters": [
           {
@@ -520,7 +516,6 @@ describe('getTypeDocumentation', () => {
 
     expect(types).toMatchInlineSnapshot(`
       {
-        "description": null,
         "name": "Text",
         "parameters": [
           {
@@ -612,7 +607,6 @@ describe('getTypeDocumentation', () => {
 
     expect(types).toMatchInlineSnapshot(`
       {
-        "description": null,
         "name": "Grid",
         "parameters": [
           {
@@ -671,7 +665,6 @@ describe('getTypeDocumentation', () => {
 
     expect(types).toMatchInlineSnapshot(`
       {
-        "description": null,
         "name": "Grid",
         "parameters": [
           {
@@ -721,7 +714,6 @@ describe('getTypeDocumentation', () => {
 
     expect(types).toMatchInlineSnapshot(`
       {
-        "description": null,
         "name": "Props",
         "properties": [
           {
@@ -763,7 +755,6 @@ describe('getTypeDocumentation', () => {
 
     expect(types).toMatchInlineSnapshot(`
       {
-        "description": null,
         "name": "Props",
         "properties": [
           {
@@ -894,8 +885,8 @@ describe('getTypeDocumentation', () => {
               "type": "number",
             },
           ],
+          "tags": undefined,
         },
-        "description": null,
         "methods": [
           {
             "description": "Increments the count.",
@@ -982,7 +973,6 @@ describe('getTypeDocumentation', () => {
 
     expect(types).toMatchInlineSnapshot(`
       {
-        "description": null,
         "name": "useCounter",
         "parameters": [
           {
@@ -1019,7 +1009,6 @@ describe('getTypeDocumentation', () => {
 
     expect(types).toMatchInlineSnapshot(`
       {
-        "description": null,
         "name": "add",
         "parameters": [
           {

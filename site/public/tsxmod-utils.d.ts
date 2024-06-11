@@ -1,5 +1,5 @@
 import * as ts_morph from 'ts-morph';
-import { DiagnosticMessageChain, SourceFile, Expression, Identifier, Node, Project, ts, ImportClause, ImportDeclaration, ImportSpecifier, JsxOpeningElement, JsxSelfClosingElement, JsxElement, VariableDeclaration, FunctionDeclaration, FunctionExpression, ArrowFunction, ClassDeclaration, JsxAttribute, ObjectLiteralExpression, BindingElement, ParameterDeclaration, PropertyAssignment, CallExpression, Symbol, TaggedTemplateExpression } from 'ts-morph';
+import { DiagnosticMessageChain, SourceFile, Expression, Identifier, Node, Project, ts, ImportClause, ImportDeclaration, ImportSpecifier, JsxOpeningElement, JsxSelfClosingElement, JsxElement, VariableDeclaration, FunctionDeclaration, FunctionExpression, ArrowFunction, ClassDeclaration, JsxAttribute, ObjectLiteralExpression, BindingElement, ParameterDeclaration, PropertyAssignment, CallExpression, Symbol, InterfaceDeclaration, TypeAliasDeclaration } from 'ts-morph';
 
 /** Parses a diagnostic message into a string. */
 declare function getDiagnosticMessageText(message: string | DiagnosticMessageChain): string;
@@ -45,6 +45,15 @@ declare function getImportDeclaration(sourceFile: SourceFile, moduleSpecifier: s
  * const importSpecifier = getImportSpecifier(sourceFile, 'react', 'useState')
  */
 declare function getImportSpecifier(sourceFile: SourceFile, moduleSpecifier: string, importSpecifier: string): ImportSpecifier | undefined;
+
+/** Gets the description and tags from a JSDoc comment for a node. */
+declare function getJsDocMetadata(node: Node): {
+    description?: string;
+    tags?: {
+        tagName: string;
+        text?: string;
+    }[];
+} | null;
 
 /** Determines if a node has a specific JSDoc tag present. */
 declare function hasJsDocTag(node: Node, tagName: string): boolean;
@@ -140,24 +149,16 @@ declare function addComputedTypes(sourceFile: SourceFile): void;
  */
 declare function getComputedQuickInfoAtPosition(sourceFile: SourceFile, position: number): ts.QuickInfo | undefined;
 
-/** Analyzes metadata and parameter types from functions, tagged templates, and call expressions. */
-declare function getTypeDocumentation(declarationOrExpression: FunctionDeclaration | FunctionExpression | ArrowFunction | TaggedTemplateExpression | CallExpression): {
-    name: string | null;
-    description: string | null;
-    defaultValue: any;
-    required: boolean;
-    text: string;
-    properties?: PropertyMetadata[] | null | undefined;
-    unionProperties?: PropertyMetadata[][] | null | undefined;
-}[] | null;
+/** Analyzes metadata from interfaces, type aliases, classes, functions, and variable declarations. */
+declare function getTypeDocumentation(declaration: InterfaceDeclaration | TypeAliasDeclaration | ClassDeclaration | FunctionDeclaration | VariableDeclaration): any;
 interface PropertyMetadata {
     name: string | null;
     description: string | null;
     defaultValue: any;
     required: boolean;
-    text: string;
+    type: string;
     properties: (PropertyMetadata | null)[] | null;
     unionProperties?: PropertyMetadata[][];
 }
 
-export { type PropertyMetadata, TreeMode, addComputedTypes, extractExportByIdentifier, findClosestComponentDeclaration, findNamedImportReferences, findReferencesAsJsxElements, findReferencesInSourceFile, findRootComponentReferences, getChildrenFunction, getClassNamesForJsxElement, getComputedQuickInfoAtPosition, getDefaultValuesFromProperties, getDescendantAtRange, getDiagnosticMessageText, getImportClause, getImportDeclaration, getImportSpecifier, getJsxElement, getJsxElements, getPropTypes, getReactFunctionDeclaration, getSymbolDescription, getTypeDeclarationsFromProject, getTypeDocumentation, hasJsDocTag, isForwardRefExpression, isJsxComponent, renameJsxIdentifier, resolveExpression, resolveJsxAttributeValue, resolveObject };
+export { type PropertyMetadata, TreeMode, addComputedTypes, extractExportByIdentifier, findClosestComponentDeclaration, findNamedImportReferences, findReferencesAsJsxElements, findReferencesInSourceFile, findRootComponentReferences, getChildrenFunction, getClassNamesForJsxElement, getComputedQuickInfoAtPosition, getDefaultValuesFromProperties, getDescendantAtRange, getDiagnosticMessageText, getImportClause, getImportDeclaration, getImportSpecifier, getJsDocMetadata, getJsxElement, getJsxElements, getPropTypes, getReactFunctionDeclaration, getSymbolDescription, getTypeDeclarationsFromProject, getTypeDocumentation, hasJsDocTag, isForwardRefExpression, isJsxComponent, renameJsxIdentifier, resolveExpression, resolveJsxAttributeValue, resolveObject };
