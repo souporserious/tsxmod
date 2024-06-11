@@ -7,12 +7,14 @@ import type {
   TypeAliasDeclaration,
   InterfaceDeclaration,
   ClassDeclaration,
-  VariableDeclaration,
-  Symbol,
-  Type,
   PropertyDeclaration,
   MethodDeclaration,
   ParameterDeclaration,
+  SetAccessorDeclaration,
+  GetAccessorDeclaration,
+  VariableDeclaration,
+  Symbol,
+  Type,
   ts,
 } from 'ts-morph'
 import { Node, SyntaxKind, TypeFormatFlags, TypeChecker } from 'ts-morph'
@@ -73,6 +75,7 @@ function processFunctionOrExpression(
     .getType()
     .getCallSignatures()
 
+  // TODO: add support for multiple signatures (overloads)
   if (signatures.length === 0) {
     return null
   }
@@ -111,70 +114,161 @@ function processInterface(interfaceDeclaration: InterfaceDeclaration) {
   return processTypeProperties(interfaceType, interfaceDeclaration, typeChecker)
 }
 
+function getModifier(
+  node:
+    | SetAccessorDeclaration
+    | GetAccessorDeclaration
+    | FunctionDeclaration
+    | MethodDeclaration
+) {
+  if (Node.isSetAccessorDeclaration(node)) {
+    return 'setter'
+  }
+
+  if (Node.isGetAccessorDeclaration(node)) {
+    return 'getter'
+  }
+
+  if (node.isAsync()) {
+    return 'async'
+  }
+
+  if (node.isGenerator()) {
+    return 'generator'
+  }
+
+  return null
+}
+
+function getVisibility(
+  node:
+    | MethodDeclaration
+    | SetAccessorDeclaration
+    | GetAccessorDeclaration
+    | PropertyDeclaration
+) {
+  if (node.hasModifier(SyntaxKind.PrivateKeyword)) {
+    return 'private'
+  }
+
+  if (node.hasModifier(SyntaxKind.ProtectedKeyword)) {
+    return 'protected'
+  }
+
+  if (node.hasModifier(SyntaxKind.PublicKeyword)) {
+    return 'public'
+  }
+
+  return null
+}
+
+function getScope(
+  node:
+    | MethodDeclaration
+    | SetAccessorDeclaration
+    | GetAccessorDeclaration
+    | PropertyDeclaration
+) {
+  if (node.isAbstract()) {
+    return 'abstract'
+  }
+
+  if (node.isStatic()) {
+    return 'static'
+  }
+
+  return null
+}
+
+function getJsDocDescription(node: Node): string | null {
+  if (Node.isJSDocable(node)) {
+    const docs = node.getJsDocs()
+    const content = docs.map((doc) => doc.getInnerText()).join('\n')
+    if (content.length > 0) {
+      return content
+    }
+  }
+  return null
+}
+
 /** Processes a class into a metadata object. */
 function processClass(classDeclaration: ClassDeclaration) {
   const classMetadata: any = {
-    constructorParameters: [],
-    instanceMethods: [],
-    instanceProperties: [],
-    staticMethods: [],
-    staticProperties: [],
+    constructor: null,
+    accessors: [],
+    methods: [],
+    properties: [],
   }
-  // TODO: Handle constructors and methods with multiple signatures
+
+  // TODO: add support for multiple constructors
   const constructor = classDeclaration.getConstructors()[0]
 
   if (constructor) {
-    classMetadata.constructorParameters = constructor
-      .getParameters()
-      .map((parameter) => {
-        return processParameterType(parameter, constructor)
-      })
+    classMetadata.constructor = {
+      name: 'constructor',
+      description: getJsDocDescription(constructor),
+      parameters: constructor
+        .getParameters()
+        .map((parameter) => processParameterType(parameter, constructor)),
+    }
   }
 
-  classDeclaration
-    .getInstanceMethods()
-    .filter((method) => !method.hasModifier(SyntaxKind.PrivateKeyword))
-    .forEach((method) => {
-      classMetadata.instanceMethods.push(processClassMethod(method))
-    })
-
-  classDeclaration
-    .getStaticMethods()
-    .filter((method) => !method.hasModifier(SyntaxKind.PrivateKeyword))
-    .forEach((method) => {
-      classMetadata.staticMethods.push(processClassMethod(method))
-    })
-
-  classDeclaration
-    .getInstanceProperties()
-    .filter(Node.isPropertyDeclaration)
-    .forEach((property) => {
-      if (property.hasModifier(SyntaxKind.PrivateKeyword)) {
-        return
+  classDeclaration.getMembers().forEach((member) => {
+    if (
+      Node.isGetAccessorDeclaration(member) ||
+      Node.isSetAccessorDeclaration(member)
+    ) {
+      if (!member.hasModifier(SyntaxKind.PrivateKeyword)) {
+        classMetadata.accessors.push(processClassAccessor(member))
       }
-      classMetadata.instanceProperties.push(
-        processPropertyDeclaration(property)
-      )
-    })
-
-  classDeclaration
-    .getStaticProperties()
-    .filter(Node.isPropertyDeclaration)
-    .forEach((property) => {
-      if (property.hasModifier(SyntaxKind.PrivateKeyword)) {
-        return
+    } else if (Node.isMethodDeclaration(member)) {
+      if (!member.hasModifier(SyntaxKind.PrivateKeyword)) {
+        classMetadata.methods.push(processClassMethod(member))
       }
-      classMetadata.staticProperties.push(processPropertyDeclaration(property))
-    })
+    } else if (Node.isPropertyDeclaration(member)) {
+      if (!member.hasModifier(SyntaxKind.PrivateKeyword)) {
+        classMetadata.properties.push(processPropertyDeclaration(member))
+      }
+    }
+  })
 
   return classMetadata
+}
+
+/** Processes an accessor (getter or setter) into a metadata object. */
+function processClassAccessor(
+  accessor: GetAccessorDeclaration | SetAccessorDeclaration
+) {
+  const isSetter = Node.isSetAccessorDeclaration(accessor)
+  const parameters = isSetter
+    ? accessor
+        .getParameters()
+        .map((parameter) => processParameterType(parameter, accessor))
+    : []
+  const returnType = accessor
+    .getType()
+    .getText(accessor, TypeFormatFlags.UseAliasDefinedOutsideCurrentScope)
+
+  return {
+    ...(isSetter ? { parameters } : {}),
+    returnType,
+    name: accessor.getName(),
+    description: getSymbolDescription(accessor.getSymbolOrThrow()),
+    modifier: getModifier(accessor),
+    scope: getScope(accessor),
+    visibility: getVisibility(accessor),
+    text: accessor
+      .getType()
+      .getText(accessor, TypeFormatFlags.UseAliasDefinedOutsideCurrentScope),
+  }
 }
 
 /** Processes a method declaration into a metadata object. */
 function processClassMethod(method: MethodDeclaration) {
   const signatures = method.getType().getCallSignatures()
-  const parameters = signatures
-    .at(0)!
+  // TODO: add support for multiple signatures
+  const signature = signatures.at(0)!
+  const parameters = signature
     .getParameters()
     .map((parameter) =>
       processParameterType(
@@ -182,8 +276,7 @@ function processClassMethod(method: MethodDeclaration) {
         method
       )
     )
-  const returnType = signatures
-    .at(0)!
+  const returnType = signature
     .getReturnType()
     .getText(method, TypeFormatFlags.UseAliasDefinedOutsideCurrentScope)
 
@@ -192,18 +285,26 @@ function processClassMethod(method: MethodDeclaration) {
     returnType,
     name: method.getName(),
     description: getSymbolDescription(method.getSymbolOrThrow()),
+    modifier: getModifier(method),
+    scope: getScope(method),
+    visibility: getVisibility(method),
+    text: method
+      .getType()
+      .getText(method, TypeFormatFlags.UseAliasDefinedOutsideCurrentScope),
   }
 }
 
 /** Processes a property declaration into a metadata object. */
 function processPropertyDeclaration(property: PropertyDeclaration) {
-  const type = property
-    .getType()
-    .getText(property, TypeFormatFlags.UseAliasDefinedOutsideCurrentScope)
   return {
-    type,
     name: property.getName(),
     description: getSymbolDescription(property.getSymbolOrThrow()),
+    scope: getScope(property),
+    visibility: getVisibility(property),
+    isReadonly: property.isReadonly(),
+    text: property
+      .getType()
+      .getText(property, TypeFormatFlags.UseAliasDefinedOutsideCurrentScope),
   }
 }
 
