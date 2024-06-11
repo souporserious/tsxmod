@@ -43,7 +43,7 @@ export function getSymbolDescription(symbol: Symbol) {
   const valueDeclaration = symbol.getValueDeclaration()
 
   if (!valueDeclaration) {
-    return null
+    return
   }
 
   const commentRanges = valueDeclaration
@@ -51,7 +51,7 @@ export function getSymbolDescription(symbol: Symbol) {
     .map((commentRange) => cleanCommentRange(commentRange.getText()))
     .join('\n')
 
-  return commentRanges || null
+  return commentRanges || undefined
 }
 
 /** Remove comment markers and trim whitespace. */

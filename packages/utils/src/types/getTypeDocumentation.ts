@@ -110,14 +110,14 @@ function processFunctionOrExpression(
 
   // TODO: add support for multiple signatures (overloads)
   if (signatures.length === 0) {
-    return null
+    return
   }
 
   const signature = signatures[0]
   const parameters = signature.getParameters()
 
   if (parameters.length === 0) {
-    return null
+    return
   }
 
   let parameterTypes: ReturnType<typeof processParameterType>[] = []
@@ -173,8 +173,6 @@ function getModifier(
   if (node.isGenerator()) {
     return 'generator'
   }
-
-  return null
 }
 
 function getVisibility(
@@ -195,8 +193,6 @@ function getVisibility(
   if (node.hasModifier(SyntaxKind.PublicKeyword)) {
     return 'public'
   }
-
-  return null
 }
 
 function getScope(
@@ -213,18 +209,25 @@ function getScope(
   if (node.isStatic()) {
     return 'static'
   }
-
-  return null
 }
 
 /** Processes a class into a metadata object. */
 function processClass(classDeclaration: ClassDeclaration) {
-  const classMetadata: any = {
+  const classMetadata: {
+    name?: string
+    constructor?: {
+      name: string
+      parameters?: ReturnType<typeof processParameterType>[]
+      description?: string
+      tags?: { tagName: string; text?: string }[]
+    }
+    accessors?: ReturnType<typeof processClassAccessor>[]
+    methods?: ReturnType<typeof processClassMethod>[]
+    properties?: ReturnType<typeof processPropertyDeclaration>[]
+    description?: string
+    tags?: { tagName: string; text?: string }[]
+  } = {
     name: classDeclaration.getName(),
-    constructor: null,
-    accessors: [],
-    methods: [],
-    properties: [],
     ...getJsDocMetadata(classDeclaration),
   }
 
@@ -247,14 +250,23 @@ function processClass(classDeclaration: ClassDeclaration) {
       Node.isSetAccessorDeclaration(member)
     ) {
       if (!member.hasModifier(SyntaxKind.PrivateKeyword)) {
+        if (!classMetadata.accessors) {
+          classMetadata.accessors = []
+        }
         classMetadata.accessors.push(processClassAccessor(member))
       }
     } else if (Node.isMethodDeclaration(member)) {
       if (!member.hasModifier(SyntaxKind.PrivateKeyword)) {
+        if (!classMetadata.methods) {
+          classMetadata.methods = []
+        }
         classMetadata.methods.push(processClassMethod(member))
       }
     } else if (Node.isPropertyDeclaration(member)) {
       if (!member.hasModifier(SyntaxKind.PrivateKeyword)) {
+        if (!classMetadata.properties) {
+          classMetadata.properties = []
+        }
         classMetadata.properties.push(processPropertyDeclaration(member))
       }
     }
@@ -347,25 +359,22 @@ function processParameterType(
     parameterDeclaration.getNameNode()
   )
   const metadata: {
-    name: string | null
-    description: string | null
-    defaultValue: any
+    name?: string
+    description?: string
+    defaultValue?: any
     required: boolean
     type: string
-    properties?: ReturnType<typeof processTypeProperties> | null
-    unionProperties?:
-      | ReturnType<typeof processUnionType>['unionProperties']
-      | null
+    properties?: ReturnType<typeof processTypeProperties>
+    unionProperties?: ReturnType<typeof processUnionType>['unionProperties']
   } = {
     defaultValue,
-    name: isObjectBindingPattern ? null : parameterDeclaration.getName(),
+    name: isObjectBindingPattern ? undefined : parameterDeclaration.getName(),
     description: getSymbolDescription(parameterDeclaration.getSymbolOrThrow()),
     required: !parameterDeclaration.hasQuestionToken() && !defaultValue,
     type: parameterType.getText(
       enclosingNode,
       TypeFormatFlags.UseAliasDefinedOutsideCurrentScope
     ),
-    properties: null,
   }
 
   const typeDeclaration = parameterType.getSymbol()?.getDeclarations()?.at(0)
@@ -416,12 +425,12 @@ function processParameterType(
 }
 
 export interface PropertyMetadata {
-  name: string | null
-  description: string | null
-  defaultValue: any
+  name?: string
+  description?: string
+  defaultValue?: any
   required: boolean
   type: string
-  properties: (PropertyMetadata | null)[] | null
+  properties?: (PropertyMetadata | null)[]
   unionProperties?: PropertyMetadata[][]
 }
 
@@ -484,15 +493,11 @@ function processTypeProperties(
 
     return [
       {
-        name: null,
-        description: null,
-        defaultValue: undefined,
         required: true,
         type: type.getText(
           declaration,
           TypeFormatFlags.UseAliasDefinedOutsideCurrentScope
         ),
-        properties: null,
       },
     ]
   }
@@ -542,7 +547,7 @@ function processProperty(
       declaration.getSourceFile().isInNodeModules()
     )
   ) {
-    return null
+    return
   }
 
   const primaryDeclaration = declarations.at(0)
@@ -574,7 +579,6 @@ function processProperty(
       ? !primaryDeclaration.hasQuestionToken() && !defaultValue
       : !defaultValue,
     type: typeText,
-    properties: null,
   }
 
   if (propertyType.isObject()) {

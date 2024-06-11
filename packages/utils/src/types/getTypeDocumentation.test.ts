@@ -24,7 +24,6 @@ describe('getTypeDocumentation', () => {
             "defaultValue": "0",
             "description": "Provides the initial count.",
             "name": "initialCount",
-            "properties": null,
             "required": false,
             "type": "number",
           },
@@ -53,14 +52,13 @@ describe('getTypeDocumentation', () => {
         "parameters": [
           {
             "defaultValue": undefined,
-            "description": null,
-            "name": null,
+            "description": undefined,
+            "name": undefined,
             "properties": [
               {
                 "defaultValue": "0",
                 "description": "Provides the initial count.",
                 "name": "initialCount",
-                "properties": null,
                 "required": false,
                 "type": "number",
               },
@@ -97,19 +95,18 @@ describe('getTypeDocumentation', () => {
         "parameters": [
           {
             "defaultValue": "{}",
-            "description": null,
-            "name": null,
+            "description": undefined,
+            "name": undefined,
             "properties": [
               {
                 "defaultValue": "{ count: 0 }",
-                "description": null,
+                "description": undefined,
                 "name": "initial",
                 "properties": [
                   {
                     "defaultValue": undefined,
-                    "description": null,
+                    "description": undefined,
                     "name": "count",
-                    "properties": null,
                     "required": true,
                     "type": "number",
                   },
@@ -144,9 +141,8 @@ describe('getTypeDocumentation', () => {
         "parameters": [
           {
             "defaultValue": "0",
-            "description": null,
+            "description": undefined,
             "name": "initialCount",
-            "properties": null,
             "required": false,
             "type": "number",
           },
@@ -173,9 +169,8 @@ describe('getTypeDocumentation', () => {
         "parameters": [
           {
             "defaultValue": "0",
-            "description": null,
+            "description": undefined,
             "name": "initialCount",
-            "properties": null,
             "required": false,
             "type": "number",
           },
@@ -206,9 +201,8 @@ describe('getTypeDocumentation', () => {
         "parameters": [
           {
             "defaultValue": undefined,
-            "description": null,
-            "name": null,
-            "properties": null,
+            "description": undefined,
+            "name": undefined,
             "required": true,
             "type": "CounterOptions",
           },
@@ -240,9 +234,8 @@ describe('getTypeDocumentation', () => {
         "parameters": [
           {
             "defaultValue": undefined,
-            "description": null,
-            "name": null,
-            "properties": null,
+            "description": undefined,
+            "name": undefined,
             "required": true,
             "type": "ReturnType<typeof useCounter>",
           },
@@ -274,14 +267,13 @@ describe('getTypeDocumentation', () => {
         "parameters": [
           {
             "defaultValue": undefined,
-            "description": null,
-            "name": null,
+            "description": undefined,
+            "name": undefined,
             "properties": [
               {
                 "defaultValue": undefined,
-                "description": null,
+                "description": undefined,
                 "name": "counterState",
-                "properties": null,
                 "required": true,
                 "type": "ReturnType<typeof useCounter>",
               },
@@ -312,14 +304,13 @@ describe('getTypeDocumentation', () => {
         "parameters": [
           {
             "defaultValue": undefined,
-            "description": null,
+            "description": undefined,
             "name": "props",
             "properties": [
               {
                 "defaultValue": undefined,
-                "description": null,
+                "description": undefined,
                 "name": "color",
-                "properties": null,
                 "required": true,
                 "type": "string",
               },
@@ -330,9 +321,8 @@ describe('getTypeDocumentation', () => {
               [
                 {
                   "defaultValue": undefined,
-                  "description": null,
+                  "description": undefined,
                   "name": "source",
-                  "properties": null,
                   "required": true,
                   "type": "string",
                 },
@@ -340,9 +330,8 @@ describe('getTypeDocumentation', () => {
               [
                 {
                   "defaultValue": undefined,
-                  "description": null,
+                  "description": undefined,
                   "name": "value",
-                  "properties": null,
                   "required": true,
                   "type": "string",
                 },
@@ -372,7 +361,7 @@ describe('getTypeDocumentation', () => {
         "parameters": [
           {
             "defaultValue": undefined,
-            "description": null,
+            "description": undefined,
             "name": "props",
             "properties": [],
             "required": true,
@@ -380,10 +369,6 @@ describe('getTypeDocumentation', () => {
             "unionProperties": [
               [
                 {
-                  "defaultValue": undefined,
-                  "description": null,
-                  "name": null,
-                  "properties": null,
                   "required": true,
                   "type": "string",
                 },
@@ -391,9 +376,8 @@ describe('getTypeDocumentation', () => {
               [
                 {
                   "defaultValue": undefined,
-                  "description": null,
+                  "description": undefined,
                   "name": "color",
-                  "properties": null,
                   "required": true,
                   "type": "string",
                 },
@@ -429,14 +413,10 @@ describe('getTypeDocumentation', () => {
         "parameters": [
           {
             "defaultValue": undefined,
-            "description": null,
+            "description": undefined,
             "name": "props",
             "properties": [
               {
-                "defaultValue": undefined,
-                "description": null,
-                "name": null,
-                "properties": null,
                 "required": true,
                 "type": "BaseProps",
               },
@@ -447,9 +427,8 @@ describe('getTypeDocumentation', () => {
               [
                 {
                   "defaultValue": undefined,
-                  "description": null,
+                  "description": undefined,
                   "name": "source",
-                  "properties": null,
                   "required": true,
                   "type": "string",
                 },
@@ -457,9 +436,8 @@ describe('getTypeDocumentation', () => {
               [
                 {
                   "defaultValue": undefined,
-                  "description": null,
+                  "description": undefined,
                   "name": "value",
-                  "properties": null,
                   "required": true,
                   "type": "string",
                 },
@@ -520,54 +498,48 @@ describe('getTypeDocumentation', () => {
         "parameters": [
           {
             "defaultValue": undefined,
-            "description": null,
-            "name": null,
+            "description": undefined,
+            "name": undefined,
             "properties": [
               {
                 "defaultValue": undefined,
-                "description": null,
+                "description": undefined,
                 "name": "className",
-                "properties": null,
                 "required": false,
                 "type": "string",
               },
               {
                 "defaultValue": undefined,
-                "description": null,
+                "description": undefined,
                 "name": "children",
-                "properties": null,
                 "required": true,
                 "type": "ReactNode",
               },
               {
                 "defaultValue": "'body1'",
-                "description": null,
+                "description": undefined,
                 "name": "variant",
-                "properties": null,
                 "required": false,
                 "type": ""heading1" | "heading2" | "heading3" | "body1"",
               },
               {
                 "defaultValue": undefined,
-                "description": null,
+                "description": undefined,
                 "name": "alignment",
-                "properties": null,
                 "required": true,
                 "type": ""start" | "center" | "end"",
               },
               {
                 "defaultValue": undefined,
-                "description": null,
+                "description": undefined,
                 "name": "width",
-                "properties": null,
                 "required": true,
                 "type": "string | number",
               },
               {
                 "defaultValue": undefined,
-                "description": null,
+                "description": undefined,
                 "name": "lineHeight",
-                "properties": null,
                 "required": true,
                 "type": "string",
               },
@@ -611,22 +583,20 @@ describe('getTypeDocumentation', () => {
         "parameters": [
           {
             "defaultValue": undefined,
-            "description": null,
+            "description": undefined,
             "name": "props",
             "properties": [
               {
                 "defaultValue": undefined,
-                "description": null,
+                "description": undefined,
                 "name": "gridTemplateColumns",
-                "properties": null,
                 "required": true,
                 "type": "string",
               },
               {
                 "defaultValue": undefined,
-                "description": null,
+                "description": undefined,
                 "name": "gridTemplateRows",
-                "properties": null,
                 "required": false,
                 "type": "string",
               },
@@ -669,22 +639,20 @@ describe('getTypeDocumentation', () => {
         "parameters": [
           {
             "defaultValue": undefined,
-            "description": null,
+            "description": undefined,
             "name": "props",
             "properties": [
               {
                 "defaultValue": undefined,
-                "description": null,
+                "description": undefined,
                 "name": "$gridTemplateColumns",
-                "properties": null,
                 "required": true,
                 "type": "string",
               },
               {
                 "defaultValue": undefined,
-                "description": null,
+                "description": undefined,
                 "name": "$gridTemplateRows",
-                "properties": null,
                 "required": true,
                 "type": "string",
               },
@@ -718,17 +686,15 @@ describe('getTypeDocumentation', () => {
         "properties": [
           {
             "defaultValue": undefined,
-            "description": null,
+            "description": undefined,
             "name": "variant",
-            "properties": null,
             "required": true,
             "type": "'heading1' | 'heading2' | 'heading3' | 'body1' | 'body2'",
           },
           {
             "defaultValue": undefined,
-            "description": null,
+            "description": undefined,
             "name": "width",
-            "properties": null,
             "required": false,
             "type": "string | number",
           },
@@ -759,25 +725,22 @@ describe('getTypeDocumentation', () => {
         "properties": [
           {
             "defaultValue": undefined,
-            "description": null,
+            "description": undefined,
             "name": "variant",
-            "properties": null,
             "required": true,
             "type": "'heading1' | 'heading2' | 'heading3' | 'body1' | 'body2'",
           },
           {
             "defaultValue": undefined,
-            "description": null,
+            "description": undefined,
             "name": "width",
-            "properties": null,
             "required": false,
             "type": "string | number",
           },
           {
             "defaultValue": undefined,
-            "description": null,
+            "description": undefined,
             "name": "color",
-            "properties": null,
             "required": true,
             "type": "string",
           },
@@ -849,17 +812,16 @@ describe('getTypeDocumentation', () => {
             "parameters": [
               {
                 "defaultValue": undefined,
-                "description": null,
+                "description": undefined,
                 "name": "value",
-                "properties": null,
                 "required": true,
                 "type": "number",
               },
             ],
             "returnType": "number",
-            "scope": null,
+            "scope": undefined,
             "type": "number",
-            "visibility": null,
+            "visibility": undefined,
           },
           {
             "description": "Increments the count.
@@ -867,9 +829,9 @@ describe('getTypeDocumentation', () => {
             "modifier": "getter",
             "name": "accessorCount",
             "returnType": "number",
-            "scope": null,
+            "scope": undefined,
             "type": "number",
-            "visibility": null,
+            "visibility": undefined,
           },
         ],
         "constructor": {
@@ -878,9 +840,8 @@ describe('getTypeDocumentation', () => {
           "parameters": [
             {
               "defaultValue": "0",
-              "description": null,
+              "description": undefined,
               "name": "initialCount",
-              "properties": null,
               "required": false,
               "type": "number",
             },
@@ -890,71 +851,70 @@ describe('getTypeDocumentation', () => {
         "methods": [
           {
             "description": "Increments the count.",
-            "modifier": null,
+            "modifier": undefined,
             "name": "increment",
             "parameters": [],
             "returnType": "void",
-            "scope": null,
+            "scope": undefined,
             "type": "() => void",
-            "visibility": null,
+            "visibility": undefined,
           },
           {
             "description": "Decrements the count.",
-            "modifier": null,
+            "modifier": undefined,
             "name": "decrement",
             "parameters": [],
             "returnType": "void",
-            "scope": null,
+            "scope": undefined,
             "type": "() => void",
-            "visibility": null,
+            "visibility": undefined,
           },
           {
             "description": "Returns the current count.",
-            "modifier": null,
+            "modifier": undefined,
             "name": "getCount",
             "parameters": [
               {
                 "defaultValue": "true",
-                "description": null,
+                "description": undefined,
                 "name": "isFloored",
-                "properties": null,
                 "required": false,
                 "type": "boolean",
               },
             ],
             "returnType": "number",
-            "scope": null,
+            "scope": undefined,
             "type": "(isFloored?: boolean) => number",
             "visibility": "public",
           },
           {
-            "description": null,
-            "modifier": null,
+            "description": undefined,
+            "modifier": undefined,
             "name": "getStaticCount",
             "parameters": [],
             "returnType": "number",
             "scope": "static",
             "type": "() => number",
-            "visibility": null,
+            "visibility": undefined,
           },
         ],
         "name": "Counter",
         "properties": [
           {
-            "description": null,
+            "description": undefined,
             "isReadonly": false,
             "name": "initialCount",
-            "scope": null,
+            "scope": undefined,
             "type": "number",
-            "visibility": null,
+            "visibility": undefined,
           },
           {
-            "description": null,
+            "description": undefined,
             "isReadonly": false,
             "name": "staticCount",
             "scope": "static",
             "type": "number",
-            "visibility": null,
+            "visibility": undefined,
           },
         ],
       }
@@ -977,14 +937,13 @@ describe('getTypeDocumentation', () => {
         "parameters": [
           {
             "defaultValue": "{}",
-            "description": null,
-            "name": null,
+            "description": undefined,
+            "name": undefined,
             "properties": [
               {
                 "defaultValue": "0",
-                "description": null,
+                "description": undefined,
                 "name": "initialCount",
-                "properties": null,
                 "required": false,
                 "type": "number",
               },
@@ -1013,17 +972,15 @@ describe('getTypeDocumentation', () => {
         "parameters": [
           {
             "defaultValue": undefined,
-            "description": null,
+            "description": undefined,
             "name": "a",
-            "properties": null,
             "required": true,
             "type": "number",
           },
           {
             "defaultValue": "0",
-            "description": null,
+            "description": undefined,
             "name": "b",
-            "properties": null,
             "required": false,
             "type": "number",
           },
