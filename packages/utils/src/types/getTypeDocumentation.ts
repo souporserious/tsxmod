@@ -134,6 +134,18 @@ function processFunctionOrExpression(
       variableDeclaration || functionDeclarationOrExpression
     ),
     parameters: parameterTypes,
+    type: functionDeclarationOrExpression
+      .getType()
+      .getText(
+        functionDeclarationOrExpression,
+        TypeFormatFlags.UseAliasDefinedOutsideCurrentScope
+      ),
+    returnType: signature
+      .getReturnType()
+      .getText(
+        functionDeclarationOrExpression,
+        TypeFormatFlags.UseAliasDefinedOutsideCurrentScope
+      ),
   }
 }
 
@@ -282,7 +294,7 @@ function processClassAccessor(
     modifier: getModifier(accessor),
     scope: getScope(accessor),
     visibility: getVisibility(accessor),
-    text: accessor
+    type: accessor
       .getType()
       .getText(accessor, TypeFormatFlags.UseAliasDefinedOutsideCurrentScope),
   }
@@ -301,20 +313,19 @@ function processClassMethod(method: MethodDeclaration) {
         method
       )
     )
-  const returnType = signature
-    .getReturnType()
-    .getText(method, TypeFormatFlags.UseAliasDefinedOutsideCurrentScope)
 
   return {
     parameters,
-    returnType,
     name: method.getName(),
     description: getSymbolDescription(method.getSymbolOrThrow()),
     modifier: getModifier(method),
     scope: getScope(method),
     visibility: getVisibility(method),
-    text: method
+    type: method
       .getType()
+      .getText(method, TypeFormatFlags.UseAliasDefinedOutsideCurrentScope),
+    returnType: signature
+      .getReturnType()
       .getText(method, TypeFormatFlags.UseAliasDefinedOutsideCurrentScope),
   }
 }
@@ -327,7 +338,7 @@ function processPropertyDeclaration(property: PropertyDeclaration) {
     scope: getScope(property),
     visibility: getVisibility(property),
     isReadonly: property.isReadonly(),
-    text: property
+    type: property
       .getType()
       .getText(property, TypeFormatFlags.UseAliasDefinedOutsideCurrentScope),
   }
@@ -349,7 +360,7 @@ function processParameterType(
     description: string | null
     defaultValue: any
     required: boolean
-    text: string
+    type: string
     properties?: ReturnType<typeof processTypeProperties> | null
     unionProperties?:
       | ReturnType<typeof processUnionType>['unionProperties']
@@ -359,7 +370,7 @@ function processParameterType(
     name: isObjectBindingPattern ? null : parameterDeclaration.getName(),
     description: getSymbolDescription(parameterDeclaration.getSymbolOrThrow()),
     required: !parameterDeclaration.hasQuestionToken() && !defaultValue,
-    text: parameterType.getText(
+    type: parameterType.getText(
       enclosingNode,
       TypeFormatFlags.UseAliasDefinedOutsideCurrentScope
     ),
@@ -381,7 +392,7 @@ function processParameterType(
     // If the type is imported from a node module or not in the same file, return
     // the type name and don't process the properties any further.
     const parameterTypeNode = parameterDeclaration.getTypeNodeOrThrow()
-    metadata.text = parameterTypeNode.getText()
+    metadata.type = parameterTypeNode.getText()
     return metadata
   }
 
@@ -418,7 +429,7 @@ export interface PropertyMetadata {
   description: string | null
   defaultValue: any
   required: boolean
-  text: string
+  type: string
   properties: (PropertyMetadata | null)[] | null
   unionProperties?: PropertyMetadata[][]
 }
@@ -437,7 +448,7 @@ function processUnionType(
     )
   const { duplicates, filtered } = parseDuplicates(
     allUnionTypes,
-    (item) => item.name || item.text
+    (item) => item.name || item.type
   )
 
   return {
@@ -486,7 +497,7 @@ function processTypeProperties(
         description: null,
         defaultValue: undefined,
         required: true,
-        text: type.getText(
+        type: type.getText(
           declaration,
           TypeFormatFlags.UseAliasDefinedOutsideCurrentScope
         ),
@@ -571,7 +582,7 @@ function processProperty(
     required: Node.isPropertySignature(primaryDeclaration)
       ? !primaryDeclaration.hasQuestionToken() && !defaultValue
       : !defaultValue,
-    text: typeText,
+    type: typeText,
     properties: null,
   }
 

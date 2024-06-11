@@ -27,9 +27,11 @@ describe('getTypeDocumentation', () => {
             "name": "initialCount",
             "properties": null,
             "required": false,
-            "text": "number",
+            "type": "number",
           },
         ],
+        "returnType": "void",
+        "type": "(initialCount?: number) => void",
       }
     `)
   })
@@ -61,13 +63,15 @@ describe('getTypeDocumentation', () => {
                 "name": "initialCount",
                 "properties": null,
                 "required": false,
-                "text": "number",
+                "type": "number",
               },
             ],
             "required": true,
-            "text": "{ initialCount?: number; }",
+            "type": "{ initialCount?: number; }",
           },
         ],
+        "returnType": "void",
+        "type": "({ initialCount }: {    initialCount?: number;}) => void",
       }
     `)
   })
@@ -103,17 +107,19 @@ describe('getTypeDocumentation', () => {
                     "name": "count",
                     "properties": null,
                     "required": true,
-                    "text": "number",
+                    "type": "number",
                   },
                 ],
                 "required": false,
-                "text": "{ count: number }",
+                "type": "{ count: number }",
               },
             ],
             "required": false,
-            "text": "{ initial?: {    count: number;}; }",
+            "type": "{ initial?: {    count: number;}; }",
           },
         ],
+        "returnType": "void",
+        "type": "({ initial }?: {    initial?: {        count: number;    };}) => void",
       }
     `)
   })
@@ -139,9 +145,11 @@ describe('getTypeDocumentation', () => {
             "name": "initialCount",
             "properties": null,
             "required": false,
-            "text": "number",
+            "type": "number",
           },
         ],
+        "returnType": "void",
+        "type": "(initialCount?: number) => void",
       }
     `)
   })
@@ -167,9 +175,11 @@ describe('getTypeDocumentation', () => {
             "name": "initialCount",
             "properties": null,
             "required": false,
-            "text": "number",
+            "type": "number",
           },
         ],
+        "returnType": "void",
+        "type": "(initialCount?: number) => void",
       }
     `)
   })
@@ -199,9 +209,11 @@ describe('getTypeDocumentation', () => {
             "name": null,
             "properties": null,
             "required": true,
-            "text": "CounterOptions",
+            "type": "CounterOptions",
           },
         ],
+        "returnType": "void",
+        "type": "({ initialCount }: CounterOptions) => void",
       }
     `)
   })
@@ -232,9 +244,11 @@ describe('getTypeDocumentation', () => {
             "name": null,
             "properties": null,
             "required": true,
-            "text": "ReturnType<typeof useCounter>",
+            "type": "ReturnType<typeof useCounter>",
           },
         ],
+        "returnType": "void",
+        "type": "({ initialCount }: ReturnType<typeof useCounter>) => void",
       }
     `)
   })
@@ -270,13 +284,15 @@ describe('getTypeDocumentation', () => {
                 "name": "counterState",
                 "properties": null,
                 "required": true,
-                "text": "ReturnType<typeof useCounter>",
+                "type": "ReturnType<typeof useCounter>",
               },
             ],
             "required": true,
-            "text": "{ counterState: ReturnType<typeof useCounter>; }",
+            "type": "{ counterState: ReturnType<typeof useCounter>; }",
           },
         ],
+        "returnType": "void",
+        "type": "({ counterState }: { counterState: ReturnType<typeof useCounter>; }) => void",
       }
     `)
   })
@@ -307,11 +323,11 @@ describe('getTypeDocumentation', () => {
                 "name": "color",
                 "properties": null,
                 "required": true,
-                "text": "string",
+                "type": "string",
               },
             ],
             "required": true,
-            "text": "Props",
+            "type": "Props",
             "unionProperties": [
               [
                 {
@@ -320,7 +336,7 @@ describe('getTypeDocumentation', () => {
                   "name": "source",
                   "properties": null,
                   "required": true,
-                  "text": "string",
+                  "type": "string",
                 },
               ],
               [
@@ -330,12 +346,14 @@ describe('getTypeDocumentation', () => {
                   "name": "value",
                   "properties": null,
                   "required": true,
-                  "text": "string",
+                  "type": "string",
                 },
               ],
             ],
           },
         ],
+        "returnType": "void",
+        "type": "(props: Props) => void",
       }
     `)
   })
@@ -361,7 +379,7 @@ describe('getTypeDocumentation', () => {
             "name": "props",
             "properties": [],
             "required": true,
-            "text": "Props",
+            "type": "Props",
             "unionProperties": [
               [
                 {
@@ -370,7 +388,7 @@ describe('getTypeDocumentation', () => {
                   "name": null,
                   "properties": null,
                   "required": true,
-                  "text": "string",
+                  "type": "string",
                 },
               ],
               [
@@ -380,12 +398,14 @@ describe('getTypeDocumentation', () => {
                   "name": "color",
                   "properties": null,
                   "required": true,
-                  "text": "string",
+                  "type": "string",
                 },
               ],
             ],
           },
         ],
+        "returnType": "void",
+        "type": "(props: Props) => void",
       }
     `)
   })
@@ -422,11 +442,11 @@ describe('getTypeDocumentation', () => {
                 "name": null,
                 "properties": null,
                 "required": true,
-                "text": "BaseProps",
+                "type": "BaseProps",
               },
             ],
             "required": true,
-            "text": "Props",
+            "type": "Props",
             "unionProperties": [
               [
                 {
@@ -435,7 +455,7 @@ describe('getTypeDocumentation', () => {
                   "name": "source",
                   "properties": null,
                   "required": true,
-                  "text": "string",
+                  "type": "string",
                 },
               ],
               [
@@ -445,12 +465,14 @@ describe('getTypeDocumentation', () => {
                   "name": "value",
                   "properties": null,
                   "required": true,
-                  "text": "string",
+                  "type": "string",
                 },
               ],
             ],
           },
         ],
+        "returnType": "void",
+        "type": "(props: Props) => void",
       }
     `)
   })
@@ -512,7 +534,7 @@ describe('getTypeDocumentation', () => {
                 "name": "className",
                 "properties": null,
                 "required": false,
-                "text": "string",
+                "type": "string",
               },
               {
                 "defaultValue": undefined,
@@ -520,7 +542,7 @@ describe('getTypeDocumentation', () => {
                 "name": "children",
                 "properties": null,
                 "required": true,
-                "text": "ReactNode",
+                "type": "ReactNode",
               },
               {
                 "defaultValue": "'body1'",
@@ -528,7 +550,7 @@ describe('getTypeDocumentation', () => {
                 "name": "variant",
                 "properties": null,
                 "required": false,
-                "text": ""heading1" | "heading2" | "heading3" | "body1"",
+                "type": ""heading1" | "heading2" | "heading3" | "body1"",
               },
               {
                 "defaultValue": undefined,
@@ -536,7 +558,7 @@ describe('getTypeDocumentation', () => {
                 "name": "alignment",
                 "properties": null,
                 "required": true,
-                "text": ""start" | "center" | "end"",
+                "type": ""start" | "center" | "end"",
               },
               {
                 "defaultValue": undefined,
@@ -544,7 +566,7 @@ describe('getTypeDocumentation', () => {
                 "name": "width",
                 "properties": null,
                 "required": true,
-                "text": "string | number",
+                "type": "string | number",
               },
               {
                 "defaultValue": undefined,
@@ -552,13 +574,15 @@ describe('getTypeDocumentation', () => {
                 "name": "lineHeight",
                 "properties": null,
                 "required": true,
-                "text": "string",
+                "type": "string",
               },
             ],
             "required": true,
-            "text": "TextProps",
+            "type": "TextProps",
           },
         ],
+        "returnType": "void",
+        "type": "({ variant, alignment, width, lineHeight, children, }: TextProps) => void",
       }
     `)
   })
@@ -602,7 +626,7 @@ describe('getTypeDocumentation', () => {
                 "name": "gridTemplateColumns",
                 "properties": null,
                 "required": true,
-                "text": "string",
+                "type": "string",
               },
               {
                 "defaultValue": undefined,
@@ -610,13 +634,15 @@ describe('getTypeDocumentation', () => {
                 "name": "gridTemplateRows",
                 "properties": null,
                 "required": false,
-                "text": "string",
+                "type": "string",
               },
             ],
             "required": true,
-            "text": "PolymorphicComponentProps<R, BaseProps, AsTarget, ForwardedAsTarget, AsTarget extends any ? React.ComponentPropsWithRef<AsTarget> : {}, ForwardedAsTarget extends any ? React.ComponentPropsWithRef<...> : {}>",
+            "type": "PolymorphicComponentProps<R, BaseProps, AsTarget, ForwardedAsTarget, AsTarget extends any ? React.ComponentPropsWithRef<AsTarget> : {}, ForwardedAsTarget extends any ? React.ComponentPropsWithRef<...> : {}>",
           },
         ],
+        "returnType": "JSX.Element",
+        "type": "IStyledComponentBase<"web", Substitute<React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>, GridProps>> & string",
       }
     `)
   })
@@ -659,7 +685,7 @@ describe('getTypeDocumentation', () => {
                 "name": "$gridTemplateColumns",
                 "properties": null,
                 "required": true,
-                "text": "string",
+                "type": "string",
               },
               {
                 "defaultValue": undefined,
@@ -667,13 +693,15 @@ describe('getTypeDocumentation', () => {
                 "name": "$gridTemplateRows",
                 "properties": null,
                 "required": true,
-                "text": "string",
+                "type": "string",
               },
             ],
             "required": true,
-            "text": "PolymorphicComponentProps<R, BaseProps, AsTarget, ForwardedAsTarget, AsTarget extends any ? React.ComponentPropsWithRef<AsTarget> : {}, ForwardedAsTarget extends any ? React.ComponentPropsWithRef<...> : {}>",
+            "type": "PolymorphicComponentProps<R, BaseProps, AsTarget, ForwardedAsTarget, AsTarget extends any ? React.ComponentPropsWithRef<AsTarget> : {}, ForwardedAsTarget extends any ? React.ComponentPropsWithRef<...> : {}>",
           },
         ],
+        "returnType": "JSX.Element",
+        "type": "IStyledComponentBase<"web", Substitute<React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>, { $gridTemplateColumns: string; $gridTemplateRows: string; }>> & string",
       }
     `)
   })
@@ -702,7 +730,7 @@ describe('getTypeDocumentation', () => {
             "name": "variant",
             "properties": null,
             "required": true,
-            "text": "'heading1' | 'heading2' | 'heading3' | 'body1' | 'body2'",
+            "type": "'heading1' | 'heading2' | 'heading3' | 'body1' | 'body2'",
           },
           {
             "defaultValue": undefined,
@@ -710,7 +738,7 @@ describe('getTypeDocumentation', () => {
             "name": "width",
             "properties": null,
             "required": false,
-            "text": "string | number",
+            "type": "string | number",
           },
         ],
       }
@@ -744,7 +772,7 @@ describe('getTypeDocumentation', () => {
             "name": "variant",
             "properties": null,
             "required": true,
-            "text": "'heading1' | 'heading2' | 'heading3' | 'body1' | 'body2'",
+            "type": "'heading1' | 'heading2' | 'heading3' | 'body1' | 'body2'",
           },
           {
             "defaultValue": undefined,
@@ -752,7 +780,7 @@ describe('getTypeDocumentation', () => {
             "name": "width",
             "properties": null,
             "required": false,
-            "text": "string | number",
+            "type": "string | number",
           },
           {
             "defaultValue": undefined,
@@ -760,7 +788,7 @@ describe('getTypeDocumentation', () => {
             "name": "color",
             "properties": null,
             "required": true,
-            "text": "string",
+            "type": "string",
           },
         ],
       }
@@ -834,12 +862,12 @@ describe('getTypeDocumentation', () => {
                 "name": "value",
                 "properties": null,
                 "required": true,
-                "text": "number",
+                "type": "number",
               },
             ],
             "returnType": "number",
             "scope": null,
-            "text": "number",
+            "type": "number",
             "visibility": null,
           },
           {
@@ -849,7 +877,7 @@ describe('getTypeDocumentation', () => {
             "name": "accessorCount",
             "returnType": "number",
             "scope": null,
-            "text": "number",
+            "type": "number",
             "visibility": null,
           },
         ],
@@ -863,7 +891,7 @@ describe('getTypeDocumentation', () => {
               "name": "initialCount",
               "properties": null,
               "required": false,
-              "text": "number",
+              "type": "number",
             },
           ],
         },
@@ -876,7 +904,7 @@ describe('getTypeDocumentation', () => {
             "parameters": [],
             "returnType": "void",
             "scope": null,
-            "text": "() => void",
+            "type": "() => void",
             "visibility": null,
           },
           {
@@ -886,7 +914,7 @@ describe('getTypeDocumentation', () => {
             "parameters": [],
             "returnType": "void",
             "scope": null,
-            "text": "() => void",
+            "type": "() => void",
             "visibility": null,
           },
           {
@@ -900,12 +928,12 @@ describe('getTypeDocumentation', () => {
                 "name": "isFloored",
                 "properties": null,
                 "required": false,
-                "text": "boolean",
+                "type": "boolean",
               },
             ],
             "returnType": "number",
             "scope": null,
-            "text": "(isFloored?: boolean) => number",
+            "type": "(isFloored?: boolean) => number",
             "visibility": "public",
           },
           {
@@ -915,7 +943,7 @@ describe('getTypeDocumentation', () => {
             "parameters": [],
             "returnType": "number",
             "scope": "static",
-            "text": "() => number",
+            "type": "() => number",
             "visibility": null,
           },
         ],
@@ -926,7 +954,7 @@ describe('getTypeDocumentation', () => {
             "isReadonly": false,
             "name": "initialCount",
             "scope": null,
-            "text": "number",
+            "type": "number",
             "visibility": null,
           },
           {
@@ -934,7 +962,7 @@ describe('getTypeDocumentation', () => {
             "isReadonly": false,
             "name": "staticCount",
             "scope": "static",
-            "text": "number",
+            "type": "number",
             "visibility": null,
           },
         ],
@@ -968,13 +996,15 @@ describe('getTypeDocumentation', () => {
                 "name": "initialCount",
                 "properties": null,
                 "required": false,
-                "text": "number",
+                "type": "number",
               },
             ],
             "required": false,
-            "text": "{ initialCount: number; }",
+            "type": "{ initialCount: number; }",
           },
         ],
+        "returnType": "void",
+        "type": "({ initialCount: renamedInitialCount }?: {    initialCount: number;}) => void",
       }
     `)
   })
@@ -998,7 +1028,7 @@ describe('getTypeDocumentation', () => {
             "name": "a",
             "properties": null,
             "required": true,
-            "text": "number",
+            "type": "number",
           },
           {
             "defaultValue": "0",
@@ -1006,9 +1036,11 @@ describe('getTypeDocumentation', () => {
             "name": "b",
             "properties": null,
             "required": false,
-            "text": "number",
+            "type": "number",
           },
         ],
+        "returnType": "number",
+        "type": "(a: number, b?: number) => number",
       }
     `)
   })
