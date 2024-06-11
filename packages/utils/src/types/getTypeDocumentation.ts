@@ -53,13 +53,41 @@ export function getTypeDocumentation(
       Node.isCallExpression(initializer) ||
       Node.isTaggedTemplateExpression(initializer)
     ) {
-      return processFunctionOrExpression(initializer)
+      return processFunctionOrExpression(initializer, declaration)
     }
   }
 
   throw new Error(
     `Unsupported declaration while processing type documentation for: ${declaration.getText()}`
   )
+}
+
+/** Processes an interface into a metadata object. */
+function processInterface(interfaceDeclaration: InterfaceDeclaration) {
+  const typeChecker = interfaceDeclaration.getProject().getTypeChecker()
+  const interfaceType = interfaceDeclaration.getType()
+
+  return {
+    name: interfaceDeclaration.getName(),
+    description: getJsDocDescription(interfaceDeclaration),
+    properties: processTypeProperties(
+      interfaceType,
+      interfaceDeclaration,
+      typeChecker
+    ),
+  }
+}
+
+/** Processes a type alias into a metadata object. */
+function processTypeAlias(typeAlias: TypeAliasDeclaration) {
+  const typeChecker = typeAlias.getProject().getTypeChecker()
+  const aliasType = typeAlias.getType()
+
+  return {
+    name: typeAlias.getName(),
+    description: getJsDocDescription(typeAlias),
+    properties: processTypeProperties(aliasType, typeAlias, typeChecker),
+  }
 }
 
 /** Processes a function declaration into a metadata object. */
@@ -69,7 +97,8 @@ function processFunctionOrExpression(
     | ArrowFunction
     | FunctionExpression
     | TaggedTemplateExpression
-    | CallExpression
+    | CallExpression,
+  variableDeclaration?: VariableDeclaration
 ) {
   const signatures = functionDeclarationOrExpression
     .getType()
@@ -97,21 +126,15 @@ function processFunctionOrExpression(
     parameterTypes.push(parameterType)
   }
 
-  return parameterTypes
-}
-
-/** Processes a type alias into a metadata object. */
-function processTypeAlias(typeAlias: TypeAliasDeclaration) {
-  const typeChecker = typeAlias.getProject().getTypeChecker()
-  const aliasType = typeAlias.getType()
-  return processTypeProperties(aliasType, typeAlias, typeChecker)
-}
-
-/** Processes an interface into a metadata object. */
-function processInterface(interfaceDeclaration: InterfaceDeclaration) {
-  const typeChecker = interfaceDeclaration.getProject().getTypeChecker()
-  const interfaceType = interfaceDeclaration.getType()
-  return processTypeProperties(interfaceType, interfaceDeclaration, typeChecker)
+  return {
+    name: variableDeclaration
+      ? variableDeclaration.getName()
+      : (functionDeclarationOrExpression as FunctionDeclaration).getName(),
+    description: getJsDocDescription(
+      variableDeclaration || functionDeclarationOrExpression
+    ),
+    parameters: parameterTypes,
+  }
 }
 
 function getModifier(
@@ -194,6 +217,8 @@ function getJsDocDescription(node: Node): string | null {
 /** Processes a class into a metadata object. */
 function processClass(classDeclaration: ClassDeclaration) {
   const classMetadata: any = {
+    name: classDeclaration.getName(),
+    description: getJsDocDescription(classDeclaration),
     constructor: null,
     accessors: [],
     methods: [],

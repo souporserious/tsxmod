@@ -15,16 +15,23 @@ describe('getTypeDocumentation', () => {
     const types = getTypeDocumentation(
       sourceFile.getFunctionOrThrow('useCounter')
     )
-    const [type] = types!
 
-    expect(type).toEqual({
-      name: 'initialCount',
-      text: 'number',
-      defaultValue: '0',
-      required: false,
-      properties: null,
-      description,
-    })
+    expect(types).toMatchInlineSnapshot(`
+      {
+        "description": null,
+        "name": "useCounter",
+        "parameters": [
+          {
+            "defaultValue": "0",
+            "description": "Provides the initial count.",
+            "name": "initialCount",
+            "properties": null,
+            "required": false,
+            "text": "number",
+          },
+        ],
+      }
+    `)
   })
 
   test('should parse a function with an object parameter', () => {
@@ -37,25 +44,32 @@ describe('getTypeDocumentation', () => {
     const types = getTypeDocumentation(
       sourceFile.getFunctionOrThrow('useCounter')
     )
-    const [type] = types!
 
-    expect(type).toEqual({
-      name: null,
-      text: '{ initialCount?: number; }',
-      defaultValue: undefined,
-      required: true,
-      description: null,
-      properties: [
-        {
-          name: 'initialCount',
-          text: 'number',
-          defaultValue: '0',
-          required: false,
-          properties: null,
-          description,
-        },
-      ],
-    })
+    expect(types).toMatchInlineSnapshot(`
+      {
+        "description": null,
+        "name": "useCounter",
+        "parameters": [
+          {
+            "defaultValue": undefined,
+            "description": null,
+            "name": null,
+            "properties": [
+              {
+                "defaultValue": "0",
+                "description": "Provides the initial count.",
+                "name": "initialCount",
+                "properties": null,
+                "required": false,
+                "text": "number",
+              },
+            ],
+            "required": true,
+            "text": "{ initialCount?: number; }",
+          },
+        ],
+      }
+    `)
   })
 
   test('should parse a function with an object parameter with a nested object', () => {
@@ -67,34 +81,41 @@ describe('getTypeDocumentation', () => {
     const types = getTypeDocumentation(
       sourceFile.getFunctionOrThrow('useCounter')
     )
-    const [type] = types!
 
-    expect(type).toEqual({
-      name: null,
-      text: '{ initial?: {    count: number;}; }',
-      defaultValue: '{}',
-      required: false,
-      description: null,
-      properties: [
-        {
-          name: 'initial',
-          text: '{ count: number }',
-          defaultValue: '{ count: 0 }',
-          required: false,
-          properties: [
-            {
-              name: 'count',
-              text: 'number',
-              defaultValue: undefined,
-              required: true,
-              properties: null,
-              description: null,
-            },
-          ],
-          description: null,
-        },
-      ],
-    })
+    expect(types).toMatchInlineSnapshot(`
+      {
+        "description": null,
+        "name": "useCounter",
+        "parameters": [
+          {
+            "defaultValue": "{}",
+            "description": null,
+            "name": null,
+            "properties": [
+              {
+                "defaultValue": "{ count: 0 }",
+                "description": null,
+                "name": "initial",
+                "properties": [
+                  {
+                    "defaultValue": undefined,
+                    "description": null,
+                    "name": "count",
+                    "properties": null,
+                    "required": true,
+                    "text": "number",
+                  },
+                ],
+                "required": false,
+                "text": "{ count: number }",
+              },
+            ],
+            "required": false,
+            "text": "{ initial?: {    count: number;}; }",
+          },
+        ],
+      }
+    `)
   })
 
   test('should parse arrow function parameters', () => {
@@ -106,16 +127,23 @@ describe('getTypeDocumentation', () => {
     const types = getTypeDocumentation(
       sourceFile.getVariableDeclarationOrThrow('useCounter')
     )
-    const [type] = types!
 
-    expect(type).toEqual({
-      name: 'initialCount',
-      text: 'number',
-      defaultValue: '0',
-      required: false,
-      properties: null,
-      description: null,
-    })
+    expect(types).toMatchInlineSnapshot(`
+      {
+        "description": null,
+        "name": "useCounter",
+        "parameters": [
+          {
+            "defaultValue": "0",
+            "description": null,
+            "name": "initialCount",
+            "properties": null,
+            "required": false,
+            "text": "number",
+          },
+        ],
+      }
+    `)
   })
 
   test('should parse function expression parameters', () => {
@@ -127,16 +155,23 @@ describe('getTypeDocumentation', () => {
     const types = getTypeDocumentation(
       sourceFile.getVariableDeclarationOrThrow('useCounter')
     )
-    const [type] = types!
 
-    expect(type).toEqual({
-      name: 'initialCount',
-      text: 'number',
-      defaultValue: '0',
-      required: false,
-      properties: null,
-      description: null,
-    })
+    expect(types).toMatchInlineSnapshot(`
+      {
+        "description": null,
+        "name": "useCounter",
+        "parameters": [
+          {
+            "defaultValue": "0",
+            "description": null,
+            "name": "initialCount",
+            "properties": null,
+            "required": false,
+            "text": "number",
+          },
+        ],
+      }
+    `)
   })
 
   test('imported type should not be parsed', () => {
@@ -152,16 +187,23 @@ describe('getTypeDocumentation', () => {
     const types = getTypeDocumentation(
       sourceFile.getFunctionOrThrow('useCounter')
     )
-    const [type] = types!
 
-    expect(type).toEqual({
-      name: null,
-      text: 'CounterOptions',
-      defaultValue: undefined,
-      required: true,
-      properties: null,
-      description: null,
-    })
+    expect(types).toMatchInlineSnapshot(`
+      {
+        "description": null,
+        "name": "useCounter",
+        "parameters": [
+          {
+            "defaultValue": undefined,
+            "description": null,
+            "name": null,
+            "properties": null,
+            "required": true,
+            "text": "CounterOptions",
+          },
+        ],
+      }
+    `)
   })
 
   test('imported function return types should not be parsed', () => {
@@ -178,16 +220,23 @@ describe('getTypeDocumentation', () => {
     const types = getTypeDocumentation(
       sourceFile.getFunctionOrThrow('useCounterOverride')
     )
-    const [type] = types!
 
-    expect(type).toEqual({
-      name: null,
-      text: 'ReturnType<typeof useCounter>',
-      defaultValue: undefined,
-      required: true,
-      properties: null,
-      description: null,
-    })
+    expect(types).toMatchInlineSnapshot(`
+      {
+        "description": null,
+        "name": "useCounterOverride",
+        "parameters": [
+          {
+            "defaultValue": undefined,
+            "description": null,
+            "name": null,
+            "properties": null,
+            "required": true,
+            "text": "ReturnType<typeof useCounter>",
+          },
+        ],
+      }
+    `)
   })
 
   test('imported function object return types should not be parsed', () => {
@@ -204,25 +253,32 @@ describe('getTypeDocumentation', () => {
     const types = getTypeDocumentation(
       sourceFile.getFunctionOrThrow('useCounterOverride')
     )
-    const [type] = types!
 
-    expect(type).toEqual({
-      name: null,
-      text: '{ counterState: ReturnType<typeof useCounter>; }',
-      defaultValue: undefined,
-      required: true,
-      properties: [
-        {
-          name: 'counterState',
-          text: 'ReturnType<typeof useCounter>',
-          defaultValue: undefined,
-          required: true,
-          properties: null,
-          description: null,
-        },
-      ],
-      description: null,
-    })
+    expect(types).toMatchInlineSnapshot(`
+      {
+        "description": null,
+        "name": "useCounterOverride",
+        "parameters": [
+          {
+            "defaultValue": undefined,
+            "description": null,
+            "name": null,
+            "properties": [
+              {
+                "defaultValue": undefined,
+                "description": null,
+                "name": "counterState",
+                "properties": null,
+                "required": true,
+                "text": "ReturnType<typeof useCounter>",
+              },
+            ],
+            "required": true,
+            "text": "{ counterState: ReturnType<typeof useCounter>; }",
+          },
+        ],
+      }
+    `)
   })
 
   test('handles union types', () => {
@@ -234,47 +290,54 @@ describe('getTypeDocumentation', () => {
     const types = getTypeDocumentation(
       sourceFile.getFunctionOrThrow('Component')
     )
-    const [type] = types!
 
-    expect(type).toEqual({
-      name: 'props',
-      text: 'Props',
-      defaultValue: undefined,
-      required: true,
-      properties: [
-        {
-          name: 'color',
-          text: 'string',
-          defaultValue: undefined,
-          properties: null,
-          required: true,
-          description: null,
-        },
-      ],
-      unionProperties: [
-        [
+    expect(types).toMatchInlineSnapshot(`
+      {
+        "description": null,
+        "name": "Component",
+        "parameters": [
           {
-            defaultValue: undefined,
-            description: null,
-            name: 'source',
-            properties: null,
-            required: true,
-            text: 'string',
+            "defaultValue": undefined,
+            "description": null,
+            "name": "props",
+            "properties": [
+              {
+                "defaultValue": undefined,
+                "description": null,
+                "name": "color",
+                "properties": null,
+                "required": true,
+                "text": "string",
+              },
+            ],
+            "required": true,
+            "text": "Props",
+            "unionProperties": [
+              [
+                {
+                  "defaultValue": undefined,
+                  "description": null,
+                  "name": "source",
+                  "properties": null,
+                  "required": true,
+                  "text": "string",
+                },
+              ],
+              [
+                {
+                  "defaultValue": undefined,
+                  "description": null,
+                  "name": "value",
+                  "properties": null,
+                  "required": true,
+                  "text": "string",
+                },
+              ],
+            ],
           },
         ],
-        [
-          {
-            defaultValue: undefined,
-            description: null,
-            name: 'value',
-            properties: null,
-            required: true,
-            text: 'string',
-          },
-        ],
-      ],
-      description: null,
-    })
+      }
+    `)
   })
 
   test('handles union types with primitive types', () => {
@@ -286,38 +349,45 @@ describe('getTypeDocumentation', () => {
     const types = getTypeDocumentation(
       sourceFile.getFunctionOrThrow('Component')
     )
-    const [type] = types!
 
-    expect(type).toEqual({
-      name: 'props',
-      text: 'Props',
-      defaultValue: undefined,
-      required: true,
-      properties: [],
-      unionProperties: [
-        [
+    expect(types).toMatchInlineSnapshot(`
+      {
+        "description": null,
+        "name": "Component",
+        "parameters": [
           {
-            defaultValue: undefined,
-            description: null,
-            name: null,
-            properties: null,
-            required: true,
-            text: 'string',
+            "defaultValue": undefined,
+            "description": null,
+            "name": "props",
+            "properties": [],
+            "required": true,
+            "text": "Props",
+            "unionProperties": [
+              [
+                {
+                  "defaultValue": undefined,
+                  "description": null,
+                  "name": null,
+                  "properties": null,
+                  "required": true,
+                  "text": "string",
+                },
+              ],
+              [
+                {
+                  "defaultValue": undefined,
+                  "description": null,
+                  "name": "color",
+                  "properties": null,
+                  "required": true,
+                  "text": "string",
+                },
+              ],
+            ],
           },
         ],
-        [
-          {
-            name: 'color',
-            text: 'string',
-            defaultValue: undefined,
-            properties: null,
-            required: true,
-            description: null,
-          },
-        ],
-      ],
-      description: null,
-    })
+      }
+    `)
   })
 
   test('handles union types with external types', () => {
@@ -335,47 +405,54 @@ describe('getTypeDocumentation', () => {
       SyntaxKind.FunctionDeclaration
     )
     const types = getTypeDocumentation(functionDeclaration)
-    const [type] = types!
 
-    expect(type).toEqual({
-      name: 'props',
-      text: 'Props',
-      defaultValue: undefined,
-      required: true,
-      properties: [
-        {
-          name: null,
-          text: 'BaseProps',
-          defaultValue: undefined,
-          required: true,
-          properties: null,
-          description: null,
-        },
-      ],
-      unionProperties: [
-        [
+    expect(types).toMatchInlineSnapshot(`
+      {
+        "description": null,
+        "name": "Component",
+        "parameters": [
           {
-            defaultValue: undefined,
-            description: null,
-            name: 'source',
-            properties: null,
-            required: true,
-            text: 'string',
+            "defaultValue": undefined,
+            "description": null,
+            "name": "props",
+            "properties": [
+              {
+                "defaultValue": undefined,
+                "description": null,
+                "name": null,
+                "properties": null,
+                "required": true,
+                "text": "BaseProps",
+              },
+            ],
+            "required": true,
+            "text": "Props",
+            "unionProperties": [
+              [
+                {
+                  "defaultValue": undefined,
+                  "description": null,
+                  "name": "source",
+                  "properties": null,
+                  "required": true,
+                  "text": "string",
+                },
+              ],
+              [
+                {
+                  "defaultValue": undefined,
+                  "description": null,
+                  "name": "value",
+                  "properties": null,
+                  "required": true,
+                  "text": "string",
+                },
+              ],
+            ],
           },
         ],
-        [
-          {
-            defaultValue: undefined,
-            description: null,
-            name: 'value',
-            properties: null,
-            required: true,
-            text: 'string',
-          },
-        ],
-      ],
-      description: null,
-    })
+      }
+    `)
   })
 
   test('handles mapped types', () => {
@@ -418,59 +495,71 @@ describe('getTypeDocumentation', () => {
     const types = getTypeDocumentation(
       sourceFile.getVariableDeclarationOrThrow('Text')
     )
-    const [type] = types!
 
-    expect(type.properties).toMatchInlineSnapshot(`
-      [
-        {
-          "defaultValue": undefined,
-          "description": null,
-          "name": "className",
-          "properties": null,
-          "required": false,
-          "text": "string",
-        },
-        {
-          "defaultValue": undefined,
-          "description": null,
-          "name": "children",
-          "properties": null,
-          "required": true,
-          "text": "ReactNode",
-        },
-        {
-          "defaultValue": "'body1'",
-          "description": null,
-          "name": "variant",
-          "properties": null,
-          "required": false,
-          "text": ""heading1" | "heading2" | "heading3" | "body1"",
-        },
-        {
-          "defaultValue": undefined,
-          "description": null,
-          "name": "alignment",
-          "properties": null,
-          "required": true,
-          "text": ""start" | "center" | "end"",
-        },
-        {
-          "defaultValue": undefined,
-          "description": null,
-          "name": "width",
-          "properties": null,
-          "required": true,
-          "text": "string | number",
-        },
-        {
-          "defaultValue": undefined,
-          "description": null,
-          "name": "lineHeight",
-          "properties": null,
-          "required": true,
-          "text": "string",
-        },
-      ]
+    expect(types).toMatchInlineSnapshot(`
+      {
+        "description": null,
+        "name": "Text",
+        "parameters": [
+          {
+            "defaultValue": undefined,
+            "description": null,
+            "name": null,
+            "properties": [
+              {
+                "defaultValue": undefined,
+                "description": null,
+                "name": "className",
+                "properties": null,
+                "required": false,
+                "text": "string",
+              },
+              {
+                "defaultValue": undefined,
+                "description": null,
+                "name": "children",
+                "properties": null,
+                "required": true,
+                "text": "ReactNode",
+              },
+              {
+                "defaultValue": "'body1'",
+                "description": null,
+                "name": "variant",
+                "properties": null,
+                "required": false,
+                "text": ""heading1" | "heading2" | "heading3" | "body1"",
+              },
+              {
+                "defaultValue": undefined,
+                "description": null,
+                "name": "alignment",
+                "properties": null,
+                "required": true,
+                "text": ""start" | "center" | "end"",
+              },
+              {
+                "defaultValue": undefined,
+                "description": null,
+                "name": "width",
+                "properties": null,
+                "required": true,
+                "text": "string | number",
+              },
+              {
+                "defaultValue": undefined,
+                "description": null,
+                "name": "lineHeight",
+                "properties": null,
+                "required": true,
+                "text": "string",
+              },
+            ],
+            "required": true,
+            "text": "TextProps",
+          },
+        ],
+      }
     `)
   })
 
@@ -498,33 +587,37 @@ describe('getTypeDocumentation', () => {
     )
 
     expect(types).toMatchInlineSnapshot(`
-      [
-        {
-          "defaultValue": undefined,
-          "description": null,
-          "name": "props",
-          "properties": [
-            {
-              "defaultValue": undefined,
-              "description": null,
-              "name": "gridTemplateColumns",
-              "properties": null,
-              "required": true,
-              "text": "string",
-            },
-            {
-              "defaultValue": undefined,
-              "description": null,
-              "name": "gridTemplateRows",
-              "properties": null,
-              "required": false,
-              "text": "string",
-            },
-          ],
-          "required": true,
-          "text": "PolymorphicComponentProps<R, BaseProps, AsTarget, ForwardedAsTarget, AsTarget extends any ? React.ComponentPropsWithRef<AsTarget> : {}, ForwardedAsTarget extends any ? React.ComponentPropsWithRef<...> : {}>",
-        },
-      ]
+      {
+        "description": null,
+        "name": "Grid",
+        "parameters": [
+          {
+            "defaultValue": undefined,
+            "description": null,
+            "name": "props",
+            "properties": [
+              {
+                "defaultValue": undefined,
+                "description": null,
+                "name": "gridTemplateColumns",
+                "properties": null,
+                "required": true,
+                "text": "string",
+              },
+              {
+                "defaultValue": undefined,
+                "description": null,
+                "name": "gridTemplateRows",
+                "properties": null,
+                "required": false,
+                "text": "string",
+              },
+            ],
+            "required": true,
+            "text": "PolymorphicComponentProps<R, BaseProps, AsTarget, ForwardedAsTarget, AsTarget extends any ? React.ComponentPropsWithRef<AsTarget> : {}, ForwardedAsTarget extends any ? React.ComponentPropsWithRef<...> : {}>",
+          },
+        ],
+      }
     `)
   })
 
@@ -551,33 +644,37 @@ describe('getTypeDocumentation', () => {
     )
 
     expect(types).toMatchInlineSnapshot(`
-      [
-        {
-          "defaultValue": undefined,
-          "description": null,
-          "name": "props",
-          "properties": [
-            {
-              "defaultValue": undefined,
-              "description": null,
-              "name": "$gridTemplateColumns",
-              "properties": null,
-              "required": true,
-              "text": "string",
-            },
-            {
-              "defaultValue": undefined,
-              "description": null,
-              "name": "$gridTemplateRows",
-              "properties": null,
-              "required": true,
-              "text": "string",
-            },
-          ],
-          "required": true,
-          "text": "PolymorphicComponentProps<R, BaseProps, AsTarget, ForwardedAsTarget, AsTarget extends any ? React.ComponentPropsWithRef<AsTarget> : {}, ForwardedAsTarget extends any ? React.ComponentPropsWithRef<...> : {}>",
-        },
-      ]
+      {
+        "description": null,
+        "name": "Grid",
+        "parameters": [
+          {
+            "defaultValue": undefined,
+            "description": null,
+            "name": "props",
+            "properties": [
+              {
+                "defaultValue": undefined,
+                "description": null,
+                "name": "$gridTemplateColumns",
+                "properties": null,
+                "required": true,
+                "text": "string",
+              },
+              {
+                "defaultValue": undefined,
+                "description": null,
+                "name": "$gridTemplateRows",
+                "properties": null,
+                "required": true,
+                "text": "string",
+              },
+            ],
+            "required": true,
+            "text": "PolymorphicComponentProps<R, BaseProps, AsTarget, ForwardedAsTarget, AsTarget extends any ? React.ComponentPropsWithRef<AsTarget> : {}, ForwardedAsTarget extends any ? React.ComponentPropsWithRef<...> : {}>",
+          },
+        ],
+      }
     `)
   })
 
@@ -595,24 +692,28 @@ describe('getTypeDocumentation', () => {
     const types = getTypeDocumentation(sourceFile.getTypeAliasOrThrow('Props'))
 
     expect(types).toMatchInlineSnapshot(`
-      [
-        {
-          "defaultValue": undefined,
-          "description": null,
-          "name": "variant",
-          "properties": null,
-          "required": true,
-          "text": "'heading1' | 'heading2' | 'heading3' | 'body1' | 'body2'",
-        },
-        {
-          "defaultValue": undefined,
-          "description": null,
-          "name": "width",
-          "properties": null,
-          "required": false,
-          "text": "string | number",
-        },
-      ]
+      {
+        "description": null,
+        "name": "Props",
+        "properties": [
+          {
+            "defaultValue": undefined,
+            "description": null,
+            "name": "variant",
+            "properties": null,
+            "required": true,
+            "text": "'heading1' | 'heading2' | 'heading3' | 'body1' | 'body2'",
+          },
+          {
+            "defaultValue": undefined,
+            "description": null,
+            "name": "width",
+            "properties": null,
+            "required": false,
+            "text": "string | number",
+          },
+        ],
+      }
     `)
   })
 
@@ -633,32 +734,36 @@ describe('getTypeDocumentation', () => {
     const types = getTypeDocumentation(sourceFile.getInterfaceOrThrow('Props'))
 
     expect(types).toMatchInlineSnapshot(`
-      [
-        {
-          "defaultValue": undefined,
-          "description": null,
-          "name": "variant",
-          "properties": null,
-          "required": true,
-          "text": "'heading1' | 'heading2' | 'heading3' | 'body1' | 'body2'",
-        },
-        {
-          "defaultValue": undefined,
-          "description": null,
-          "name": "width",
-          "properties": null,
-          "required": false,
-          "text": "string | number",
-        },
-        {
-          "defaultValue": undefined,
-          "description": null,
-          "name": "color",
-          "properties": null,
-          "required": true,
-          "text": "string",
-        },
-      ]
+      {
+        "description": null,
+        "name": "Props",
+        "properties": [
+          {
+            "defaultValue": undefined,
+            "description": null,
+            "name": "variant",
+            "properties": null,
+            "required": true,
+            "text": "'heading1' | 'heading2' | 'heading3' | 'body1' | 'body2'",
+          },
+          {
+            "defaultValue": undefined,
+            "description": null,
+            "name": "width",
+            "properties": null,
+            "required": false,
+            "text": "string | number",
+          },
+          {
+            "defaultValue": undefined,
+            "description": null,
+            "name": "color",
+            "properties": null,
+            "required": true,
+            "text": "string",
+          },
+        ],
+      }
     `)
   })
 
@@ -690,10 +795,12 @@ describe('getTypeDocumentation', () => {
           this.count--;
         }
 
+        /** Increments the count. */
         set accessorCount(value: number) {
           this.count = value;
         }
 
+        /** Returns the current count. */
         get accessorCount(): number {
           return this.count;
         }
@@ -716,8 +823,8 @@ describe('getTypeDocumentation', () => {
       {
         "accessors": [
           {
-            "description": "
-      ",
+            "description": "Increments the count.
+      Returns the current count.",
             "modifier": "setter",
             "name": "accessorCount",
             "parameters": [
@@ -736,8 +843,8 @@ describe('getTypeDocumentation', () => {
             "visibility": null,
           },
           {
-            "description": "
-      ",
+            "description": "Increments the count.
+      Returns the current count.",
             "modifier": "getter",
             "name": "accessorCount",
             "returnType": "number",
@@ -760,6 +867,7 @@ describe('getTypeDocumentation', () => {
             },
           ],
         },
+        "description": null,
         "methods": [
           {
             "description": "Increments the count.",
@@ -811,6 +919,7 @@ describe('getTypeDocumentation', () => {
             "visibility": null,
           },
         ],
+        "name": "Counter",
         "properties": [
           {
             "description": null,
@@ -842,25 +951,30 @@ describe('getTypeDocumentation', () => {
     const types = getTypeDocumentation(
       sourceFile.getFunctionOrThrow('useCounter')
     )
-    const [type] = types!
 
-    expect(type).toMatchInlineSnapshot(`
+    expect(types).toMatchInlineSnapshot(`
       {
-        "defaultValue": "{}",
         "description": null,
-        "name": null,
-        "properties": [
+        "name": "useCounter",
+        "parameters": [
           {
-            "defaultValue": "0",
+            "defaultValue": "{}",
             "description": null,
-            "name": "initialCount",
-            "properties": null,
+            "name": null,
+            "properties": [
+              {
+                "defaultValue": "0",
+                "description": null,
+                "name": "initialCount",
+                "properties": null,
+                "required": false,
+                "text": "number",
+              },
+            ],
             "required": false,
-            "text": "number",
+            "text": "{ initialCount: number; }",
           },
         ],
-        "required": false,
-        "text": "{ initialCount: number; }",
       }
     `)
   })
@@ -874,24 +988,28 @@ describe('getTypeDocumentation', () => {
     const types = getTypeDocumentation(sourceFile.getFunctionOrThrow('add'))
 
     expect(types).toMatchInlineSnapshot(`
-      [
-        {
-          "defaultValue": undefined,
-          "description": null,
-          "name": "a",
-          "properties": null,
-          "required": true,
-          "text": "number",
-        },
-        {
-          "defaultValue": "0",
-          "description": null,
-          "name": "b",
-          "properties": null,
-          "required": false,
-          "text": "number",
-        },
-      ]
+      {
+        "description": null,
+        "name": "add",
+        "parameters": [
+          {
+            "defaultValue": undefined,
+            "description": null,
+            "name": "a",
+            "properties": null,
+            "required": true,
+            "text": "number",
+          },
+          {
+            "defaultValue": "0",
+            "description": null,
+            "name": "b",
+            "properties": null,
+            "required": false,
+            "text": "number",
+          },
+        ],
+      }
     `)
   })
 })
