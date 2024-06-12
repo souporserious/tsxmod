@@ -536,11 +536,15 @@ function getTypeArgumentsIncludingIntersections(type: Type): Type[] {
 /** Processes a property into a metadata object. */
 function processProperty(
   property: Symbol,
-  declaration: Node,
+  enclosingNode: Node,
   typeChecker: TypeChecker,
   defaultValues: Record<string, any>
 ) {
-  const declarations = property.getDeclarations()
+  let declaration = property.getValueDeclaration()
+
+  if (!declaration) {
+    declaration = property.getDeclarations().at(0)
+  }
 
   if (
     declarations.some((declaration) =>
@@ -550,49 +554,46 @@ function processProperty(
     return
   }
 
-  const primaryDeclaration = declarations.at(0)
-  const propertyName = property.getName()
-  const propertyType = property.getTypeAtLocation(declaration)
-  const defaultValue = defaultValues[propertyName]
-
+  const propertyType = property.getTypeAtLocation(enclosingNode)
   let typeText
 
   if (
-    Node.isParameterDeclaration(primaryDeclaration) ||
-    Node.isVariableDeclaration(primaryDeclaration) ||
-    Node.isPropertySignature(primaryDeclaration)
+    Node.isParameterDeclaration(declaration) ||
+    Node.isPropertySignature(declaration) ||
+    Node.isVariableDeclaration(declaration)
   ) {
-    const typeNode = primaryDeclaration.getTypeNodeOrThrow()
+    const typeNode = declaration.getTypeNodeOrThrow()
     typeText = typeNode.getText()
   } else {
     typeText = propertyType.getText(
-      declaration,
+      enclosingNode,
       TypeFormatFlags.UseAliasDefinedOutsideCurrentScope
     )
   }
 
+  const propertyName = property.getName()
+  const defaultValue = defaultValues[propertyName]
   const propertyMetadata: PropertyMetadata = {
     defaultValue,
     name: propertyName,
     description: getSymbolDescription(property),
-    required: Node.isPropertySignature(primaryDeclaration)
-      ? !primaryDeclaration.hasQuestionToken() && !defaultValue
-      : !defaultValue,
+    required: !property.isOptional() && defaultValue === undefined,
     type: typeText,
   }
 
   if (propertyType.isObject()) {
-    const typeDeclaration = propertyType.getSymbol()?.getDeclarations()?.[0]
+    const typeDeclaration = propertyType.getSymbol()?.getDeclarations()?.at(0)
     const isLocalType = typeDeclaration
-      ? declaration.getSourceFile().getFilePath() ===
+      ? enclosingNode.getSourceFile().getFilePath() ===
         typeDeclaration.getSourceFile().getFilePath()
       : false
 
     if (isLocalType) {
-      const firstChild = primaryDeclaration?.getFirstChild()
+      const firstChild = declaration?.getFirstChild()
+
       propertyMetadata.properties = processTypeProperties(
         propertyType,
-        declaration,
+        enclosingNode,
         typeChecker,
         Node.isObjectBindingPattern(firstChild)
           ? getDefaultValuesFromProperties(firstChild.getElements())

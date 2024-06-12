@@ -451,7 +451,7 @@ describe('getTypeDocumentation', () => {
     `)
   })
 
-  test('handles mapped types', () => {
+  test('handles mapped types without declarations', () => {
     project.createSourceFile(
       'theme.ts',
       `export const textStyles = { heading1: {}, heading2: {}, heading3: {}, body1: {}, }`
@@ -526,21 +526,21 @@ describe('getTypeDocumentation', () => {
                 "defaultValue": undefined,
                 "description": undefined,
                 "name": "alignment",
-                "required": true,
+                "required": false,
                 "type": ""start" | "center" | "end"",
               },
               {
                 "defaultValue": undefined,
                 "description": undefined,
                 "name": "width",
-                "required": true,
+                "required": false,
                 "type": "string | number",
               },
               {
                 "defaultValue": undefined,
                 "description": undefined,
                 "name": "lineHeight",
-                "required": true,
+                "required": false,
                 "type": "string",
               },
             ],
