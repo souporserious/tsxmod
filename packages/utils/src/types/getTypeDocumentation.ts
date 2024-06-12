@@ -25,6 +25,17 @@ import {
   getSymbolDescription,
 } from '../index'
 
+export interface PropertyMetadata {
+  name?: string
+  description?: string
+  tags?: { tagName: string; text?: string }[]
+  defaultValue?: any
+  required: boolean
+  type: string
+  properties?: PropertyMetadata[]
+  unionProperties?: PropertyMetadata[][]
+}
+
 /** Analyzes metadata from interfaces, type aliases, classes, functions, and variable declarations. */
 export function getTypeDocumentation(
   declaration:
@@ -323,13 +334,13 @@ function processClassAccessor(
     ...(isSetter ? { parameters } : {}),
     returnType,
     name: accessor.getName(),
-    description: getSymbolDescription(accessor.getSymbolOrThrow()),
     modifier: getModifier(accessor),
     scope: getScope(accessor),
     visibility: getVisibility(accessor),
     type: accessor
       .getType()
       .getText(accessor, TypeFormatFlags.UseAliasDefinedOutsideCurrentScope),
+    ...getJsDocMetadata(accessor),
   }
 }
 
@@ -354,7 +365,6 @@ function processClassMethod(
   return {
     parameters,
     name: method.getName(),
-    description: getSymbolDescription(method.getSymbolOrThrow()),
     modifier: getModifier(method),
     scope: getScope(method),
     visibility: getVisibility(method),
@@ -364,6 +374,7 @@ function processClassMethod(
     returnType: signature
       .getReturnType()
       .getText(method, TypeFormatFlags.UseAliasDefinedOutsideCurrentScope),
+    ...getJsDocMetadata(method),
   }
 }
 
@@ -371,13 +382,13 @@ function processClassMethod(
 function processClassPropertyDeclaration(property: PropertyDeclaration) {
   return {
     name: property.getName(),
-    description: getSymbolDescription(property.getSymbolOrThrow()),
     scope: getScope(property),
     visibility: getVisibility(property),
     isReadonly: property.isReadonly(),
     type: property
       .getType()
       .getText(property, TypeFormatFlags.UseAliasDefinedOutsideCurrentScope),
+    ...getJsDocMetadata(property),
   }
 }
 
@@ -404,12 +415,18 @@ function processParameterType(
   } = {
     defaultValue,
     name: isObjectBindingPattern ? undefined : parameterDeclaration.getName(),
-    description: getSymbolDescription(parameterDeclaration.getSymbolOrThrow()),
     required: !parameterDeclaration.hasQuestionToken() && !defaultValue,
     type: parameterType.getText(
       enclosingNode,
       TypeFormatFlags.UseAliasDefinedOutsideCurrentScope
     ),
+    ...getJsDocMetadata(parameterDeclaration),
+  }
+
+  if (!metadata.description) {
+    metadata.description = getSymbolDescription(
+      parameterDeclaration.getSymbolOrThrow()
+    )
   }
 
   const typeDeclaration = parameterType.getSymbol()?.getDeclarations()?.at(0)
@@ -459,16 +476,6 @@ function processParameterType(
   }
 
   return metadata
-}
-
-export interface PropertyMetadata {
-  name?: string
-  description?: string
-  defaultValue?: any
-  required: boolean
-  type: string
-  properties?: (PropertyMetadata | null)[]
-  unionProperties?: PropertyMetadata[][]
 }
 
 /** Processes union types into an array of property arrays. */
@@ -634,9 +641,17 @@ function processProperty(
   const propertyMetadata: PropertyMetadata = {
     defaultValue,
     name: propertyName,
-    description: getSymbolDescription(property),
     required: !property.isOptional() && defaultValue === undefined,
     type: typeText,
+  }
+
+  const jsDocMetadata = declaration ? getJsDocMetadata(declaration) : undefined
+
+  if (jsDocMetadata) {
+    propertyMetadata.description = jsDocMetadata.description
+    propertyMetadata.tags = jsDocMetadata.tags
+  } else {
+    propertyMetadata.description = getSymbolDescription(property)
   }
 
   if (propertyType.isObject()) {

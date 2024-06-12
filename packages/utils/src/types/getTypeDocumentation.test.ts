@@ -60,6 +60,7 @@ describe('getTypeDocumentation', () => {
                 "description": "Provides the initial count.",
                 "name": "initialCount",
                 "required": false,
+                "tags": undefined,
                 "type": "number",
               },
             ],
@@ -805,8 +806,7 @@ describe('getTypeDocumentation', () => {
       {
         "accessors": [
           {
-            "description": "Increments the count.
-      Returns the current count.",
+            "description": "Increments the count.",
             "modifier": "setter",
             "name": "accessorCount",
             "parameters": [
@@ -820,16 +820,17 @@ describe('getTypeDocumentation', () => {
             ],
             "returnType": "number",
             "scope": undefined,
+            "tags": undefined,
             "type": "number",
             "visibility": undefined,
           },
           {
-            "description": "Increments the count.
-      Returns the current count.",
+            "description": "Returns the current count.",
             "modifier": "getter",
             "name": "accessorCount",
             "returnType": "number",
             "scope": undefined,
+            "tags": undefined,
             "type": "number",
             "visibility": undefined,
           },
@@ -856,6 +857,7 @@ describe('getTypeDocumentation', () => {
             "parameters": [],
             "returnType": "void",
             "scope": undefined,
+            "tags": undefined,
             "type": "() => void",
             "visibility": undefined,
           },
@@ -866,6 +868,7 @@ describe('getTypeDocumentation', () => {
             "parameters": [],
             "returnType": "void",
             "scope": undefined,
+            "tags": undefined,
             "type": "() => void",
             "visibility": undefined,
           },
@@ -884,11 +887,11 @@ describe('getTypeDocumentation', () => {
             ],
             "returnType": "number",
             "scope": undefined,
+            "tags": undefined,
             "type": "(isFloored?: boolean) => number",
             "visibility": "public",
           },
           {
-            "description": undefined,
             "modifier": undefined,
             "name": "getStaticCount",
             "parameters": [],
@@ -901,7 +904,6 @@ describe('getTypeDocumentation', () => {
         "name": "Counter",
         "properties": [
           {
-            "description": undefined,
             "isReadonly": false,
             "name": "initialCount",
             "scope": undefined,
@@ -909,7 +911,6 @@ describe('getTypeDocumentation', () => {
             "visibility": undefined,
           },
           {
-            "description": undefined,
             "isReadonly": false,
             "name": "staticCount",
             "scope": "static",
