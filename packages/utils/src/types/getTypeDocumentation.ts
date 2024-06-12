@@ -25,6 +25,68 @@ import {
   getSymbolDescription,
 } from '../index'
 
+export interface InterfaceMetadata {
+  name: string
+  properties: PropertyMetadata[]
+  description?: string
+  tags?: { tagName: string; text?: string }[]
+}
+
+export interface TypeAliasMetadata {
+  name: string
+  properties: PropertyMetadata[]
+  description?: string
+  tags?: { tagName: string; text?: string }[]
+}
+
+export interface ClassMetadata {
+  name?: string
+  constructor?: {
+    name: string
+    parameters?: ParameterMetadata[]
+    description?: string
+    tags?: { tagName: string; text?: string }[]
+  }
+  accessors?: ClassAccessorMetadata[]
+  methods?: ClassMethodMetadata[]
+  properties?: Omit<PropertyMetadata, 'required'>[]
+  description?: string
+  tags?: { tagName: string; text?: string }[]
+}
+
+export interface ClassAccessorMetadata {
+  name: string
+  description?: string
+  tags?: { tagName: string; text?: string }[]
+  modifier?: string
+  scope?: string
+  visibility?: string
+  type: string
+  returnType: string
+  parameters?: ParameterMetadata[]
+}
+
+export interface ClassMethodMetadata {
+  name: string
+  description?: string
+  tags?: { tagName: string; text?: string }[]
+  modifier?: string
+  scope?: string
+  visibility?: string
+  type: string
+  returnType: string
+  parameters: ParameterMetadata[]
+}
+
+export interface FunctionMetadata {
+  name?: string
+  parameters: ParameterMetadata[]
+  type: string
+  returnType: string
+  description?: string
+  tags?: { tagName: string; text?: string }[]
+}
+
 export interface PropertyMetadata {
   name?: string
   description?: string
@@ -36,16 +98,43 @@ export interface PropertyMetadata {
   unionProperties?: PropertyMetadata[][]
 }
 
+export interface ParameterMetadata {
+  name?: string
+  description?: string
+  defaultValue?: any
+  required: boolean
+  type: string
+  properties?: PropertyMetadata[]
+  unionProperties?: PropertyMetadata[][]
+}
+
+export type PropertyFilter = (property: PropertySignature) => boolean
+
 /** Analyzes metadata from interfaces, type aliases, classes, functions, and variable declarations. */
 export function getTypeDocumentation(
-  declaration:
-    | InterfaceDeclaration
-    | TypeAliasDeclaration
-    | ClassDeclaration
-    | FunctionDeclaration
-    | VariableDeclaration,
-  propertyFilter?: (property: PropertySignature) => boolean
-) {
+  declaration: InterfaceDeclaration,
+  propertyFilter?: PropertyFilter
+): InterfaceMetadata
+export function getTypeDocumentation(
+  declaration: TypeAliasDeclaration,
+  propertyFilter?: PropertyFilter
+): TypeAliasMetadata
+export function getTypeDocumentation(
+  declaration: ClassDeclaration,
+  propertyFilter?: PropertyFilter
+): ClassMetadata
+export function getTypeDocumentation(
+  declaration: FunctionDeclaration,
+  propertyFilter?: PropertyFilter
+): FunctionMetadata
+export function getTypeDocumentation(
+  declaration: VariableDeclaration,
+  propertyFilter?: PropertyFilter
+): FunctionMetadata
+export function getTypeDocumentation(
+  declaration: any,
+  propertyFilter?: PropertyFilter
+): any {
   if (Node.isInterfaceDeclaration(declaration)) {
     return processInterface(declaration, propertyFilter)
   }
@@ -86,8 +175,8 @@ export function getTypeDocumentation(
 /** Processes an interface into a metadata object. */
 function processInterface(
   interfaceDeclaration: InterfaceDeclaration,
-  propertyFilter?: (property: PropertySignature) => boolean
-) {
+  propertyFilter?: PropertyFilter
+): InterfaceMetadata {
   const typeChecker = interfaceDeclaration.getProject().getTypeChecker()
   const interfaceType = interfaceDeclaration.getType()
 
@@ -106,8 +195,8 @@ function processInterface(
 /** Processes a type alias into a metadata object. */
 function processTypeAlias(
   typeAlias: TypeAliasDeclaration,
-  propertyFilter?: (property: PropertySignature) => boolean
-) {
+  propertyFilter?: PropertyFilter
+): TypeAliasMetadata {
   const typeChecker = typeAlias.getProject().getTypeChecker()
   const aliasType = typeAlias.getType()
 
@@ -131,9 +220,9 @@ function processFunctionOrExpression(
     | FunctionExpression
     | TaggedTemplateExpression
     | CallExpression,
-  propertyFilter?: (property: PropertySignature) => boolean,
+  propertyFilter?: PropertyFilter,
   variableDeclaration?: VariableDeclaration
-) {
+): FunctionMetadata | undefined {
   const signatures = functionDeclarationOrExpression
     .getType()
     .getCallSignatures()
@@ -245,8 +334,8 @@ function getScope(
 /** Processes a class into a metadata object. */
 function processClass(
   classDeclaration: ClassDeclaration,
-  propertyFilter?: (property: PropertySignature) => boolean
-) {
+  propertyFilter?: PropertyFilter
+): ClassMetadata {
   const classMetadata: {
     name?: string
     constructor?: {
@@ -316,8 +405,8 @@ function processClass(
 /** Processes an accessor (getter or setter) into a metadata object. */
 function processClassAccessor(
   accessor: GetAccessorDeclaration | SetAccessorDeclaration,
-  propertyFilter?: (property: PropertySignature) => boolean
-) {
+  propertyFilter?: PropertyFilter
+): ClassAccessorMetadata {
   const isSetter = Node.isSetAccessorDeclaration(accessor)
   const parameters = isSetter
     ? accessor
@@ -347,8 +436,8 @@ function processClassAccessor(
 /** Processes a method declaration into a metadata object. */
 function processClassMethod(
   method: MethodDeclaration,
-  propertyFilter?: (property: PropertySignature) => boolean
-) {
+  propertyFilter?: PropertyFilter
+): ClassMethodMetadata {
   const signatures = method.getType().getCallSignatures()
   // TODO: add support for multiple signatures
   const signature = signatures.at(0)!
@@ -396,8 +485,8 @@ function processClassPropertyDeclaration(property: PropertyDeclaration) {
 function processParameterType(
   parameterDeclaration: ParameterDeclaration,
   enclosingNode: Node,
-  propertyFilter?: (property: PropertySignature) => boolean
-) {
+  propertyFilter?: PropertyFilter
+): ParameterMetadata {
   const typeChecker = enclosingNode.getProject().getTypeChecker()
   const parameterType = parameterDeclaration.getType()
   const defaultValue = parameterDeclaration.getInitializer()?.getText()
@@ -484,7 +573,7 @@ function processUnionType(
   enclosingNode: Node,
   typeChecker: TypeChecker,
   defaultValues: Record<string, any>,
-  propertyFilter?: (property: PropertySignature) => boolean
+  propertyFilter?: PropertyFilter
 ) {
   const allUnionTypes = unionType
     .getUnionTypes()
@@ -513,7 +602,7 @@ function processTypeProperties(
   type: Type,
   enclosingNode: Node,
   typeChecker: TypeChecker,
-  propertyFilter?: (property: PropertySignature) => boolean,
+  propertyFilter?: PropertyFilter,
   defaultValues: Record<string, any> = {}
 ): PropertyMetadata[] {
   // Handle intersection types by recursively processing each type in the intersection

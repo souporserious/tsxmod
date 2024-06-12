@@ -1,5 +1,5 @@
 import * as ts_morph from 'ts-morph';
-import { DiagnosticMessageChain, SourceFile, Expression, Identifier, Node, Project, ts, ImportClause, ImportDeclaration, ImportSpecifier, JsxOpeningElement, JsxSelfClosingElement, JsxElement, VariableDeclaration, FunctionDeclaration, FunctionExpression, ArrowFunction, ClassDeclaration, JsxAttribute, ObjectLiteralExpression, BindingElement, ParameterDeclaration, PropertyAssignment, CallExpression, Symbol, InterfaceDeclaration, TypeAliasDeclaration, PropertySignature } from 'ts-morph';
+import { DiagnosticMessageChain, SourceFile, Expression, Identifier, Node, Project, ts, ImportClause, ImportDeclaration, ImportSpecifier, JsxOpeningElement, JsxSelfClosingElement, JsxElement, VariableDeclaration, FunctionDeclaration, FunctionExpression, ArrowFunction, ClassDeclaration, JsxAttribute, ObjectLiteralExpression, BindingElement, ParameterDeclaration, PropertyAssignment, CallExpression, Symbol, PropertySignature, InterfaceDeclaration, TypeAliasDeclaration } from 'ts-morph';
 
 /** Parses a diagnostic message into a string. */
 declare function getDiagnosticMessageText(message: string | DiagnosticMessageChain): string;
@@ -149,110 +149,111 @@ declare function addComputedTypes(sourceFile: SourceFile): void;
  */
 declare function getComputedQuickInfoAtPosition(sourceFile: SourceFile, position: number): ts.QuickInfo | undefined;
 
-/** Analyzes metadata from interfaces, type aliases, classes, functions, and variable declarations. */
-declare function getTypeDocumentation(declaration: InterfaceDeclaration | TypeAliasDeclaration | ClassDeclaration | FunctionDeclaration | VariableDeclaration, propertyFilter?: (property: PropertySignature) => boolean): {
-    description?: string | undefined;
-    tags?: {
-        tagName: string;
-        text?: string | undefined;
-    }[] | undefined;
+interface InterfaceMetadata {
     name: string;
     properties: PropertyMetadata[];
-} | {
-    name?: string | undefined;
+    description?: string;
+    tags?: {
+        tagName: string;
+        text?: string;
+    }[];
+}
+interface TypeAliasMetadata {
+    name: string;
+    properties: PropertyMetadata[];
+    description?: string;
+    tags?: {
+        tagName: string;
+        text?: string;
+    }[];
+}
+interface ClassMetadata {
+    name?: string;
     constructor?: {
         name: string;
-        parameters?: {
-            name?: string | undefined;
-            description?: string | undefined;
-            defaultValue?: any;
-            required: boolean;
-            type: string;
-            properties?: PropertyMetadata[] | undefined;
-            unionProperties?: PropertyMetadata[][] | undefined;
-        }[] | undefined;
-        description?: string | undefined;
+        parameters?: ParameterMetadata[];
+        description?: string;
         tags?: {
             tagName: string;
-            text?: string | undefined;
-        }[] | undefined;
-    } | undefined;
-    accessors?: {
-        returnType: string;
-        name: string;
-        description: string | undefined;
-        modifier: string | undefined;
-        scope: string | undefined;
-        visibility: string | undefined;
-        type: string;
-        parameters?: {
-            name?: string | undefined;
-            description?: string | undefined;
-            defaultValue?: any;
-            required: boolean;
-            type: string;
-            properties?: PropertyMetadata[] | undefined;
-            unionProperties?: PropertyMetadata[][] | undefined;
-        }[] | undefined;
-    }[] | undefined;
-    methods?: {
-        parameters: {
-            name?: string | undefined;
-            description?: string | undefined;
-            defaultValue?: any;
-            required: boolean;
-            type: string;
-            properties?: PropertyMetadata[] | undefined;
-            unionProperties?: PropertyMetadata[][] | undefined;
+            text?: string;
         }[];
-        name: string;
-        description: string | undefined;
-        modifier: string | undefined;
-        scope: string | undefined;
-        visibility: string | undefined;
-        type: string;
-        returnType: string;
-    }[] | undefined;
-    properties?: {
-        name: string;
-        description: string | undefined;
-        scope: string | undefined;
-        visibility: string | undefined;
-        isReadonly: boolean;
-        type: string;
-    }[] | undefined;
-    description?: string | undefined;
+    };
+    accessors?: ClassAccessorMetadata[];
+    methods?: ClassMethodMetadata[];
+    properties?: Omit<PropertyMetadata, 'required'>[];
+    description?: string;
     tags?: {
         tagName: string;
-        text?: string | undefined;
-    }[] | undefined;
-} | {
-    description?: string | undefined;
-    tags?: {
-        tagName: string;
-        text?: string | undefined;
-    }[] | undefined;
-    name: string | undefined;
-    parameters: {
-        name?: string | undefined;
-        description?: string | undefined;
-        defaultValue?: any;
-        required: boolean;
-        type: string;
-        properties?: PropertyMetadata[] | undefined;
-        unionProperties?: PropertyMetadata[][] | undefined;
+        text?: string;
     }[];
+}
+interface ClassAccessorMetadata {
+    name: string;
+    description?: string;
+    tags?: {
+        tagName: string;
+        text?: string;
+    }[];
+    modifier?: string;
+    scope?: string;
+    visibility?: string;
     type: string;
     returnType: string;
-} | undefined;
+    parameters?: ParameterMetadata[];
+}
+interface ClassMethodMetadata {
+    name: string;
+    description?: string;
+    tags?: {
+        tagName: string;
+        text?: string;
+    }[];
+    modifier?: string;
+    scope?: string;
+    visibility?: string;
+    type: string;
+    returnType: string;
+    parameters: ParameterMetadata[];
+}
+interface FunctionMetadata {
+    name?: string;
+    parameters: ParameterMetadata[];
+    type: string;
+    returnType: string;
+    description?: string;
+    tags?: {
+        tagName: string;
+        text?: string;
+    }[];
+}
 interface PropertyMetadata {
+    name?: string;
+    description?: string;
+    tags?: {
+        tagName: string;
+        text?: string;
+    }[];
+    defaultValue?: any;
+    required: boolean;
+    type: string;
+    properties?: PropertyMetadata[];
+    unionProperties?: PropertyMetadata[][];
+}
+interface ParameterMetadata {
     name?: string;
     description?: string;
     defaultValue?: any;
     required: boolean;
     type: string;
-    properties?: (PropertyMetadata | null)[];
+    properties?: PropertyMetadata[];
     unionProperties?: PropertyMetadata[][];
 }
+type PropertyFilter = (property: PropertySignature) => boolean;
+/** Analyzes metadata from interfaces, type aliases, classes, functions, and variable declarations. */
+declare function getTypeDocumentation(declaration: InterfaceDeclaration, propertyFilter?: PropertyFilter): InterfaceMetadata;
+declare function getTypeDocumentation(declaration: TypeAliasDeclaration, propertyFilter?: PropertyFilter): TypeAliasMetadata;
+declare function getTypeDocumentation(declaration: ClassDeclaration, propertyFilter?: PropertyFilter): ClassMetadata;
+declare function getTypeDocumentation(declaration: FunctionDeclaration, propertyFilter?: PropertyFilter): FunctionMetadata;
+declare function getTypeDocumentation(declaration: VariableDeclaration, propertyFilter?: PropertyFilter): FunctionMetadata;
 
-export { type PropertyMetadata, TreeMode, addComputedTypes, extractExportByIdentifier, findClosestComponentDeclaration, findNamedImportReferences, findReferencesAsJsxElements, findReferencesInSourceFile, findRootComponentReferences, getChildrenFunction, getClassNamesForJsxElement, getComputedQuickInfoAtPosition, getDefaultValuesFromProperties, getDescendantAtRange, getDiagnosticMessageText, getImportClause, getImportDeclaration, getImportSpecifier, getJsDocMetadata, getJsxElement, getJsxElements, getPropTypes, getReactFunctionDeclaration, getSymbolDescription, getTypeDeclarationsFromProject, getTypeDocumentation, hasJsDocTag, isForwardRefExpression, isJsxComponent, renameJsxIdentifier, resolveExpression, resolveJsxAttributeValue, resolveObject };
+export { type ClassAccessorMetadata, type ClassMetadata, type ClassMethodMetadata, type FunctionMetadata, type InterfaceMetadata, type ParameterMetadata, type PropertyFilter, type PropertyMetadata, TreeMode, type TypeAliasMetadata, addComputedTypes, extractExportByIdentifier, findClosestComponentDeclaration, findNamedImportReferences, findReferencesAsJsxElements, findReferencesInSourceFile, findRootComponentReferences, getChildrenFunction, getClassNamesForJsxElement, getComputedQuickInfoAtPosition, getDefaultValuesFromProperties, getDescendantAtRange, getDiagnosticMessageText, getImportClause, getImportDeclaration, getImportSpecifier, getJsDocMetadata, getJsxElement, getJsxElements, getPropTypes, getReactFunctionDeclaration, getSymbolDescription, getTypeDeclarationsFromProject, getTypeDocumentation, hasJsDocTag, isForwardRefExpression, isJsxComponent, renameJsxIdentifier, resolveExpression, resolveJsxAttributeValue, resolveObject };
