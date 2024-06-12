@@ -990,4 +990,67 @@ describe('getTypeDocumentation', () => {
       }
     `)
   })
+
+  test('allows filtering specific node module types', () => {
+    const project = new Project()
+    const sourceFile = project.createSourceFile(
+      'test.ts',
+      dedent`
+      import * as React from 'react';
+
+      type ButtonVariant = 'primary' | 'secondary' | 'danger';
+
+      type ButtonProps = {
+        variant?: ButtonVariant;
+      } & React.ButtonHTMLAttributes<HTMLButtonElement>
+
+      export const Button = (props: ButtonProps) => {
+        return <button {...props} />
+      };
+      `,
+      { overwrite: true }
+    )
+    const types = getTypeDocumentation(
+      sourceFile.getVariableDeclarationOrThrow('Button'),
+      (property) => {
+        if (property.getName() === 'onClick') {
+          return true
+        }
+        return !property.getSourceFile().isInNodeModules()
+      }
+    )
+
+    expect(types).toMatchInlineSnapshot(`
+      {
+        "name": "Button",
+        "parameters": [
+          {
+            "defaultValue": undefined,
+            "description": undefined,
+            "name": "props",
+            "properties": [
+              {
+                "defaultValue": undefined,
+                "description": undefined,
+                "name": "variant",
+                "required": false,
+                "type": "ButtonVariant",
+              },
+              {
+                "defaultValue": undefined,
+                "description": undefined,
+                "name": "onClick",
+                "required": false,
+                "type": "MouseEventHandler<T> | undefined",
+              },
+            ],
+            "required": true,
+            "type": "ButtonProps",
+          },
+        ],
+        "returnType": "boolean",
+        "type": "(props: ButtonProps) => boolean",
+      }
+    `)
+  })
 })
