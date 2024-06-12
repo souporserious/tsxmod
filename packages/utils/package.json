@@ -35,9 +35,11 @@
     "ts-morph": ">=17.0.0"
   },
   "devDependencies": {
+    "@types/react": "18.3.3",
+    "@types/react-dom": "18.3.0",
     "clsx": "2.1.1",
     "dedent": "1.5.3",
-    "ts-morph": "^22.0.0",
-    "styled-components": "6.1.11"
+    "styled-components": "6.1.11",
+    "ts-morph": "^22.0.0"
   }
 }

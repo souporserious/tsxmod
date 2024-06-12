@@ -13,6 +13,7 @@ import type {
   SetAccessorDeclaration,
   GetAccessorDeclaration,
   VariableDeclaration,
+  PropertySignature,
   Symbol,
   Type,
   ts,
@@ -31,22 +32,23 @@ export function getTypeDocumentation(
     | TypeAliasDeclaration
     | ClassDeclaration
     | FunctionDeclaration
-    | VariableDeclaration
+    | VariableDeclaration,
+  propertyFilter?: (property: PropertySignature) => boolean
 ) {
   if (Node.isInterfaceDeclaration(declaration)) {
-    return processInterface(declaration)
+    return processInterface(declaration, propertyFilter)
   }
 
   if (Node.isTypeAliasDeclaration(declaration)) {
-    return processTypeAlias(declaration)
+    return processTypeAlias(declaration, propertyFilter)
   }
 
   if (Node.isClassDeclaration(declaration)) {
-    return processClass(declaration)
+    return processClass(declaration, propertyFilter)
   }
 
   if (Node.isFunctionDeclaration(declaration)) {
-    return processFunctionOrExpression(declaration)
+    return processFunctionOrExpression(declaration, propertyFilter)
   }
 
   if (Node.isVariableDeclaration(declaration)) {
@@ -57,7 +59,11 @@ export function getTypeDocumentation(
       Node.isCallExpression(initializer) ||
       Node.isTaggedTemplateExpression(initializer)
     ) {
-      return processFunctionOrExpression(initializer, declaration)
+      return processFunctionOrExpression(
+        initializer,
+        propertyFilter,
+        declaration
+      )
     }
   }
 
@@ -67,7 +73,10 @@ export function getTypeDocumentation(
 }
 
 /** Processes an interface into a metadata object. */
-function processInterface(interfaceDeclaration: InterfaceDeclaration) {
+function processInterface(
+  interfaceDeclaration: InterfaceDeclaration,
+  propertyFilter?: (property: PropertySignature) => boolean
+) {
   const typeChecker = interfaceDeclaration.getProject().getTypeChecker()
   const interfaceType = interfaceDeclaration.getType()
 
@@ -76,20 +85,29 @@ function processInterface(interfaceDeclaration: InterfaceDeclaration) {
     properties: processTypeProperties(
       interfaceType,
       interfaceDeclaration,
-      typeChecker
+      typeChecker,
+      propertyFilter
     ),
     ...getJsDocMetadata(interfaceDeclaration),
   }
 }
 
 /** Processes a type alias into a metadata object. */
-function processTypeAlias(typeAlias: TypeAliasDeclaration) {
+function processTypeAlias(
+  typeAlias: TypeAliasDeclaration,
+  propertyFilter?: (property: PropertySignature) => boolean
+) {
   const typeChecker = typeAlias.getProject().getTypeChecker()
   const aliasType = typeAlias.getType()
 
   return {
     name: typeAlias.getName(),
-    properties: processTypeProperties(aliasType, typeAlias, typeChecker),
+    properties: processTypeProperties(
+      aliasType,
+      typeAlias,
+      typeChecker,
+      propertyFilter
+    ),
     ...getJsDocMetadata(typeAlias),
   }
 }
@@ -102,6 +120,7 @@ function processFunctionOrExpression(
     | FunctionExpression
     | TaggedTemplateExpression
     | CallExpression,
+  propertyFilter?: (property: PropertySignature) => boolean,
   variableDeclaration?: VariableDeclaration
 ) {
   const signatures = functionDeclarationOrExpression
@@ -125,7 +144,8 @@ function processFunctionOrExpression(
   for (const parameter of parameters) {
     const parameterType = processParameterType(
       parameter.getValueDeclaration() as ParameterDeclaration,
-      functionDeclarationOrExpression
+      functionDeclarationOrExpression,
+      propertyFilter
     )
     parameterTypes.push(parameterType)
   }
@@ -212,7 +232,10 @@ function getScope(
 }
 
 /** Processes a class into a metadata object. */
-function processClass(classDeclaration: ClassDeclaration) {
+function processClass(
+  classDeclaration: ClassDeclaration,
+  propertyFilter?: (property: PropertySignature) => boolean
+) {
   const classMetadata: {
     name?: string
     constructor?: {
@@ -223,7 +246,7 @@ function processClass(classDeclaration: ClassDeclaration) {
     }
     accessors?: ReturnType<typeof processClassAccessor>[]
     methods?: ReturnType<typeof processClassMethod>[]
-    properties?: ReturnType<typeof processPropertyDeclaration>[]
+    properties?: ReturnType<typeof processClassPropertyDeclaration>[]
     description?: string
     tags?: { tagName: string; text?: string }[]
   } = {
@@ -239,7 +262,9 @@ function processClass(classDeclaration: ClassDeclaration) {
       name: 'constructor',
       parameters: constructor
         .getParameters()
-        .map((parameter) => processParameterType(parameter, constructor)),
+        .map((parameter) =>
+          processParameterType(parameter, constructor, propertyFilter)
+        ),
       ...getJsDocMetadata(constructor),
     }
   }
@@ -253,21 +278,23 @@ function processClass(classDeclaration: ClassDeclaration) {
         if (!classMetadata.accessors) {
           classMetadata.accessors = []
         }
-        classMetadata.accessors.push(processClassAccessor(member))
+        classMetadata.accessors.push(
+          processClassAccessor(member, propertyFilter)
+        )
       }
     } else if (Node.isMethodDeclaration(member)) {
       if (!member.hasModifier(SyntaxKind.PrivateKeyword)) {
         if (!classMetadata.methods) {
           classMetadata.methods = []
         }
-        classMetadata.methods.push(processClassMethod(member))
+        classMetadata.methods.push(processClassMethod(member, propertyFilter))
       }
     } else if (Node.isPropertyDeclaration(member)) {
       if (!member.hasModifier(SyntaxKind.PrivateKeyword)) {
         if (!classMetadata.properties) {
           classMetadata.properties = []
         }
-        classMetadata.properties.push(processPropertyDeclaration(member))
+        classMetadata.properties.push(processClassPropertyDeclaration(member))
       }
     }
   })
@@ -277,13 +304,16 @@ function processClass(classDeclaration: ClassDeclaration) {
 
 /** Processes an accessor (getter or setter) into a metadata object. */
 function processClassAccessor(
-  accessor: GetAccessorDeclaration | SetAccessorDeclaration
+  accessor: GetAccessorDeclaration | SetAccessorDeclaration,
+  propertyFilter?: (property: PropertySignature) => boolean
 ) {
   const isSetter = Node.isSetAccessorDeclaration(accessor)
   const parameters = isSetter
     ? accessor
         .getParameters()
-        .map((parameter) => processParameterType(parameter, accessor))
+        .map((parameter) =>
+          processParameterType(parameter, accessor, propertyFilter)
+        )
     : []
   const returnType = accessor
     .getType()
@@ -304,7 +334,10 @@ function processClassAccessor(
 }
 
 /** Processes a method declaration into a metadata object. */
-function processClassMethod(method: MethodDeclaration) {
+function processClassMethod(
+  method: MethodDeclaration,
+  propertyFilter?: (property: PropertySignature) => boolean
+) {
   const signatures = method.getType().getCallSignatures()
   // TODO: add support for multiple signatures
   const signature = signatures.at(0)!
@@ -313,7 +346,8 @@ function processClassMethod(method: MethodDeclaration) {
     .map((parameter) =>
       processParameterType(
         parameter.getValueDeclaration() as ParameterDeclaration,
-        method
+        method,
+        propertyFilter
       )
     )
 
@@ -333,8 +367,8 @@ function processClassMethod(method: MethodDeclaration) {
   }
 }
 
-/** Processes a property declaration into a metadata object. */
-function processPropertyDeclaration(property: PropertyDeclaration) {
+/** Processes a class property declaration into a metadata object. */
+function processClassPropertyDeclaration(property: PropertyDeclaration) {
   return {
     name: property.getName(),
     description: getSymbolDescription(property.getSymbolOrThrow()),
@@ -350,7 +384,8 @@ function processPropertyDeclaration(property: PropertyDeclaration) {
 /** Processes a signature parameter into a metadata object. */
 function processParameterType(
   parameterDeclaration: ParameterDeclaration,
-  enclosingNode: Node
+  enclosingNode: Node,
+  propertyFilter?: (property: PropertySignature) => boolean
 ) {
   const typeChecker = enclosingNode.getProject().getTypeChecker()
   const parameterType = parameterDeclaration.getType()
@@ -407,7 +442,8 @@ function processParameterType(
         parameterType,
         enclosingNode,
         typeChecker,
-        defaultValues
+        defaultValues,
+        propertyFilter
       )
       metadata.properties = properties
       metadata.unionProperties = unionProperties
@@ -416,6 +452,7 @@ function processParameterType(
         parameterType,
         enclosingNode,
         typeChecker,
+        propertyFilter,
         defaultValues
       )
     }
@@ -437,14 +474,21 @@ export interface PropertyMetadata {
 /** Processes union types into an array of property arrays. */
 function processUnionType(
   unionType: Type<ts.UnionType>,
-  declaration: Node,
+  enclosingNode: Node,
   typeChecker: TypeChecker,
-  defaultValues: Record<string, any>
+  defaultValues: Record<string, any>,
+  propertyFilter?: (property: PropertySignature) => boolean
 ) {
   const allUnionTypes = unionType
     .getUnionTypes()
     .map((subType) =>
-      processTypeProperties(subType, declaration, typeChecker, defaultValues)
+      processTypeProperties(
+        subType,
+        enclosingNode,
+        typeChecker,
+        propertyFilter,
+        defaultValues
+      )
     )
   const { duplicates, filtered } = parseDuplicates(
     allUnionTypes,
@@ -460,42 +504,48 @@ function processUnionType(
 /** Processes the properties of a type. */
 function processTypeProperties(
   type: Type,
-  declaration: Node,
+  enclosingNode: Node,
   typeChecker: TypeChecker,
+  propertyFilter?: (property: PropertySignature) => boolean,
   defaultValues: Record<string, any> = {}
 ): PropertyMetadata[] {
   // Handle intersection types by recursively processing each type in the intersection
   if (type.isIntersection()) {
     const intersectionTypes = type.getIntersectionTypes()
+
     return intersectionTypes.flatMap((intersectType) =>
       processTypeProperties(
         intersectType,
-        declaration,
+        enclosingNode,
         typeChecker,
+        propertyFilter,
         defaultValues
       )
     )
   }
 
+  const typeMetadata = getTypeMetadata(type, enclosingNode)
+
+  /** If no property filter is provided, short-circuit for types in node_modules. */
+  if (!propertyFilter && typeMetadata.isInNodeModules) {
+    return []
+  }
+
   /**
-   * Skip primitives, external, and mapped types. Mapped types need to be processed through
-   * apparent properties below to determine which properties are actually external.
-   * TODO: a mapped type could end up using an external type which needs to be handled
+   * Skip primitives to avoid processing poperties and methods of their prototype.
+   * Skip external types local to the project since they should be processed on their own and linked.
    */
   if (
     isPrimitiveType(type) ||
-    (isExternalType(type, declaration) && !isMappedType(type))
+    (typeMetadata.isExternal && !typeMetadata.isInNodeModules)
   ) {
-    /** Return an empty array if in node_modules since we only document external types local to the project. */
-    if (isNodeModulesType(type)) {
-      return []
-    }
+    const symbol = type.getSymbol()
 
     return [
       {
-        required: true,
+        required: symbol ? !symbol.isOptional() : true,
         type: type.getText(
-          declaration,
+          enclosingNode,
           TypeFormatFlags.UseAliasDefinedOutsideCurrentScope
         ),
       },
@@ -504,19 +554,25 @@ function processTypeProperties(
 
   let properties = type.getApparentProperties()
 
-  // Check declaration's type arguments if there are no apparent properties
+  // Check declaration's type arguments if there are no immediate apparent properties
   if (properties.length === 0) {
     const typeArguments = getTypeArgumentsIncludingIntersections(
-      declaration.getType()
+      enclosingNode.getType()
     )
     properties = typeArguments.flatMap((typeArgument) =>
-      typeArgument.getProperties()
+      typeArgument.getApparentProperties()
     )
   }
 
   return properties
     .map((property) =>
-      processProperty(property, declaration, typeChecker, defaultValues)
+      processProperty(
+        property,
+        enclosingNode,
+        typeChecker,
+        defaultValues,
+        propertyFilter
+      )
     )
     .filter((property): property is NonNullable<typeof property> =>
       Boolean(property)
@@ -530,15 +586,21 @@ function getTypeArgumentsIncludingIntersections(type: Type): Type[] {
       .getIntersectionTypes()
       .flatMap(getTypeArgumentsIncludingIntersections)
   }
-  return type.getTypeArguments()
+  return type.getTypeArguments().filter((type) => !isPrimitiveType(type))
 }
 
-/** Processes a property into a metadata object. */
+function defaultPropertyFilter(property: PropertySignature) {
+  return !property.getSourceFile().isInNodeModules()
+}
+
 function processProperty(
   property: Symbol,
   enclosingNode: Node,
   typeChecker: TypeChecker,
-  defaultValues: Record<string, any>
+  defaultValues: Record<string, any>,
+  propertyFilter: (
+    property: PropertySignature
+  ) => boolean = defaultPropertyFilter
 ) {
   let declaration = property.getValueDeclaration()
 
@@ -546,11 +608,7 @@ function processProperty(
     declaration = property.getDeclarations().at(0)
   }
 
-  if (
-    declarations.some((declaration) =>
-      declaration.getSourceFile().isInNodeModules()
-    )
-  ) {
+  if (Node.isPropertySignature(declaration) && !propertyFilter(declaration)) {
     return
   }
 
@@ -595,6 +653,7 @@ function processProperty(
         propertyType,
         enclosingNode,
         typeChecker,
+        propertyFilter,
         Node.isObjectBindingPattern(firstChild)
           ? getDefaultValuesFromProperties(firstChild.getElements())
           : {}
@@ -605,59 +664,56 @@ function processProperty(
   return propertyMetadata
 }
 
-/**
- * Checks if a type is external to the current source file.
- * TODO: "local" needs to account for public/private, is there a private js doc tag, exported from package.json, index.js, etc.
- */
-function isExternalType(type: Type<ts.Type>, declaration: Node) {
+/** Determine if a type is external, mapped, or in node_modules. */
+function getTypeMetadata(type: Type<ts.Type>, declaration: Node) {
   const typeSymbol = type.getSymbol()
   if (!typeSymbol) {
-    return false
+    return {
+      isExternal: false,
+      isMapped: false,
+      isInNodeModules: false,
+    }
   }
 
   const declarations = typeSymbol.getDeclarations()
   if (declarations.length === 0) {
-    return false
+    return {
+      isExternal: false,
+      isMapped: false,
+      isInNodeModules: false,
+    }
   }
 
   const sourceFile = declaration.getSourceFile()
-  return declarations.every(
-    (declaration) => declaration.getSourceFile() !== sourceFile
-  )
-}
+  let isExternal = true
+  let isMapped = true
+  let isInNodeModules = true
 
-/** Checks if a type is a mapped type. */
-function isMappedType(type: Type<ts.Type>) {
-  const typeSymbol = type.getSymbol()
-  if (!typeSymbol) {
-    return false
+  for (const declaration of declarations) {
+    const declarationSourceFile = declaration.getSourceFile()
+
+    /**
+     * Checks if a type is external to the current source file.
+     * TODO: "local" needs to account for public/private, is there a private js doc tag, exported from package.json, index.js, etc.
+     */
+    if (declarationSourceFile === sourceFile) {
+      isExternal = false
+    }
+
+    if (declaration.getKind() !== SyntaxKind.MappedType) {
+      isMapped = false
+    }
+
+    if (!declarationSourceFile.isInNodeModules()) {
+      isInNodeModules = false
+    }
+
+    if (!isExternal && !isMapped && !isInNodeModules) {
+      break
+    }
   }
 
-  const declarations = typeSymbol.getDeclarations()
-  if (declarations.length === 0) {
-    return false
-  }
-
-  return declarations.every(
-    (declaration) => declaration.getKind() === SyntaxKind.MappedType
-  )
-}
-
-/** Checks if a type is located in node_modules. */
-function isNodeModulesType(type: Type<ts.Type>) {
-  const typeSymbol = type.getSymbol()
-  if (!typeSymbol) {
-    return false
-  }
-
-  const declarations = typeSymbol.getDeclarations()
-  if (declarations.length === 0) {
-    return false
-  }
-
-  return declarations.every((declaration) =>
-    declaration.getSourceFile().isInNodeModules()
-  )
+  return { isExternal, isMapped, isInNodeModules }
 }
 
 /** Checks if a type is a primitive type. */

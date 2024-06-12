@@ -1,5 +1,5 @@
 import * as ts_morph from 'ts-morph';
-import { DiagnosticMessageChain, SourceFile, Expression, Identifier, Node, Project, ts, ImportClause, ImportDeclaration, ImportSpecifier, JsxOpeningElement, JsxSelfClosingElement, JsxElement, VariableDeclaration, FunctionDeclaration, FunctionExpression, ArrowFunction, ClassDeclaration, JsxAttribute, ObjectLiteralExpression, BindingElement, ParameterDeclaration, PropertyAssignment, CallExpression, Symbol, InterfaceDeclaration, TypeAliasDeclaration } from 'ts-morph';
+import { DiagnosticMessageChain, SourceFile, Expression, Identifier, Node, Project, ts, ImportClause, ImportDeclaration, ImportSpecifier, JsxOpeningElement, JsxSelfClosingElement, JsxElement, VariableDeclaration, FunctionDeclaration, FunctionExpression, ArrowFunction, ClassDeclaration, JsxAttribute, ObjectLiteralExpression, BindingElement, ParameterDeclaration, PropertyAssignment, CallExpression, Symbol, InterfaceDeclaration, TypeAliasDeclaration, PropertySignature } from 'ts-morph';
 
 /** Parses a diagnostic message into a string. */
 declare function getDiagnosticMessageText(message: string | DiagnosticMessageChain): string;
@@ -137,7 +137,7 @@ declare function getReactFunctionDeclaration(declaration: Node): ArrowFunction |
 declare function isForwardRefExpression(node: Node): node is CallExpression;
 
 /** Gets the description from a symbol's JSDoc or leading comment range. */
-declare function getSymbolDescription(symbol: Symbol): string | null;
+declare function getSymbolDescription(symbol: Symbol): string | undefined;
 
 /** Modifies a source file to add computed types to all eligible type aliases and interfaces. */
 declare function addComputedTypes(sourceFile: SourceFile): void;
@@ -150,14 +150,108 @@ declare function addComputedTypes(sourceFile: SourceFile): void;
 declare function getComputedQuickInfoAtPosition(sourceFile: SourceFile, position: number): ts.QuickInfo | undefined;
 
 /** Analyzes metadata from interfaces, type aliases, classes, functions, and variable declarations. */
-declare function getTypeDocumentation(declaration: InterfaceDeclaration | TypeAliasDeclaration | ClassDeclaration | FunctionDeclaration | VariableDeclaration): any;
+declare function getTypeDocumentation(declaration: InterfaceDeclaration | TypeAliasDeclaration | ClassDeclaration | FunctionDeclaration | VariableDeclaration, propertyFilter?: (property: PropertySignature) => boolean): {
+    description?: string | undefined;
+    tags?: {
+        tagName: string;
+        text?: string | undefined;
+    }[] | undefined;
+    name: string;
+    properties: PropertyMetadata[];
+} | {
+    name?: string | undefined;
+    constructor?: {
+        name: string;
+        parameters?: {
+            name?: string | undefined;
+            description?: string | undefined;
+            defaultValue?: any;
+            required: boolean;
+            type: string;
+            properties?: PropertyMetadata[] | undefined;
+            unionProperties?: PropertyMetadata[][] | undefined;
+        }[] | undefined;
+        description?: string | undefined;
+        tags?: {
+            tagName: string;
+            text?: string | undefined;
+        }[] | undefined;
+    } | undefined;
+    accessors?: {
+        returnType: string;
+        name: string;
+        description: string | undefined;
+        modifier: string | undefined;
+        scope: string | undefined;
+        visibility: string | undefined;
+        type: string;
+        parameters?: {
+            name?: string | undefined;
+            description?: string | undefined;
+            defaultValue?: any;
+            required: boolean;
+            type: string;
+            properties?: PropertyMetadata[] | undefined;
+            unionProperties?: PropertyMetadata[][] | undefined;
+        }[] | undefined;
+    }[] | undefined;
+    methods?: {
+        parameters: {
+            name?: string | undefined;
+            description?: string | undefined;
+            defaultValue?: any;
+            required: boolean;
+            type: string;
+            properties?: PropertyMetadata[] | undefined;
+            unionProperties?: PropertyMetadata[][] | undefined;
+        }[];
+        name: string;
+        description: string | undefined;
+        modifier: string | undefined;
+        scope: string | undefined;
+        visibility: string | undefined;
+        type: string;
+        returnType: string;
+    }[] | undefined;
+    properties?: {
+        name: string;
+        description: string | undefined;
+        scope: string | undefined;
+        visibility: string | undefined;
+        isReadonly: boolean;
+        type: string;
+    }[] | undefined;
+    description?: string | undefined;
+    tags?: {
+        tagName: string;
+        text?: string | undefined;
+    }[] | undefined;
+} | {
+    description?: string | undefined;
+    tags?: {
+        tagName: string;
+        text?: string | undefined;
+    }[] | undefined;
+    name: string | undefined;
+    parameters: {
+        name?: string | undefined;
+        description?: string | undefined;
+        defaultValue?: any;
+        required: boolean;
+        type: string;
+        properties?: PropertyMetadata[] | undefined;
+        unionProperties?: PropertyMetadata[][] | undefined;
+    }[];
+    type: string;
+    returnType: string;
+} | undefined;
 interface PropertyMetadata {
-    name: string | null;
-    description: string | null;
-    defaultValue: any;
+    name?: string;
+    description?: string;
+    defaultValue?: any;
     required: boolean;
     type: string;
-    properties: (PropertyMetadata | null)[] | null;
+    properties?: (PropertyMetadata | null)[];
     unionProperties?: PropertyMetadata[][];
 }
 
