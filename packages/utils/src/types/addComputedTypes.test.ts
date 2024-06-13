@@ -54,6 +54,8 @@ describe('addComputedTypes', () => {
       'test.ts',
       `interface InterfaceA { a: number; }
        interface InterfaceB extends InterfaceA { b: number; }
+       const createSource = <T>(source: T) => source;
+       const source = createSource<InterfaceB>({ a: 1, b: 2 });
       `,
       { overwrite: true }
     )
@@ -65,9 +67,12 @@ describe('addComputedTypes', () => {
 
       type InterfaceA = Compute<_InterfaceA>;
 
-             interface _InterfaceB extends _InterfaceA { b: number; }
+             interface _InterfaceB extends InterfaceA { b: number; }
 
       type InterfaceB = Compute<_InterfaceB>;
+
+             const createSource = <T>(source: T) => source;
+             const source = createSource<InterfaceB>({ a: 1, b: 2 });
             "
     `)
 

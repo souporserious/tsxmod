@@ -41,7 +41,7 @@ export function addComputedTypes(sourceFile: SourceFile) {
     const originalInterfaceName = interfaceDeclaration.getName()
     const interfaceName = `_${originalInterfaceName}`
 
-    interfaceDeclaration.rename(interfaceName)
+    interfaceDeclaration.getNameNode().replaceWithText(interfaceName)
 
     sourceFile.insertTypeAlias(interfaceDeclaration.getChildIndex() + 1, {
       name: originalInterfaceName,
