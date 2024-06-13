@@ -9,7 +9,11 @@ type _Compute<Type> = Type extends Function | _Primitive | _BuiltInObject
   : { [Key in keyof Type]: _Compute<Type[Key]> } & {};
 `
 
-/** Modifies a source file to add computed types to all eligible type aliases and interfaces. */
+/**
+ * Modifies a source file to add computed types to all eligible type aliases and interfaces.
+ *
+ * **Note:** This function requires lib files to be present in the project to work correctly.
+ */
 export function addComputedTypes(sourceFile: SourceFile) {
   const project = sourceFile.getProject()
 
