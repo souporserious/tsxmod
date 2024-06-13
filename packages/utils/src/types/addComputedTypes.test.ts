@@ -2,7 +2,12 @@ import { Project } from 'ts-morph'
 import { addComputedTypes } from './addComputedTypes'
 
 describe('addComputedTypes', () => {
-  const project = new Project()
+  const project = new Project({
+    useInMemoryFileSystem: true,
+    compilerOptions: {
+      lib: ['lib.esnext.full.d.ts'],
+    },
+  })
 
   it('wraps exisiting object type with Computed type', () => {
     const sourceFile = project.createSourceFile(
@@ -15,7 +20,7 @@ describe('addComputedTypes', () => {
     const result = sourceFile.getFullText()
 
     expect(result).toMatchInlineSnapshot(
-      `"export type ObjectType = Compute<{ a: number; b: number; c: number; }>;"`
+      `"export type ObjectType = _Compute<{ a: number; b: number; c: number; }>;"`
     )
   })
 
@@ -30,7 +35,7 @@ describe('addComputedTypes', () => {
     const result = sourceFile.getFullText()
 
     expect(result).toMatchInlineSnapshot(
-      `"export type MappedType = Compute<{ [Key in string]: number; }>;"`
+      `"export type MappedType = _Compute<{ [Key in string]: number; }>;"`
     )
   })
 
@@ -45,7 +50,7 @@ describe('addComputedTypes', () => {
     const result = sourceFile.getFullText()
 
     expect(result).toMatchInlineSnapshot(
-      `"export type Intersected = Compute<{ a: number; } & { b: number; } & { c: number; }>;"`
+      `"export type Intersected = _Compute<{ a: number; } & { b: number; } & { c: number; }>;"`
     )
   })
 
@@ -65,11 +70,11 @@ describe('addComputedTypes', () => {
     expect(sourceFile.getFullText()).toMatchInlineSnapshot(`
       "interface _InterfaceA { a: number; }
 
-      type InterfaceA = Compute<_InterfaceA>;
+      type InterfaceA = _Compute<_InterfaceA>;
 
              interface _InterfaceB extends InterfaceA { b: number; }
 
-      type InterfaceB = Compute<_InterfaceB>;
+      type InterfaceB = _Compute<_InterfaceB>;
 
              const createSource = <T>(source: T) => source;
              const source = createSource<InterfaceB>({ a: 1, b: 2 });
