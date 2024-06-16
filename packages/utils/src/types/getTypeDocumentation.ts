@@ -120,6 +120,10 @@ export function getTypeDocumentation(
   propertyFilter?: PropertyFilter
 ): TypeAliasMetadata
 export function getTypeDocumentation(
+  declaration: InterfaceDeclaration | TypeAliasDeclaration,
+  propertyFilter?: PropertyFilter
+): InterfaceMetadata | TypeAliasMetadata
+export function getTypeDocumentation(
   declaration: ClassDeclaration,
   propertyFilter?: PropertyFilter
 ): ClassMetadata
@@ -132,9 +136,18 @@ export function getTypeDocumentation(
   propertyFilter?: PropertyFilter
 ): FunctionMetadata
 export function getTypeDocumentation(
-  declaration: any,
+  declaration: FunctionDeclaration | VariableDeclaration,
   propertyFilter?: PropertyFilter
-): any {
+): FunctionMetadata
+export function getTypeDocumentation(
+  declaration:
+    | InterfaceDeclaration
+    | TypeAliasDeclaration
+    | ClassDeclaration
+    | FunctionDeclaration
+    | VariableDeclaration,
+  propertyFilter?: PropertyFilter
+): InterfaceMetadata | TypeAliasMetadata | ClassMetadata | FunctionMetadata {
   if (Node.isInterfaceDeclaration(declaration)) {
     return processInterface(declaration, propertyFilter)
   }
@@ -165,10 +178,16 @@ export function getTypeDocumentation(
         declaration
       )
     }
+
+    if (initializer) {
+      throw new Error(
+        `Unsupported declaration while processing type documentation for variable declaration with initializer: (kind: ${initializer.getKindName()}) ${initializer.getText()}`
+      )
+    }
   }
 
   throw new Error(
-    `Unsupported declaration while processing type documentation for: ${declaration.getText()}`
+    `Unsupported declaration while processing type documentation for: (kind: ${declaration.getKindName()}) ${declaration.getText()}`
   )
 }
 
@@ -222,23 +241,20 @@ function processFunctionOrExpression(
     | CallExpression,
   propertyFilter?: PropertyFilter,
   variableDeclaration?: VariableDeclaration
-): FunctionMetadata | undefined {
+): FunctionMetadata {
   const signatures = functionDeclarationOrExpression
     .getType()
     .getCallSignatures()
 
   // TODO: add support for multiple signatures (overloads)
   if (signatures.length === 0) {
-    return
+    throw new Error(
+      `No signatures found for function declaration or expression: ${functionDeclarationOrExpression.getText()}`
+    )
   }
 
   const signature = signatures[0]
   const parameters = signature.getParameters()
-
-  if (parameters.length === 0) {
-    return
-  }
-
   let parameterTypes: ReturnType<typeof processParameterType>[] = []
 
   for (const parameter of parameters) {
