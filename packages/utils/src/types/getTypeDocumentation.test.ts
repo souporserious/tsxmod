@@ -5,7 +5,7 @@ import { getTypeDocumentation } from './getTypeDocumentation'
 describe('getTypeDocumentation', () => {
   const project = new Project()
 
-  test('should parse a function with parameters', () => {
+  test('parses a function with parameters', () => {
     const description = 'Provides the initial count.'
     const sourceFile = project.createSourceFile(
       'test.ts',
@@ -34,7 +34,7 @@ describe('getTypeDocumentation', () => {
     `)
   })
 
-  test('should parse a function with an object parameter', () => {
+  test('parses a function with an object parameter', () => {
     const description = 'Provides the initial count.'
     const sourceFile = project.createSourceFile(
       'test.ts',
@@ -80,7 +80,7 @@ describe('getTypeDocumentation', () => {
     `)
   })
 
-  test('should parse a function with an object parameter with a nested object', () => {
+  test('parses a function with an object parameter with a nested object', () => {
     const sourceFile = project.createSourceFile(
       'test.ts',
       `function useCounter({ initial = { count: 0 } }?: { initial?: { count: number } } = {}) {}`,
@@ -126,7 +126,7 @@ describe('getTypeDocumentation', () => {
     `)
   })
 
-  test('should parse arrow function parameters', () => {
+  test('parses arrow function parameters', () => {
     const sourceFile = project.createSourceFile(
       'test.ts',
       `const useCounter = (initialCount: number = 0) => {}`,
@@ -154,7 +154,7 @@ describe('getTypeDocumentation', () => {
     `)
   })
 
-  test('should parse function expression parameters', () => {
+  test('parses function expression parameters', () => {
     const sourceFile = project.createSourceFile(
       'test.ts',
       `const useCounter = function (initialCount: number = 0) {}`,
@@ -289,7 +289,7 @@ describe('getTypeDocumentation', () => {
     `)
   })
 
-  test('handles union types', () => {
+  test('union types', () => {
     const sourceFile = project.createSourceFile(
       'test.ts',
       `type BaseProps = { color: string }; type Props = BaseProps & { source: string } | BaseProps & { value: string }; function Component(props: Props) {}`,
@@ -346,7 +346,7 @@ describe('getTypeDocumentation', () => {
     `)
   })
 
-  test('handles union types with primitive types', () => {
+  test('union types with primitive types', () => {
     const sourceFile = project.createSourceFile(
       'test.ts',
       `type Props = { color: string } | string; function Component(props: Props) {}`,
@@ -392,7 +392,7 @@ describe('getTypeDocumentation', () => {
     `)
   })
 
-  test('handles union types with external types', () => {
+  test('union types with external types', () => {
     project.createSourceFile(
       'types.ts',
       `export type BaseProps = { color: string }`,
@@ -452,7 +452,7 @@ describe('getTypeDocumentation', () => {
     `)
   })
 
-  test('handles mapped types without declarations', () => {
+  test('mapped types without declarations', () => {
     project.createSourceFile(
       'theme.ts',
       `export const textStyles = { heading1: {}, heading2: {}, heading3: {}, body1: {}, }`
@@ -555,7 +555,7 @@ describe('getTypeDocumentation', () => {
     `)
   })
 
-  test('handles library call expression generic types', () => {
+  test('library call expression generic types', () => {
     const sourceFile = project.createSourceFile(
       'test.ts',
       dedent`
@@ -612,7 +612,7 @@ describe('getTypeDocumentation', () => {
     `)
   })
 
-  test('handles library tagged template literal generic types', () => {
+  test('library tagged template literal generic types', () => {
     const sourceFile = project.createSourceFile(
       'test.ts',
       dedent`
@@ -922,7 +922,7 @@ describe('getTypeDocumentation', () => {
     `)
   })
 
-  test('handles renamed property default values', () => {
+  test('renamed property default values', () => {
     const sourceFile = project.createSourceFile(
       'test.ts',
       `function useCounter({ initialCount: renamedInitialCount = 0 }: { initialCount: number } = {}) {}`,
@@ -959,7 +959,7 @@ describe('getTypeDocumentation', () => {
     `)
   })
 
-  test('handles multiple arguments', () => {
+  test('multiple arguments', () => {
     const sourceFile = project.createSourceFile(
       'test.ts',
       `function add(a: number, b: number = 0): number { return a + b }`,
