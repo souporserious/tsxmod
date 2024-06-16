@@ -1,5 +1,11 @@
 # @tsxmod/utils
 
+## 0.6.1
+
+### Patch Changes
+
+- ea15f96: Fixes `getTypeDocumentation` overload types to accept declarations with similar shapes.
+
 ## 0.6.0
 
 ### Minor Changes
