@@ -1,5 +1,27 @@
 # @tsxmod/utils
 
+## 0.6.0
+
+### Minor Changes
+
+- 9675822: Adds `filterProperty` to `getTypeDocumentation` to allow granular control of which properties are processed.
+- c20790c: Include `name` and `description` fields in `getTypeDocumentation`.
+- c2786af: Adds `getJsDocMetadata` utility.
+- b4f2308: Use `undefined` instead of `null` for better serialization in `getTypeDocumentation`.
+- 5828388: Only allow declarations for `getTypeDocumentation`.
+- 13c1d5a: Normalize `type` and `returnType` in `getTypeDocumentation`.
+
+### Patch Changes
+
+- 8bcca7e: Handles class declarations when gathering type documentation with `getTypeDocumentation`.
+- f0878c6: Fixes wrong required calculation for mapped types when declaration does not exist in `getTypeDocumentation`.
+- 221595f: Set the name of the specific interface instead of renaming all call sites in `addComputedTypes`.
+- eca0aff: Handles renamed property default values in `getDefaultValuesFromProperties`.
+- 9b3cbcd: Fixes external intersection types by processing them recursively.
+- ed93b17: Handles type aliases when gathering type documentation with `getTypeDocumentation`.
+- a8fed9f: Don't pollute global namespace with compute utility types when using `addComputedTypes` by using private identifiers.
+- 0af97e1: Handles type interfaces when gathering type documentation with `getTypeDocumentation`.
+
 ## 0.5.2
 
 ### Patch Changes
