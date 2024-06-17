@@ -1054,4 +1054,106 @@ describe('getTypeDocumentation', () => {
       }
     `)
   })
+
+  test('function types', () => {
+    const sourceFile = project.createSourceFile(
+      'test.ts',
+      dedent`
+      import * as React from 'react';
+
+      export function getExportedTypes() {
+        return [
+          { 
+            /** The name of the component. */ 
+            name: 'Button',
+
+            /** The description of the component. */
+            description: 'A button component' 
+          }
+        ]
+      }
+      
+      type BaseExportedTypesProps = {
+        /** Controls how types are rendered. */
+        children?: (
+          exportedTypes: ReturnType<typeof getExportedTypes>
+        ) => React.ReactNode
+      }
+
+      type ExportedTypesProps =
+        | ({ source: string } & BaseExportedTypesProps)
+        | ({ filename: string; value: string } & BaseExportedTypesProps)
+      
+      function ExportedTypes({ children }: ExportedTypesProps) {}
+      `,
+      { overwrite: true }
+    )
+    const types = getTypeDocumentation(
+      sourceFile.getFunctionOrThrow('ExportedTypes')
+    )
+
+    expect(types).toMatchInlineSnapshot(`
+      {
+        "name": "ExportedTypes",
+        "parameters": [
+          {
+            "defaultValue": undefined,
+            "description": undefined,
+            "name": undefined,
+            "properties": [
+              {
+                "defaultValue": undefined,
+                "description": "Controls how types are rendered.",
+                "name": "children",
+                "parameters": [
+                  {
+                    "defaultValue": undefined,
+                    "description": undefined,
+                    "name": "exportedTypes",
+                    "required": true,
+                    "type": "{ name: string; description: string; }[]",
+                  },
+                ],
+                "required": false,
+                "returnType": "React.ReactNode",
+                "tags": undefined,
+                "type": "(exportedTypes: ReturnType<typeof getExportedTypes>) => React.ReactNode",
+              },
+            ],
+            "required": true,
+            "type": "ExportedTypesProps",
+            "unionProperties": [
+              [
+                {
+                  "defaultValue": undefined,
+                  "description": undefined,
+                  "name": "source",
+                  "required": true,
+                  "type": "string",
+                },
+              ],
+              [
+                {
+                  "defaultValue": undefined,
+                  "description": undefined,
+                  "name": "filename",
+                  "required": true,
+                  "type": "string",
+                },
+                {
+                  "defaultValue": undefined,
+                  "description": undefined,
+                  "name": "value",
+                  "required": true,
+                  "type": "string",
+                },
+              ],
+            ],
+          },
+        ],
+        "returnType": "void",
+        "type": "({ children }: ExportedTypesProps) => void",
+      }
+    `)
+  })
 })
