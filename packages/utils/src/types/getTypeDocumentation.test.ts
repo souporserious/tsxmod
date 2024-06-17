@@ -1,5 +1,10 @@
 import dedent from 'dedent'
-import { Project, SyntaxKind } from 'ts-morph'
+import {
+  Project,
+  SyntaxKind,
+  type ClassDeclaration,
+  type FunctionDeclaration,
+} from 'ts-morph'
 import { getTypeDocumentation } from './getTypeDocumentation'
 
 describe('getTypeDocumentation', () => {
@@ -18,6 +23,7 @@ describe('getTypeDocumentation', () => {
 
     expect(types).toMatchInlineSnapshot(`
       {
+        "kind": "Function",
         "name": "useCounter",
         "parameters": [
           {
@@ -48,6 +54,7 @@ describe('getTypeDocumentation', () => {
     expect(types).toMatchInlineSnapshot(`
       {
         "description": "Provides a counter state. ",
+        "kind": "Function",
         "name": "useCounter",
         "parameters": [
           {
@@ -92,6 +99,7 @@ describe('getTypeDocumentation', () => {
 
     expect(types).toMatchInlineSnapshot(`
       {
+        "kind": "Function",
         "name": "useCounter",
         "parameters": [
           {
@@ -138,6 +146,7 @@ describe('getTypeDocumentation', () => {
 
     expect(types).toMatchInlineSnapshot(`
       {
+        "kind": "Function",
         "name": "useCounter",
         "parameters": [
           {
@@ -166,6 +175,7 @@ describe('getTypeDocumentation', () => {
 
     expect(types).toMatchInlineSnapshot(`
       {
+        "kind": "Function",
         "name": "useCounter",
         "parameters": [
           {
@@ -198,6 +208,7 @@ describe('getTypeDocumentation', () => {
 
     expect(types).toMatchInlineSnapshot(`
       {
+        "kind": "Function",
         "name": "useCounter",
         "parameters": [
           {
@@ -231,6 +242,7 @@ describe('getTypeDocumentation', () => {
 
     expect(types).toMatchInlineSnapshot(`
       {
+        "kind": "Function",
         "name": "useCounterOverride",
         "parameters": [
           {
@@ -264,6 +276,7 @@ describe('getTypeDocumentation', () => {
 
     expect(types).toMatchInlineSnapshot(`
       {
+        "kind": "Function",
         "name": "useCounterOverride",
         "parameters": [
           {
@@ -301,6 +314,7 @@ describe('getTypeDocumentation', () => {
 
     expect(types).toMatchInlineSnapshot(`
       {
+        "kind": "Function",
         "name": "Component",
         "parameters": [
           {
@@ -358,6 +372,7 @@ describe('getTypeDocumentation', () => {
 
     expect(types).toMatchInlineSnapshot(`
       {
+        "kind": "Function",
         "name": "Component",
         "parameters": [
           {
@@ -410,6 +425,7 @@ describe('getTypeDocumentation', () => {
 
     expect(types).toMatchInlineSnapshot(`
       {
+        "kind": "Function",
         "name": "Component",
         "parameters": [
           {
@@ -495,6 +511,7 @@ describe('getTypeDocumentation', () => {
 
     expect(types).toMatchInlineSnapshot(`
       {
+        "kind": "Function",
         "name": "Text",
         "parameters": [
           {
@@ -580,6 +597,7 @@ describe('getTypeDocumentation', () => {
 
     expect(types).toMatchInlineSnapshot(`
       {
+        "kind": "Function",
         "name": "Grid",
         "parameters": [
           {
@@ -636,6 +654,7 @@ describe('getTypeDocumentation', () => {
 
     expect(types).toMatchInlineSnapshot(`
       {
+        "kind": "Function",
         "name": "Grid",
         "parameters": [
           {
@@ -683,6 +702,7 @@ describe('getTypeDocumentation', () => {
 
     expect(types).toMatchInlineSnapshot(`
       {
+        "kind": "TypeAlias",
         "name": "Props",
         "properties": [
           {
@@ -722,6 +742,7 @@ describe('getTypeDocumentation', () => {
 
     expect(types).toMatchInlineSnapshot(`
       {
+        "kind": "Interface",
         "name": "Props",
         "properties": [
           {
@@ -849,6 +870,7 @@ describe('getTypeDocumentation', () => {
           ],
           "tags": undefined,
         },
+        "kind": "Class",
         "methods": [
           {
             "description": "Increments the count.",
@@ -934,6 +956,7 @@ describe('getTypeDocumentation', () => {
 
     expect(types).toMatchInlineSnapshot(`
       {
+        "kind": "Function",
         "name": "useCounter",
         "parameters": [
           {
@@ -969,6 +992,7 @@ describe('getTypeDocumentation', () => {
 
     expect(types).toMatchInlineSnapshot(`
       {
+        "kind": "Function",
         "name": "add",
         "parameters": [
           {
@@ -1023,6 +1047,7 @@ describe('getTypeDocumentation', () => {
 
     expect(types).toMatchInlineSnapshot(`
       {
+        "kind": "Function",
         "name": "Button",
         "parameters": [
           {
@@ -1094,6 +1119,7 @@ describe('getTypeDocumentation', () => {
 
     expect(types).toMatchInlineSnapshot(`
       {
+        "kind": "Function",
         "name": "ExportedTypes",
         "parameters": [
           {
@@ -1104,6 +1130,7 @@ describe('getTypeDocumentation', () => {
               {
                 "defaultValue": undefined,
                 "description": "Controls how types are rendered.",
+                "kind": "Function",
                 "name": "children",
                 "parameters": [
                   {
@@ -1155,5 +1182,44 @@ describe('getTypeDocumentation', () => {
         "type": "({ children }: ExportedTypesProps) => void",
       }
     `)
+  })
+
+  test('accepts mixed types', () => {
+    const sourceFile = project.createSourceFile(
+      'test.ts',
+      dedent`
+      export class Counter {
+        count: number = 0;
+
+        increment() {
+          this.count++;
+        }
+      }
+
+      export function useCounter() {
+        const counter = new Counter();
+        return counter;
+      }
+      `,
+      { overwrite: true }
+    )
+    const nodes = Array.from(sourceFile.getExportedDeclarations()).map(
+      ([, [declaration]]) => declaration
+    ) as (FunctionDeclaration | ClassDeclaration)[]
+
+    nodes
+      .map((node) => getTypeDocumentation(node))
+      .forEach((doc) => {
+        if (doc.kind === 'Class') {
+          doc.accessors
+          // @ts-expect-error - should not have parameters
+          doc.parameters
+        }
+        if (doc.kind === 'Function') {
+          doc.parameters
+          // @ts-expect-error - should not have accessors
+          doc.accessors
+        }
+      })
   })
 })

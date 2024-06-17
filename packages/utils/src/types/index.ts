@@ -2,6 +2,7 @@ export { addComputedTypes } from './addComputedTypes'
 export { getComputedQuickInfoAtPosition } from './getComputedQuickInfoAtPosition'
 export {
   getTypeDocumentation,
+  type DocumentationMetadata,
   type InterfaceMetadata,
   type TypeAliasMetadata,
   type ClassMetadata,

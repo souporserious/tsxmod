@@ -26,6 +26,7 @@ import {
 } from '../index'
 
 export interface InterfaceMetadata {
+  kind: 'Interface'
   name: string
   properties: PropertyMetadata[]
   description?: string
@@ -33,6 +34,7 @@ export interface InterfaceMetadata {
 }
 
 export interface TypeAliasMetadata {
+  kind: 'TypeAlias'
   name: string
   properties: PropertyMetadata[]
   description?: string
@@ -40,6 +42,7 @@ export interface TypeAliasMetadata {
 }
 
 export interface ClassMetadata {
+  kind: 'Class'
   name?: string
   constructor?: {
     name: string
@@ -79,6 +82,7 @@ export interface ClassMethodMetadata {
 }
 
 export interface FunctionMetadata {
+  kind: 'Function'
   name?: string
   parameters: ParameterMetadata[]
   type: string
@@ -126,35 +130,35 @@ export interface ParameterMetadata {
 
 export type PropertyFilter = (property: PropertySignature) => boolean
 
-/** Analyzes metadata from interfaces, type aliases, classes, functions, and variable declarations. */
-export function getTypeDocumentation(
-  declaration: InterfaceDeclaration,
+type Declaration =
+  | InterfaceDeclaration
+  | TypeAliasDeclaration
+  | ClassDeclaration
+  | FunctionDeclaration
+  | VariableDeclaration
+
+type Metadata =
+  | InterfaceMetadata
+  | TypeAliasMetadata
+  | ClassMetadata
+  | FunctionMetadata
+
+export type DocumentationMetadata<Type> = Type extends InterfaceDeclaration
+  ? InterfaceMetadata
+  : Type extends TypeAliasDeclaration
+  ? TypeAliasMetadata
+  : Type extends ClassDeclaration
+  ? ClassMetadata
+  : Type extends FunctionDeclaration
+  ? FunctionMetadata
+  : Type extends VariableDeclaration
+  ? FunctionMetadata
+  : never
+
+export function getTypeDocumentation<Type extends Declaration>(
+  declaration: Type,
   propertyFilter?: PropertyFilter
-): InterfaceMetadata
-export function getTypeDocumentation(
-  declaration: TypeAliasDeclaration,
-  propertyFilter?: PropertyFilter
-): TypeAliasMetadata
-export function getTypeDocumentation(
-  declaration: InterfaceDeclaration | TypeAliasDeclaration,
-  propertyFilter?: PropertyFilter
-): InterfaceMetadata | TypeAliasMetadata
-export function getTypeDocumentation(
-  declaration: ClassDeclaration,
-  propertyFilter?: PropertyFilter
-): ClassMetadata
-export function getTypeDocumentation(
-  declaration: FunctionDeclaration,
-  propertyFilter?: PropertyFilter
-): FunctionMetadata
-export function getTypeDocumentation(
-  declaration: VariableDeclaration,
-  propertyFilter?: PropertyFilter
-): FunctionMetadata
-export function getTypeDocumentation(
-  declaration: FunctionDeclaration | VariableDeclaration,
-  propertyFilter?: PropertyFilter
-): FunctionMetadata
+): DocumentationMetadata<Type>
 export function getTypeDocumentation(
   declaration:
     | InterfaceDeclaration
@@ -163,7 +167,7 @@ export function getTypeDocumentation(
     | FunctionDeclaration
     | VariableDeclaration,
   propertyFilter?: PropertyFilter
-): InterfaceMetadata | TypeAliasMetadata | ClassMetadata | FunctionMetadata {
+): Metadata {
   if (Node.isInterfaceDeclaration(declaration)) {
     return processInterface(declaration, propertyFilter)
   }
@@ -215,6 +219,7 @@ function processInterface(
   const interfaceType = interfaceDeclaration.getType()
 
   return {
+    kind: 'Interface',
     name: interfaceDeclaration.getName(),
     properties: processTypeProperties(
       interfaceType,
@@ -233,6 +238,7 @@ function processTypeAlias(
   const aliasType = typeAlias.getType()
 
   return {
+    kind: 'TypeAlias',
     name: typeAlias.getName(),
     properties: processTypeProperties(aliasType, typeAlias, propertyFilter),
     ...getJsDocMetadata(typeAlias),
@@ -275,6 +281,7 @@ function processFunctionOrExpression(
   }
 
   return {
+    kind: 'Function',
     name: variableDeclaration
       ? variableDeclaration.getName()
       : (functionDeclarationOrExpression as FunctionDeclaration).getName(),
@@ -318,6 +325,7 @@ function processFunctionType(
   }
 
   return {
+    kind: 'Function',
     parameters: parameterTypes,
     type: type.getText(
       declaration,
@@ -394,20 +402,8 @@ function processClass(
   classDeclaration: ClassDeclaration,
   propertyFilter?: PropertyFilter
 ): ClassMetadata {
-  const classMetadata: {
-    name?: string
-    constructor?: {
-      name: string
-      parameters?: ReturnType<typeof processParameterType>[]
-      description?: string
-      tags?: { tagName: string; text?: string }[]
-    }
-    accessors?: ReturnType<typeof processClassAccessor>[]
-    methods?: ReturnType<typeof processClassMethod>[]
-    properties?: ReturnType<typeof processClassPropertyDeclaration>[]
-    description?: string
-    tags?: { tagName: string; text?: string }[]
-  } = {
+  const classMetadata: ClassMetadata = {
+    kind: 'Class',
     name: classDeclaration.getName(),
     ...getJsDocMetadata(classDeclaration),
   }
