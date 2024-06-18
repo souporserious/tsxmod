@@ -5,6 +5,7 @@ export {
   type DocumentationMetadata,
   type InterfaceMetadata,
   type TypeAliasMetadata,
+  type EnumMetadata,
   type ClassMetadata,
   type ClassAccessorMetadata,
   type ClassMethodMetadata,
