@@ -6,6 +6,7 @@ import type {
   CallExpression,
   TypeAliasDeclaration,
   InterfaceDeclaration,
+  EnumDeclaration,
   ClassDeclaration,
   PropertyDeclaration,
   MethodDeclaration,
@@ -39,6 +40,11 @@ export interface InterfaceMetadata extends SharedMetadata {
 export interface TypeAliasMetadata extends SharedMetadata {
   kind: 'TypeAlias'
   properties: PropertyMetadata[]
+}
+
+export interface EnumMetadata extends SharedMetadata {
+  kind: 'Enum'
+  members: string[]
 }
 
 export interface ClassMetadata extends SharedMetadata {
@@ -129,6 +135,7 @@ export type PropertyFilter = (property: PropertySignature) => boolean
 type Declaration =
   | InterfaceDeclaration
   | TypeAliasDeclaration
+  | EnumDeclaration
   | ClassDeclaration
   | FunctionDeclaration
   | VariableDeclaration
@@ -136,6 +143,7 @@ type Declaration =
 type Metadata =
   | InterfaceMetadata
   | TypeAliasMetadata
+  | EnumMetadata
   | ClassMetadata
   | FunctionMetadata
   | ComponentMetadata
@@ -146,6 +154,8 @@ export type DocumentationMetadata<Type> = Type extends InterfaceDeclaration
   ? TypeAliasMetadata
   : Type extends ClassDeclaration
   ? ClassMetadata
+  : Type extends EnumDeclaration
+  ? EnumMetadata
   : Type extends FunctionDeclaration
   ? FunctionMetadata | ComponentMetadata
   : Type extends VariableDeclaration
@@ -171,6 +181,10 @@ export function getTypeDocumentation(
 
   if (Node.isTypeAliasDeclaration(declaration)) {
     return processTypeAlias(declaration, propertyFilter)
+  }
+
+  if (Node.isEnumDeclaration(declaration)) {
+    return processEnum(declaration)
   }
 
   if (Node.isClassDeclaration(declaration)) {
@@ -239,6 +253,18 @@ function processTypeAlias(
     name: typeAlias.getName(),
     properties: processTypeProperties(aliasType, typeAlias, propertyFilter),
     ...getJsDocMetadata(typeAlias),
+  }
+}
+
+/** Processes an enum declaration into a metadata object. */
+function processEnum(enumDeclaration: EnumDeclaration): EnumMetadata {
+  const members = enumDeclaration.getMembers().map((member) => member.getName())
+
+  return {
+    kind: 'Enum',
+    name: enumDeclaration.getName(),
+    members,
+    ...getJsDocMetadata(enumDeclaration),
   }
 }
 

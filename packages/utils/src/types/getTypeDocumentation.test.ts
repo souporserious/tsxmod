@@ -660,6 +660,31 @@ describe('getTypeDocumentation', () => {
     `)
   })
 
+  test('enum declarations', () => {
+    const sourceFile = project.createSourceFile(
+      'test.ts',
+      `enum Colors {
+        Red = 'RED',
+        Green = 'GREEN',
+        Blue = 'BLUE'
+      }`,
+      { overwrite: true }
+    )
+    const types = getTypeDocumentation(sourceFile.getEnumOrThrow('Colors'))
+
+    expect(types).toMatchInlineSnapshot(`
+      {
+        "kind": "Enum",
+        "members": [
+          "Red",
+          "Green",
+          "Blue",
+        ],
+        "name": "Colors",
+      }
+    `)
+  })
+
   test('class declarations', () => {
     const sourceFile = project.createSourceFile(
       'test.ts',
