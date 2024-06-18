@@ -314,44 +314,15 @@ describe('getTypeDocumentation', () => {
 
     expect(types).toMatchInlineSnapshot(`
       {
-        "kind": "Function",
+        "kind": "Component",
         "name": "Component",
-        "parameters": [
+        "properties": [
           {
             "defaultValue": undefined,
             "description": undefined,
-            "name": "props",
-            "properties": [
-              {
-                "defaultValue": undefined,
-                "description": undefined,
-                "name": "color",
-                "required": true,
-                "type": "string",
-              },
-            ],
+            "name": "color",
             "required": true,
-            "type": "Props",
-            "unionProperties": [
-              [
-                {
-                  "defaultValue": undefined,
-                  "description": undefined,
-                  "name": "source",
-                  "required": true,
-                  "type": "string",
-                },
-              ],
-              [
-                {
-                  "defaultValue": undefined,
-                  "description": undefined,
-                  "name": "value",
-                  "required": true,
-                  "type": "string",
-                },
-              ],
-            ],
+            "type": "string",
           },
         ],
         "returnType": "void",
@@ -372,35 +343,9 @@ describe('getTypeDocumentation', () => {
 
     expect(types).toMatchInlineSnapshot(`
       {
-        "kind": "Function",
+        "kind": "Component",
         "name": "Component",
-        "parameters": [
-          {
-            "defaultValue": undefined,
-            "description": undefined,
-            "name": "props",
-            "properties": [],
-            "required": true,
-            "type": "Props",
-            "unionProperties": [
-              [
-                {
-                  "required": true,
-                  "type": "string",
-                },
-              ],
-              [
-                {
-                  "defaultValue": undefined,
-                  "description": undefined,
-                  "name": "color",
-                  "required": true,
-                  "type": "string",
-                },
-              ],
-            ],
-          },
-        ],
+        "properties": [],
         "returnType": "void",
         "type": "(props: Props) => void",
       }
@@ -425,41 +370,12 @@ describe('getTypeDocumentation', () => {
 
     expect(types).toMatchInlineSnapshot(`
       {
-        "kind": "Function",
+        "kind": "Component",
         "name": "Component",
-        "parameters": [
+        "properties": [
           {
-            "defaultValue": undefined,
-            "description": undefined,
-            "name": "props",
-            "properties": [
-              {
-                "required": true,
-                "type": "BaseProps",
-              },
-            ],
             "required": true,
-            "type": "Props",
-            "unionProperties": [
-              [
-                {
-                  "defaultValue": undefined,
-                  "description": undefined,
-                  "name": "source",
-                  "required": true,
-                  "type": "string",
-                },
-              ],
-              [
-                {
-                  "defaultValue": undefined,
-                  "description": undefined,
-                  "name": "value",
-                  "required": true,
-                  "type": "string",
-                },
-              ],
-            ],
+            "type": "BaseProps",
           },
         ],
         "returnType": "void",
@@ -511,59 +427,50 @@ describe('getTypeDocumentation', () => {
 
     expect(types).toMatchInlineSnapshot(`
       {
-        "kind": "Function",
+        "kind": "Component",
         "name": "Text",
-        "parameters": [
+        "properties": [
           {
             "defaultValue": undefined,
             "description": undefined,
-            "name": undefined,
-            "properties": [
-              {
-                "defaultValue": undefined,
-                "description": undefined,
-                "name": "className",
-                "required": false,
-                "type": "string",
-              },
-              {
-                "defaultValue": undefined,
-                "description": undefined,
-                "name": "children",
-                "required": true,
-                "type": "ReactNode",
-              },
-              {
-                "defaultValue": "'body1'",
-                "description": undefined,
-                "name": "variant",
-                "required": false,
-                "type": ""heading1" | "heading2" | "heading3" | "body1"",
-              },
-              {
-                "defaultValue": undefined,
-                "description": undefined,
-                "name": "alignment",
-                "required": false,
-                "type": ""start" | "center" | "end"",
-              },
-              {
-                "defaultValue": undefined,
-                "description": undefined,
-                "name": "width",
-                "required": false,
-                "type": "string | number",
-              },
-              {
-                "defaultValue": undefined,
-                "description": undefined,
-                "name": "lineHeight",
-                "required": false,
-                "type": "string",
-              },
-            ],
+            "name": "className",
+            "required": false,
+            "type": "string",
+          },
+          {
+            "defaultValue": undefined,
+            "description": undefined,
+            "name": "children",
             "required": true,
-            "type": "TextProps",
+            "type": "ReactNode",
+          },
+          {
+            "defaultValue": "'body1'",
+            "description": undefined,
+            "name": "variant",
+            "required": false,
+            "type": ""heading1" | "heading2" | "heading3" | "body1"",
+          },
+          {
+            "defaultValue": undefined,
+            "description": undefined,
+            "name": "alignment",
+            "required": false,
+            "type": ""start" | "center" | "end"",
+          },
+          {
+            "defaultValue": undefined,
+            "description": undefined,
+            "name": "width",
+            "required": false,
+            "type": "string | number",
+          },
+          {
+            "defaultValue": undefined,
+            "description": undefined,
+            "name": "lineHeight",
+            "required": false,
+            "type": "string",
           },
         ],
         "returnType": "void",
@@ -597,31 +504,22 @@ describe('getTypeDocumentation', () => {
 
     expect(types).toMatchInlineSnapshot(`
       {
-        "kind": "Function",
+        "kind": "Component",
         "name": "Grid",
-        "parameters": [
+        "properties": [
           {
             "defaultValue": undefined,
             "description": undefined,
-            "name": "props",
-            "properties": [
-              {
-                "defaultValue": undefined,
-                "description": undefined,
-                "name": "gridTemplateColumns",
-                "required": true,
-                "type": "string",
-              },
-              {
-                "defaultValue": undefined,
-                "description": undefined,
-                "name": "gridTemplateRows",
-                "required": false,
-                "type": "string",
-              },
-            ],
+            "name": "gridTemplateColumns",
             "required": true,
-            "type": "PolymorphicComponentProps<R, BaseProps, AsTarget, ForwardedAsTarget, AsTarget extends any ? React.ComponentPropsWithRef<AsTarget> : {}, ForwardedAsTarget extends any ? React.ComponentPropsWithRef<...> : {}>",
+            "type": "string",
+          },
+          {
+            "defaultValue": undefined,
+            "description": undefined,
+            "name": "gridTemplateRows",
+            "required": false,
+            "type": "string",
           },
         ],
         "returnType": "JSX.Element",
@@ -654,31 +552,22 @@ describe('getTypeDocumentation', () => {
 
     expect(types).toMatchInlineSnapshot(`
       {
-        "kind": "Function",
+        "kind": "Component",
         "name": "Grid",
-        "parameters": [
+        "properties": [
           {
             "defaultValue": undefined,
             "description": undefined,
-            "name": "props",
-            "properties": [
-              {
-                "defaultValue": undefined,
-                "description": undefined,
-                "name": "$gridTemplateColumns",
-                "required": true,
-                "type": "string",
-              },
-              {
-                "defaultValue": undefined,
-                "description": undefined,
-                "name": "$gridTemplateRows",
-                "required": true,
-                "type": "string",
-              },
-            ],
+            "name": "$gridTemplateColumns",
             "required": true,
-            "type": "PolymorphicComponentProps<R, BaseProps, AsTarget, ForwardedAsTarget, AsTarget extends any ? React.ComponentPropsWithRef<AsTarget> : {}, ForwardedAsTarget extends any ? React.ComponentPropsWithRef<...> : {}>",
+            "type": "string",
+          },
+          {
+            "defaultValue": undefined,
+            "description": undefined,
+            "name": "$gridTemplateRows",
+            "required": true,
+            "type": "string",
           },
         ],
         "returnType": "JSX.Element",
@@ -1047,31 +936,22 @@ describe('getTypeDocumentation', () => {
 
     expect(types).toMatchInlineSnapshot(`
       {
-        "kind": "Function",
+        "kind": "Component",
         "name": "Button",
-        "parameters": [
+        "properties": [
           {
             "defaultValue": undefined,
             "description": undefined,
-            "name": "props",
-            "properties": [
-              {
-                "defaultValue": undefined,
-                "description": undefined,
-                "name": "variant",
-                "required": false,
-                "type": "ButtonVariant",
-              },
-              {
-                "defaultValue": undefined,
-                "description": undefined,
-                "name": "onClick",
-                "required": false,
-                "type": "MouseEventHandler<T> | undefined",
-              },
-            ],
-            "required": true,
-            "type": "ButtonProps",
+            "name": "variant",
+            "required": false,
+            "type": "ButtonVariant",
+          },
+          {
+            "defaultValue": undefined,
+            "description": undefined,
+            "name": "onClick",
+            "required": false,
+            "type": "MouseEventHandler<T> | undefined",
           },
         ],
         "returnType": "boolean",
@@ -1119,63 +999,27 @@ describe('getTypeDocumentation', () => {
 
     expect(types).toMatchInlineSnapshot(`
       {
-        "kind": "Function",
+        "kind": "Component",
         "name": "ExportedTypes",
-        "parameters": [
+        "properties": [
           {
             "defaultValue": undefined,
-            "description": undefined,
-            "name": undefined,
-            "properties": [
+            "description": "Controls how types are rendered.",
+            "kind": "Function",
+            "name": "children",
+            "parameters": [
               {
                 "defaultValue": undefined,
-                "description": "Controls how types are rendered.",
-                "kind": "Function",
-                "name": "children",
-                "parameters": [
-                  {
-                    "defaultValue": undefined,
-                    "description": undefined,
-                    "name": "exportedTypes",
-                    "required": true,
-                    "type": "{ name: string; description: string; }[]",
-                  },
-                ],
-                "required": false,
-                "returnType": "React.ReactNode",
-                "tags": undefined,
-                "type": "(exportedTypes: ReturnType<typeof getExportedTypes>) => React.ReactNode",
+                "description": undefined,
+                "name": "exportedTypes",
+                "required": true,
+                "type": "{ name: string; description: string; }[]",
               },
             ],
-            "required": true,
-            "type": "ExportedTypesProps",
-            "unionProperties": [
-              [
-                {
-                  "defaultValue": undefined,
-                  "description": undefined,
-                  "name": "source",
-                  "required": true,
-                  "type": "string",
-                },
-              ],
-              [
-                {
-                  "defaultValue": undefined,
-                  "description": undefined,
-                  "name": "filename",
-                  "required": true,
-                  "type": "string",
-                },
-                {
-                  "defaultValue": undefined,
-                  "description": undefined,
-                  "name": "value",
-                  "required": true,
-                  "type": "string",
-                },
-              ],
-            ],
+            "required": false,
+            "returnType": "React.ReactNode",
+            "tags": undefined,
+            "type": "(exportedTypes: ReturnType<typeof getExportedTypes>) => React.ReactNode",
           },
         ],
         "returnType": "void",

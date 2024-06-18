@@ -9,6 +9,7 @@ export {
   type ClassAccessorMetadata,
   type ClassMethodMetadata,
   type FunctionMetadata,
+  type ComponentMetadata,
   type PropertyMetadata,
   type ParameterMetadata,
   type PropertyFilter,

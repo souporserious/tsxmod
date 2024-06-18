@@ -91,6 +91,16 @@ export interface FunctionMetadata {
   tags?: { tagName: string; text?: string }[]
 }
 
+export interface ComponentMetadata {
+  kind: 'Component'
+  name?: string
+  properties: PropertyMetadata[]
+  type: string
+  returnType: string
+  description?: string
+  tags?: { tagName: string; text?: string }[]
+}
+
 interface BasePropertyMetadata {
   name?: string
   description?: string
@@ -142,6 +152,7 @@ type Metadata =
   | TypeAliasMetadata
   | ClassMetadata
   | FunctionMetadata
+  | ComponentMetadata
 
 export type DocumentationMetadata<Type> = Type extends InterfaceDeclaration
   ? InterfaceMetadata
@@ -150,9 +161,9 @@ export type DocumentationMetadata<Type> = Type extends InterfaceDeclaration
   : Type extends ClassDeclaration
   ? ClassMetadata
   : Type extends FunctionDeclaration
-  ? FunctionMetadata
+  ? FunctionMetadata | ComponentMetadata
   : Type extends VariableDeclaration
-  ? FunctionMetadata
+  ? FunctionMetadata | ComponentMetadata
   : never
 
 export function getTypeDocumentation<Type extends Declaration>(
@@ -245,7 +256,7 @@ function processTypeAlias(
   }
 }
 
-/** Processes a function declaration into a metadata object. */
+/** Processes a function or expression into a metadata object. */
 function processFunctionOrExpression(
   functionDeclarationOrExpression:
     | FunctionDeclaration
@@ -255,37 +266,24 @@ function processFunctionOrExpression(
     | CallExpression,
   propertyFilter?: PropertyFilter,
   variableDeclaration?: VariableDeclaration
-): FunctionMetadata {
+): FunctionMetadata | ComponentMetadata {
   const signatures = functionDeclarationOrExpression
     .getType()
     .getCallSignatures()
 
-  // TODO: add support for multiple signatures (overloads)
   if (signatures.length === 0) {
     throw new Error(
       `No signatures found for function declaration or expression: ${functionDeclarationOrExpression.getText()}`
     )
   }
 
+  // TODO: add support for multiple signatures (overloads)
   const signature = signatures.at(0)!
   const parameters = signature.getParameters()
-  let parameterTypes: ReturnType<typeof processParameterType>[] = []
-
-  for (const parameter of parameters) {
-    const parameterType = processParameterType(
-      parameter.getValueDeclaration() as ParameterDeclaration,
-      functionDeclarationOrExpression,
-      propertyFilter
-    )
-    parameterTypes.push(parameterType)
-  }
-
-  return {
-    kind: 'Function',
+  const sharedMetadata = {
     name: variableDeclaration
       ? variableDeclaration.getName()
       : (functionDeclarationOrExpression as FunctionDeclaration).getName(),
-    parameters: parameterTypes,
     type: functionDeclarationOrExpression
       .getType()
       .getText(
@@ -299,6 +297,30 @@ function processFunctionOrExpression(
         TypeFormatFlags.UseAliasDefinedOutsideCurrentScope
       ),
     ...getJsDocMetadata(variableDeclaration || functionDeclarationOrExpression),
+  } as const
+  const parameterTypes = parameters.map((parameter) =>
+    processParameterType(
+      parameter.getValueDeclaration() as ParameterDeclaration,
+      functionDeclarationOrExpression,
+      propertyFilter
+    )
+  )
+  const isComponent = sharedMetadata.name
+    ? /[A-Z]/.test(sharedMetadata.name.charAt(0))
+    : false
+
+  if (isComponent) {
+    return {
+      kind: 'Component',
+      properties: parameterTypes.at(0)!.properties!,
+      ...sharedMetadata,
+    }
+  }
+
+  return {
+    kind: 'Function',
+    parameters: parameterTypes,
+    ...sharedMetadata,
   }
 }
 
