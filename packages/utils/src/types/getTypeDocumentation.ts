@@ -25,25 +25,24 @@ import {
   getSymbolDescription,
 } from '../index'
 
-export interface InterfaceMetadata {
-  kind: 'Interface'
-  name: string
-  properties: PropertyMetadata[]
-  description?: string
-  tags?: { tagName: string; text?: string }[]
-}
-
-export interface TypeAliasMetadata {
-  kind: 'TypeAlias'
-  name: string
-  properties: PropertyMetadata[]
-  description?: string
-  tags?: { tagName: string; text?: string }[]
-}
-
-export interface ClassMetadata {
-  kind: 'Class'
+interface SharedMetadata {
   name?: string
+  description?: string
+  tags?: { tagName: string; text?: string }[]
+}
+
+export interface InterfaceMetadata extends SharedMetadata {
+  kind: 'Interface'
+  properties: PropertyMetadata[]
+}
+
+export interface TypeAliasMetadata extends SharedMetadata {
+  kind: 'TypeAlias'
+  properties: PropertyMetadata[]
+}
+
+export interface ClassMetadata extends SharedMetadata {
+  kind: 'Class'
   constructor?: {
     name: string
     parameters?: ParameterMetadata[]
@@ -53,14 +52,10 @@ export interface ClassMetadata {
   accessors?: ClassAccessorMetadata[]
   methods?: ClassMethodMetadata[]
   properties?: Omit<PropertyMetadata, 'required'>[]
-  description?: string
-  tags?: { tagName: string; text?: string }[]
 }
 
-export interface ClassAccessorMetadata {
+export interface ClassAccessorMetadata extends SharedMetadata {
   name: string
-  description?: string
-  tags?: { tagName: string; text?: string }[]
   modifier?: string
   scope?: string
   visibility?: string
@@ -69,10 +64,8 @@ export interface ClassAccessorMetadata {
   parameters?: ParameterMetadata[]
 }
 
-export interface ClassMethodMetadata {
+export interface ClassMethodMetadata extends SharedMetadata {
   name: string
-  description?: string
-  tags?: { tagName: string; text?: string }[]
   modifier?: string
   scope?: string
   visibility?: string
@@ -81,30 +74,23 @@ export interface ClassMethodMetadata {
   parameters: ParameterMetadata[]
 }
 
-export interface FunctionMetadata {
+export interface FunctionMetadata extends SharedMetadata {
   kind: 'Function'
   name?: string
   parameters: ParameterMetadata[]
   type: string
   returnType: string
-  description?: string
-  tags?: { tagName: string; text?: string }[]
 }
 
-export interface ComponentMetadata {
+export interface ComponentMetadata extends SharedMetadata {
   kind: 'Component'
   name?: string
   properties: PropertyMetadata[]
   type: string
   returnType: string
-  description?: string
-  tags?: { tagName: string; text?: string }[]
 }
 
-interface BasePropertyMetadata {
-  name?: string
-  description?: string
-  tags?: { tagName: string; text?: string }[]
+interface BasePropertyMetadata extends SharedMetadata {
   defaultValue?: any
   required: boolean
   type: string
