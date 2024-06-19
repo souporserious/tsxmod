@@ -1497,4 +1497,310 @@ describe('getTypeDocumentation', () => {
         }
       })
   })
+
+  test('complex generic, union, and intersection type', () => {
+    const project = new Project({
+      tsConfigFilePath: 'tsconfig.json',
+    })
+
+    const exportedTypesSourceFile = project.createSourceFile(
+      'get-exported-types.ts',
+      dedent`
+      import { getTypeDocumentation } from './src';
+
+      export type ExportedType = NonNullable<
+        ReturnType<typeof getTypeDocumentation>
+      > & {
+        slug: string
+        filePath: string
+      }
+      `,
+      { overwrite: true }
+    )
+
+    const sourceFile = project.createSourceFile(
+      'test.ts',
+      dedent`
+      import type { ExportedType } from './get-exported-types'
+      
+      function getExamplesFromSourceFile() {
+        return undefined as unknown as { name: string, id: string }[]
+      }
+
+      function getGitMetadata() {
+        return undefined as unknown as { authors: string, createdAt: string, updatedAt: string }
+      }
+        
+      type DistributiveOmit<T, K extends PropertyKey> = T extends any
+        ? Omit<T, K>
+        : never
+
+      type Pathname = string
+
+      type ModuleImport = Promise<Record<string, any>>
+
+      type AllModules = Record<Pathname, () => ModuleImport>
+
+      /**
+       * A module data object that represents a TypeScript or MDX module.
+       * @internal
+       */
+      type ModuleData<Type extends { frontMatter: Record<string, any> }> = {
+        title: string
+        previous?: { label: string; pathname: string }
+        executionEnvironment?: 'server' | 'client' | 'isomorphic'
+        isMainExport?: boolean
+        exportedTypes: DistributiveOmit<
+          ExportedType & {
+            pathname: string
+            sourcePath: string
+            isMainExport: boolean
+          },
+          'filePath'
+        >[]
+        examples: ReturnType<typeof getExamplesFromSourceFile>
+      } & ReturnType<typeof getGitMetadata> &
+        ('frontMatter' extends keyof Type
+          ? Type
+          : { frontMatter: Record<string, any> })
+      `,
+      { overwrite: true }
+    )
+    const exportedTypes = getTypeDocumentation(
+      exportedTypesSourceFile.getTypeAliasOrThrow('ExportedType')
+    )
+    const moduleDataTypes = getTypeDocumentation(
+      sourceFile.getTypeAliasOrThrow('ModuleData')
+    )
+
+    expect({ exportedTypes, moduleDataTypes }).toMatchInlineSnapshot(`
+      {
+        "exportedTypes": {
+          "kind": "TypeAlias",
+          "name": "ExportedType",
+          "properties": [
+            {
+              "defaultValue": undefined,
+              "description": undefined,
+              "name": "slug",
+              "required": true,
+              "type": "string",
+            },
+            {
+              "defaultValue": undefined,
+              "description": undefined,
+              "name": "filePath",
+              "required": true,
+              "type": "string",
+            },
+          ],
+          "type": "ExportedType",
+          "unionProperties": [
+            [
+              {
+                "required": true,
+                "type": "InterfaceMetadata",
+              },
+            ],
+            [
+              {
+                "required": true,
+                "type": "TypeAliasMetadata",
+              },
+            ],
+            [
+              {
+                "required": true,
+                "type": "EnumMetadata",
+              },
+            ],
+            [
+              {
+                "required": true,
+                "type": "ClassMetadata",
+              },
+            ],
+            [
+              {
+                "required": true,
+                "type": "FunctionMetadata",
+              },
+            ],
+            [
+              {
+                "required": true,
+                "type": "ComponentMetadata",
+              },
+            ],
+          ],
+        },
+        "moduleDataTypes": {
+          "description": "
+      A module data object that represents a TypeScript or MDX module.",
+          "kind": "TypeAlias",
+          "name": "ModuleData",
+          "properties": [
+            {
+              "defaultValue": undefined,
+              "description": undefined,
+              "name": "title",
+              "required": true,
+              "type": "string",
+            },
+            {
+              "defaultValue": undefined,
+              "description": undefined,
+              "name": "previous",
+              "properties": [],
+              "required": false,
+              "type": "{ label: string; pathname: string }",
+              "unionProperties": [
+                [
+                  {
+                    "required": true,
+                    "type": "undefined",
+                  },
+                ],
+                [
+                  {
+                    "defaultValue": undefined,
+                    "description": undefined,
+                    "name": "label",
+                    "required": true,
+                    "type": "string",
+                  },
+                  {
+                    "defaultValue": undefined,
+                    "description": undefined,
+                    "name": "pathname",
+                    "required": true,
+                    "type": "string",
+                  },
+                ],
+              ],
+            },
+            {
+              "defaultValue": undefined,
+              "description": undefined,
+              "name": "executionEnvironment",
+              "properties": [],
+              "required": false,
+              "type": "'server' | 'client' | 'isomorphic'",
+              "unionProperties": [
+                [
+                  {
+                    "required": true,
+                    "type": "undefined",
+                  },
+                ],
+                [
+                  {
+                    "required": true,
+                    "type": ""server"",
+                  },
+                ],
+                [
+                  {
+                    "required": true,
+                    "type": ""client"",
+                  },
+                ],
+                [
+                  {
+                    "required": true,
+                    "type": ""isomorphic"",
+                  },
+                ],
+              ],
+            },
+            {
+              "defaultValue": undefined,
+              "description": undefined,
+              "name": "isMainExport",
+              "properties": [],
+              "required": false,
+              "type": "boolean",
+              "unionProperties": [
+                [
+                  {
+                    "required": true,
+                    "type": "undefined",
+                  },
+                ],
+                [
+                  {
+                    "required": true,
+                    "type": "false",
+                  },
+                ],
+                [
+                  {
+                    "required": true,
+                    "type": "true",
+                  },
+                ],
+              ],
+            },
+            {
+              "defaultValue": undefined,
+              "description": undefined,
+              "name": "exportedTypes",
+              "required": true,
+              "type": "DistributiveOmit<
+          ExportedType & {
+            pathname: string
+            sourcePath: string
+            isMainExport: boolean
+          },
+          'filePath'
+        >[]",
+            },
+            {
+              "defaultValue": undefined,
+              "description": undefined,
+              "name": "examples",
+              "required": true,
+              "type": "ReturnType<typeof getExamplesFromSourceFile>",
+            },
+            {
+              "defaultValue": undefined,
+              "description": undefined,
+              "name": "authors",
+              "required": true,
+              "type": "string",
+            },
+            {
+              "defaultValue": undefined,
+              "description": undefined,
+              "name": "createdAt",
+              "required": true,
+              "type": "string",
+            },
+            {
+              "defaultValue": undefined,
+              "description": undefined,
+              "name": "updatedAt",
+              "required": true,
+              "type": "string",
+            },
+            {
+              "defaultValue": undefined,
+              "description": "
+      ",
+              "name": "frontMatter",
+              "required": true,
+              "type": "Record<string, any>",
+            },
+          ],
+          "tags": [
+            {
+              "tagName": "internal",
+              "text": undefined,
+            },
+          ],
+          "type": "ModuleData<Type>",
+        },
+      }
+    `)
+  })
 })
