@@ -850,7 +850,6 @@ function processProperty(
     required: !property.isOptional() && defaultValue === undefined,
     type: typeText ?? 'any',
   }
-
   const jsDocMetadata = declaration ? getJsDocMetadata(declaration) : undefined
 
   if (jsDocMetadata) {
@@ -858,6 +857,11 @@ function processProperty(
     propertyMetadata.tags = jsDocMetadata.tags
   } else {
     propertyMetadata.description = getSymbolDescription(property)
+  }
+
+  // Skip processing if the property declaration is a primitive type
+  if (declaration && isPrimitiveType(declaration.getType())) {
+    return propertyMetadata
   }
 
   const isObject = propertyType?.isObject()
@@ -963,7 +967,6 @@ function getTypeMetadata(type: Type<ts.Type>, declaration?: Node) {
 /** Checks if a type is a primitive type. */
 function isPrimitiveType(type: Type<ts.Type>) {
   return (
-    type.isArray() ||
     type.isBoolean() ||
     type.isBooleanLiteral() ||
     type.isNumber() ||

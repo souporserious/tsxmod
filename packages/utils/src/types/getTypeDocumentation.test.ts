@@ -1444,7 +1444,7 @@ describe('getTypeDocumentation', () => {
                 "description": undefined,
                 "name": "exportedTypes",
                 "required": true,
-                "type": "{ name: string; description: string; }[]",
+                "type": "ReturnType<typeof getExportedTypes>",
               },
             ],
             "required": false,
