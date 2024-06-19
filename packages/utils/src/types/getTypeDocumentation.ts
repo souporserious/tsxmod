@@ -223,8 +223,8 @@ function processInterface(
       const { properties, unionProperties } = processUnionType(
         interfaceType,
         interfaceDeclaration,
-        undefined,
-        propertyFilter
+        propertyFilter,
+        undefined
       )
       metadata.properties = properties
       metadata.unionProperties = unionProperties
@@ -262,8 +262,8 @@ function processTypeAlias(
       const { properties, unionProperties } = processUnionType(
         typeAliasType,
         typeAlias,
-        undefined,
-        propertyFilter
+        propertyFilter,
+        undefined
       )
       metadata.properties = properties
       metadata.unionProperties = unionProperties
@@ -674,8 +674,8 @@ function processParameterType(
       const { properties, unionProperties } = processUnionType(
         parameterType,
         enclosingNode,
-        defaultValues,
-        propertyFilter
+        propertyFilter,
+        defaultValues
       )
       metadata.properties = properties
       metadata.unionProperties = unionProperties
@@ -696,8 +696,8 @@ function processParameterType(
 function processUnionType(
   unionType: Type<ts.UnionType>,
   enclosingNode?: Node,
-  defaultValues?: Record<string, any>,
-  propertyFilter?: PropertyFilter
+  propertyFilter?: PropertyFilter,
+  defaultValues?: Record<string, any>
 ) {
   const allUnionTypes = unionType
     .getUnionTypes()
@@ -783,7 +783,7 @@ function processTypeProperties(
 
   return properties
     .map((property) =>
-      processProperty(property, enclosingNode, defaultValues, propertyFilter)
+      processProperty(property, enclosingNode, propertyFilter, defaultValues)
     )
     .filter((property): property is NonNullable<typeof property> =>
       Boolean(property)
@@ -807,10 +807,10 @@ function defaultPropertyFilter(property: PropertySignature) {
 function processProperty(
   property: Symbol,
   enclosingNode?: Node,
-  defaultValues?: Record<string, any>,
   propertyFilter: (
     property: PropertySignature
-  ) => boolean = defaultPropertyFilter
+  ) => boolean = defaultPropertyFilter,
+  defaultValues?: Record<string, any>
 ) {
   let declaration = property.getValueDeclaration()
 
@@ -883,10 +883,10 @@ function processProperty(
             processUnionType(
               propertyType,
               enclosingNode,
+              propertyFilter,
               Node.isObjectBindingPattern(firstChild)
                 ? getDefaultValuesFromProperties(firstChild.getElements())
-                : {},
-              propertyFilter
+                : {}
             )
           )
         } else {
