@@ -720,6 +720,7 @@ describe('getTypeDocumentation', () => {
             ],
           },
         ],
+        "type": "Props",
       }
     `)
   })
@@ -815,6 +816,7 @@ describe('getTypeDocumentation', () => {
             "type": "string",
           },
         ],
+        "type": "Props",
       }
     `)
   })
@@ -840,6 +842,7 @@ describe('getTypeDocumentation', () => {
           "Blue",
         ],
         "name": "Colors",
+        "type": "Colors",
       }
     `)
   })
@@ -942,6 +945,7 @@ describe('getTypeDocumentation', () => {
             },
           ],
           "tags": undefined,
+          "type": "any",
         },
         "kind": "Class",
         "methods": [
@@ -1013,6 +1017,7 @@ describe('getTypeDocumentation', () => {
             "visibility": undefined,
           },
         ],
+        "type": "Counter",
       }
     `)
   })
@@ -1114,6 +1119,7 @@ describe('getTypeDocumentation', () => {
             "type": "string",
           },
         ],
+        "type": "ButtonVariants",
         "unionProperties": [
           [
             {
@@ -1228,6 +1234,7 @@ describe('getTypeDocumentation', () => {
             ],
           },
         ],
+        "type": "Config",
       }
     `)
   })

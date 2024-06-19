@@ -30,6 +30,7 @@ interface SharedMetadata {
   name?: string
   description?: string
   tags?: { tagName: string; text?: string }[]
+  type: string
 }
 
 export interface InterfaceMetadata extends SharedMetadata {
@@ -49,59 +50,49 @@ export interface EnumMetadata extends SharedMetadata {
   members: string[]
 }
 
+interface ConstructorType extends SharedMetadata {
+  parameters?: ParameterMetadata[]
+}
+
 export interface ClassMetadata extends SharedMetadata {
   kind: 'Class'
-  constructor?: {
-    name: string
-    parameters?: ParameterMetadata[]
-    description?: string
-    tags?: { tagName: string; text?: string }[]
-  }
+  constructor?: ConstructorType
   accessors?: ClassAccessorMetadata[]
   methods?: ClassMethodMetadata[]
   properties?: Omit<PropertyMetadata, 'required'>[]
 }
 
 export interface ClassAccessorMetadata extends SharedMetadata {
-  name: string
   modifier?: string
   scope?: string
   visibility?: string
-  type: string
   returnType: string
   parameters?: ParameterMetadata[]
 }
 
 export interface ClassMethodMetadata extends SharedMetadata {
-  name: string
   modifier?: string
   scope?: string
   visibility?: string
-  type: string
   returnType: string
   parameters: ParameterMetadata[]
 }
 
 export interface FunctionMetadata extends SharedMetadata {
   kind: 'Function'
-  name?: string
   parameters: ParameterMetadata[]
-  type: string
   returnType: string
 }
 
 export interface ComponentMetadata extends SharedMetadata {
   kind: 'Component'
-  name?: string
   properties: PropertyMetadata[]
-  type: string
   returnType: string
 }
 
 interface BasePropertyMetadata extends SharedMetadata {
   defaultValue?: any
   required: boolean
-  type: string
 }
 
 interface FunctionTypePropertyMetadata extends BasePropertyMetadata {
@@ -222,6 +213,10 @@ function processInterface(
     kind: 'Interface',
     name: interfaceDeclaration.getName(),
     properties: undefined as any,
+    type: interfaceType.getText(
+      interfaceDeclaration,
+      TypeFormatFlags.UseAliasDefinedOutsideCurrentScope
+    ),
     ...getJsDocMetadata(interfaceDeclaration),
   }
 
@@ -252,18 +247,22 @@ function processTypeAlias(
   typeAlias: TypeAliasDeclaration,
   propertyFilter?: PropertyFilter
 ): TypeAliasMetadata {
-  const aliasType = typeAlias.getType()
+  const typeAliasType = typeAlias.getType()
   const metadata: TypeAliasMetadata = {
     kind: 'TypeAlias',
     name: typeAlias.getName(),
     properties: undefined as any,
+    type: typeAliasType.getText(
+      typeAlias,
+      TypeFormatFlags.UseAliasDefinedOutsideCurrentScope
+    ),
     ...getJsDocMetadata(typeAlias),
   }
 
-  if (!isPrimitiveType(aliasType)) {
-    if (aliasType.isUnion()) {
+  if (!isPrimitiveType(typeAliasType)) {
+    if (typeAliasType.isUnion()) {
       const { properties, unionProperties } = processUnionType(
-        aliasType,
+        typeAliasType,
         typeAlias,
         undefined,
         propertyFilter
@@ -272,7 +271,7 @@ function processTypeAlias(
       metadata.unionProperties = unionProperties
     } else {
       metadata.properties = processTypeProperties(
-        aliasType,
+        typeAliasType,
         typeAlias,
         propertyFilter
       )
@@ -289,6 +288,12 @@ function processEnum(enumDeclaration: EnumDeclaration): EnumMetadata {
   return {
     kind: 'Enum',
     name: enumDeclaration.getName(),
+    type: enumDeclaration
+      .getType()
+      .getText(
+        enumDeclaration,
+        TypeFormatFlags.UseAliasDefinedOutsideCurrentScope
+      ),
     members,
     ...getJsDocMetadata(enumDeclaration),
   }
@@ -466,6 +471,13 @@ function processClass(
   const classMetadata: ClassMetadata = {
     kind: 'Class',
     name: classDeclaration.getName(),
+    type: classDeclaration
+      .getType()
+      .getText(
+        classDeclaration,
+        TypeFormatFlags.UseAliasDefinedOutsideCurrentScope
+      ),
+    constructor: undefined,
     ...getJsDocMetadata(classDeclaration),
   }
 
@@ -479,6 +491,12 @@ function processClass(
         .getParameters()
         .map((parameter) =>
           processParameterType(parameter, constructor, propertyFilter)
+        ),
+      type: constructor
+        .getType()
+        .getText(
+          constructor,
+          TypeFormatFlags.UseAliasDefinedOutsideCurrentScope
         ),
       ...getJsDocMetadata(constructor),
     }
@@ -607,15 +625,7 @@ function processParameterType(
   const isObjectBindingPattern = Node.isObjectBindingPattern(
     parameterDeclaration.getNameNode()
   )
-  const metadata: {
-    name?: string
-    description?: string
-    defaultValue?: any
-    required: boolean
-    type: string
-    properties?: ReturnType<typeof processTypeProperties>
-    unionProperties?: ReturnType<typeof processUnionType>['unionProperties']
-  } = {
+  const metadata: ParameterMetadata = {
     defaultValue,
     name: isObjectBindingPattern ? undefined : parameterDeclaration.getName(),
     required: !parameterDeclaration.hasQuestionToken() && !defaultValue,
