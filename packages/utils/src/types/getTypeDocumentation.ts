@@ -26,7 +26,7 @@ import {
   getSymbolDescription,
 } from '../index'
 
-interface SharedMetadata {
+export interface SharedMetadata {
   name?: string
   description?: string
   tags?: { tagName: string; text?: string }[]
@@ -50,13 +50,11 @@ export interface EnumMetadata extends SharedMetadata {
   members: string[]
 }
 
-interface ConstructorType extends SharedMetadata {
-  parameters?: ParameterMetadata[]
-}
-
 export interface ClassMetadata extends SharedMetadata {
   kind: 'Class'
-  constructor?: ConstructorType
+  constructor?: SharedMetadata & {
+    parameters: ParameterMetadata[]
+  }
   accessors?: ClassAccessorMetadata[]
   methods?: ClassMethodMetadata[]
   properties?: Omit<PropertyMetadata, 'required'>[]
@@ -90,17 +88,17 @@ export interface ComponentMetadata extends SharedMetadata {
   returnType: string
 }
 
-interface BasePropertyMetadata extends SharedMetadata {
+export interface SharedPropertyMetadata extends SharedMetadata {
   defaultValue?: any
   required: boolean
 }
 
-interface FunctionTypePropertyMetadata extends BasePropertyMetadata {
+export interface FunctionTypePropertyMetadata extends SharedPropertyMetadata {
   parameters: ParameterMetadata[]
   returnType: string
 }
 
-interface ObjectTypePropertyMetadata extends BasePropertyMetadata {
+export interface ObjectTypePropertyMetadata extends SharedPropertyMetadata {
   properties?: PropertyMetadata[]
   unionProperties?: PropertyMetadata[][]
 }

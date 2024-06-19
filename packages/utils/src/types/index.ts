@@ -11,7 +11,11 @@ export {
   type ClassMethodMetadata,
   type FunctionMetadata,
   type ComponentMetadata,
+  type FunctionTypePropertyMetadata,
+  type ObjectTypePropertyMetadata,
   type PropertyMetadata,
   type ParameterMetadata,
   type PropertyFilter,
+  type SharedMetadata,
+  type SharedPropertyMetadata,
 } from './getTypeDocumentation'
