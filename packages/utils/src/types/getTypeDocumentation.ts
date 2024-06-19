@@ -308,6 +308,11 @@ function processFunctionOrExpression(
   propertyFilter?: PropertyFilter,
   variableDeclaration?: VariableDeclaration
 ): FunctionMetadata | ComponentMetadata {
+  if (functionDeclarationOrExpression === undefined) {
+    throw new Error(
+      'Cannot process undefined function declaration or expression.'
+    )
+  }
   const signatures = functionDeclarationOrExpression
     .getType()
     .getCallSignatures()
@@ -339,13 +344,21 @@ function processFunctionOrExpression(
       ),
     ...getJsDocMetadata(variableDeclaration || functionDeclarationOrExpression),
   } as const
-  const parameterTypes = parameters.map((parameter) =>
-    processParameterType(
-      parameter.getValueDeclaration() as ParameterDeclaration,
+  const parameterTypes = parameters.map((parameter) => {
+    const parameterDeclaration = getSymbolDeclaration(parameter)
+
+    if (!parameterDeclaration) {
+      throw new Error(
+        `No declaration found for parameter: ${parameter.getName()}`
+      )
+    }
+
+    return processParameterType(
+      parameterDeclaration as ParameterDeclaration,
       functionDeclarationOrExpression,
       propertyFilter
     )
-  )
+  })
   const isComponent = sharedMetadata.name
     ? /[A-Z]/.test(sharedMetadata.name.charAt(0))
     : false
@@ -375,13 +388,25 @@ function processFunctionType(
   const signature = signatures.at(0)!
   const symbol = type.getSymbol()
   const declaration = getSymbolDeclaration(symbol)
+  const typeText = type.getText(
+    declaration,
+    TypeFormatFlags.UseAliasDefinedOutsideCurrentScope
+  )
   const parameters = signature.getParameters()
   let parameterTypes: ReturnType<typeof processParameterType>[] = []
 
   for (const parameter of parameters) {
     // TODO: function type parameter types need to be processed differently since they don't have default values, required, etc.
+    const parameterDeclaration = getSymbolDeclaration(parameter)
+
+    if (!parameterDeclaration) {
+      throw new Error(
+        `No declaration found for parameter "${parameter.getName()}" while processing FunctionType: ${typeText}`
+      )
+    }
+
     const parameterType = processParameterType(
-      parameter.getValueDeclaration() as ParameterDeclaration,
+      parameterDeclaration as ParameterDeclaration,
       declaration,
       propertyFilter
     )
@@ -391,10 +416,7 @@ function processFunctionType(
   return {
     kind: 'Function',
     parameters: parameterTypes,
-    type: type.getText(
-      declaration,
-      TypeFormatFlags.UseAliasDefinedOutsideCurrentScope
-    ),
+    type: typeText,
     returnType: signature
       .getReturnType()
       .getText(declaration, TypeFormatFlags.UseAliasDefinedOutsideCurrentScope),
@@ -618,6 +640,9 @@ function processParameterType(
   enclosingNode?: Node,
   propertyFilter?: PropertyFilter
 ): ParameterMetadata {
+  if (parameterDeclaration === undefined) {
+    throw new Error('Cannot process undefined parameter declaration.')
+  }
   const parameterType = parameterDeclaration.getType()
   const defaultValue = parameterDeclaration.getInitializer()?.getText()
   const isObjectBindingPattern = Node.isObjectBindingPattern(
