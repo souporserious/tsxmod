@@ -734,10 +734,7 @@ function processUnionType(
         defaultValues
       )
     )
-  const { duplicates, filtered } = parseDuplicates(
-    allUnionTypes,
-    (item) => item.name || item.type
-  )
+  const { duplicates, filtered } = parseDuplicateTypes(allUnionTypes)
 
   return {
     properties: duplicates,
@@ -1014,35 +1011,53 @@ function getSymbolDeclaration(symbol?: Symbol) {
     : undefined
 }
 
-/** Parses duplicates from an array of arrays. */
-function parseDuplicates<Item>(
-  arrays: Item[][],
-  resolveId: (item: Item) => string
+/** Parses duplicate types from an array of arrays. */
+function parseDuplicateTypes<Item extends { type: string }>(
+  arrays: Item[][]
 ): { duplicates: Item[]; filtered: Item[][] } {
-  const itemCounts: Record<string, number> = {}
-  const itemReferences: Record<string, Item> = {}
-  const duplicates: Item[] = []
+  const seenTypes = new Set<string>()
+  const duplicatesMap: { [key: string]: Item } = {}
+  const uniqueDuplicates: Item[] = []
 
-  // Count the occurrences of each item and store a reference to the first occurrence
-  arrays.flat().forEach((item) => {
-    const itemId = resolveId(item)
-    if (!itemCounts[itemId]) {
-      itemReferences[itemId] = item
-    }
-    itemCounts[itemId] = (itemCounts[itemId] || 0) + 1
-  })
+  // Iterate through each array and each item within the array
+  for (let arrayIndex = 0; arrayIndex < arrays.length; arrayIndex++) {
+    const array = arrays[arrayIndex]
 
-  // Identify duplicates using the stored references
-  for (const key in itemCounts) {
-    if (itemCounts[key] > 1) {
-      duplicates.push(itemReferences[key])
+    for (let itemIndex = 0; itemIndex < array.length; itemIndex++) {
+      const item = array[itemIndex]
+      const itemId = JSON.stringify(item)
+
+      if (seenTypes.has(itemId)) {
+        if (!(itemId in duplicatesMap)) {
+          duplicatesMap[itemId] = item
+          uniqueDuplicates.push(item)
+        }
+      } else {
+        seenTypes.add(itemId)
+      }
     }
   }
 
-  // Remove duplicates from original arrays
-  const filtered = arrays.map((subArray) =>
-    subArray.filter((item) => itemCounts[resolveId(item)] === 1)
-  )
+  // Create filtered arrays by excluding duplicates
+  const filteredArrays: Item[][] = new Array(arrays.length)
 
-  return { duplicates, filtered }
+  for (let arrayIndex = 0; arrayIndex < arrays.length; arrayIndex++) {
+    const array = arrays[arrayIndex]
+    const filteredArray: Item[] = []
+
+    for (let itemIndex = 0; itemIndex < array.length; itemIndex++) {
+      const item = array[itemIndex]
+      const itemId = JSON.stringify(item)
+      if (!(itemId in duplicatesMap)) {
+        filteredArray.push(item)
+      }
+    }
+
+    filteredArrays[arrayIndex] = filteredArray
+  }
+
+  return {
+    duplicates: uniqueDuplicates,
+    filtered: filteredArrays,
+  }
 }
