@@ -327,6 +327,26 @@ describe('getTypeDocumentation', () => {
         ],
         "returnType": "void",
         "type": "(props: Props) => void",
+        "unionProperties": [
+          [
+            {
+              "defaultValue": undefined,
+              "description": undefined,
+              "name": "source",
+              "required": true,
+              "type": "string",
+            },
+          ],
+          [
+            {
+              "defaultValue": undefined,
+              "description": undefined,
+              "name": "value",
+              "required": true,
+              "type": "string",
+            },
+          ],
+        ],
       }
     `)
   })
@@ -348,6 +368,23 @@ describe('getTypeDocumentation', () => {
         "properties": [],
         "returnType": "void",
         "type": "(props: Props) => void",
+        "unionProperties": [
+          [
+            {
+              "required": true,
+              "type": "string",
+            },
+          ],
+          [
+            {
+              "defaultValue": undefined,
+              "description": undefined,
+              "name": "color",
+              "required": true,
+              "type": "string",
+            },
+          ],
+        ],
       }
     `)
   })
@@ -380,6 +417,26 @@ describe('getTypeDocumentation', () => {
         ],
         "returnType": "void",
         "type": "(props: Props) => void",
+        "unionProperties": [
+          [
+            {
+              "defaultValue": undefined,
+              "description": undefined,
+              "name": "source",
+              "required": true,
+              "type": "string",
+            },
+          ],
+          [
+            {
+              "defaultValue": undefined,
+              "description": undefined,
+              "name": "value",
+              "required": true,
+              "type": "string",
+            },
+          ],
+        ],
       }
     `)
   })
@@ -538,6 +595,7 @@ describe('getTypeDocumentation', () => {
         ],
         "returnType": "void",
         "type": "({ variant, alignment, width, lineHeight, children, }: TextProps) => void",
+        "unionProperties": undefined,
       }
     `)
   })
@@ -587,6 +645,7 @@ describe('getTypeDocumentation', () => {
         ],
         "returnType": "JSX.Element",
         "type": "IStyledComponentBase<"web", Substitute<React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>, GridProps>> & string",
+        "unionProperties": undefined,
       }
     `)
   })
@@ -635,6 +694,7 @@ describe('getTypeDocumentation', () => {
         ],
         "returnType": "JSX.Element",
         "type": "IStyledComponentBase<"web", Substitute<React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>, { $gridTemplateColumns: string; $gridTemplateRows: string; }>> & string",
+        "unionProperties": undefined,
       }
     `)
   })
@@ -1387,6 +1447,7 @@ describe('getTypeDocumentation', () => {
         ],
         "returnType": "boolean",
         "type": "(props: ButtonProps) => boolean",
+        "unionProperties": undefined,
       }
     `)
   })
@@ -1455,6 +1516,33 @@ describe('getTypeDocumentation', () => {
         ],
         "returnType": "void",
         "type": "({ children }: ExportedTypesProps) => void",
+        "unionProperties": [
+          [
+            {
+              "defaultValue": undefined,
+              "description": undefined,
+              "name": "source",
+              "required": true,
+              "type": "string",
+            },
+          ],
+          [
+            {
+              "defaultValue": undefined,
+              "description": undefined,
+              "name": "filename",
+              "required": true,
+              "type": "string",
+            },
+            {
+              "defaultValue": undefined,
+              "description": undefined,
+              "name": "value",
+              "required": true,
+              "type": "string",
+            },
+          ],
+        ],
       }
     `)
   })
