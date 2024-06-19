@@ -448,22 +448,85 @@ describe('getTypeDocumentation', () => {
             "defaultValue": "'body1'",
             "description": undefined,
             "name": "variant",
+            "properties": [],
             "required": false,
             "type": ""heading1" | "heading2" | "heading3" | "body1"",
+            "unionProperties": [
+              [
+                {
+                  "required": true,
+                  "type": ""heading1"",
+                },
+              ],
+              [
+                {
+                  "required": true,
+                  "type": ""heading2"",
+                },
+              ],
+              [
+                {
+                  "required": true,
+                  "type": ""heading3"",
+                },
+              ],
+              [
+                {
+                  "required": true,
+                  "type": ""body1"",
+                },
+              ],
+            ],
           },
           {
             "defaultValue": undefined,
             "description": undefined,
             "name": "alignment",
+            "properties": [],
             "required": false,
             "type": ""start" | "center" | "end"",
+            "unionProperties": [
+              [
+                {
+                  "required": true,
+                  "type": ""start"",
+                },
+              ],
+              [
+                {
+                  "required": true,
+                  "type": ""center"",
+                },
+              ],
+              [
+                {
+                  "required": true,
+                  "type": ""end"",
+                },
+              ],
+            ],
           },
           {
             "defaultValue": undefined,
             "description": undefined,
             "name": "width",
+            "properties": [],
             "required": false,
             "type": "string | number",
+            "unionProperties": [
+              [
+                {
+                  "required": true,
+                  "type": "string",
+                },
+              ],
+              [
+                {
+                  "required": true,
+                  "type": "number",
+                },
+              ],
+            ],
           },
           {
             "defaultValue": undefined,
@@ -598,15 +661,63 @@ describe('getTypeDocumentation', () => {
             "defaultValue": undefined,
             "description": undefined,
             "name": "variant",
+            "properties": [],
             "required": true,
             "type": "'heading1' | 'heading2' | 'heading3' | 'body1' | 'body2'",
+            "unionProperties": [
+              [
+                {
+                  "required": true,
+                  "type": ""heading1"",
+                },
+              ],
+              [
+                {
+                  "required": true,
+                  "type": ""heading2"",
+                },
+              ],
+              [
+                {
+                  "required": true,
+                  "type": ""heading3"",
+                },
+              ],
+              [
+                {
+                  "required": true,
+                  "type": ""body1"",
+                },
+              ],
+              [
+                {
+                  "required": true,
+                  "type": ""body2"",
+                },
+              ],
+            ],
           },
           {
             "defaultValue": undefined,
             "description": undefined,
             "name": "width",
+            "properties": [],
             "required": false,
             "type": "string | number",
+            "unionProperties": [
+              [
+                {
+                  "required": true,
+                  "type": "string",
+                },
+              ],
+              [
+                {
+                  "required": true,
+                  "type": "number",
+                },
+              ],
+            ],
           },
         ],
       }
@@ -638,15 +749,63 @@ describe('getTypeDocumentation', () => {
             "defaultValue": undefined,
             "description": undefined,
             "name": "variant",
+            "properties": [],
             "required": true,
             "type": "'heading1' | 'heading2' | 'heading3' | 'body1' | 'body2'",
+            "unionProperties": [
+              [
+                {
+                  "required": true,
+                  "type": ""heading1"",
+                },
+              ],
+              [
+                {
+                  "required": true,
+                  "type": ""heading2"",
+                },
+              ],
+              [
+                {
+                  "required": true,
+                  "type": ""heading3"",
+                },
+              ],
+              [
+                {
+                  "required": true,
+                  "type": ""body1"",
+                },
+              ],
+              [
+                {
+                  "required": true,
+                  "type": ""body2"",
+                },
+              ],
+            ],
           },
           {
             "defaultValue": undefined,
             "description": undefined,
             "name": "width",
+            "properties": [],
             "required": false,
             "type": "string | number",
+            "unionProperties": [
+              [
+                {
+                  "required": true,
+                  "type": "string",
+                },
+              ],
+              [
+                {
+                  "required": true,
+                  "type": "number",
+                },
+              ],
+            ],
           },
           {
             "defaultValue": undefined,
@@ -930,6 +1089,225 @@ describe('getTypeDocumentation', () => {
     `)
   })
 
+  test('type with union', () => {
+    const sourceFile = project.createSourceFile(
+      'test.ts',
+      dedent`
+      type ButtonVariants = { color:string } & ({ backgroundColor: string } | { borderColor: string })
+      `,
+      { overwrite: true }
+    )
+    const types = getTypeDocumentation(
+      sourceFile.getTypeAliasOrThrow('ButtonVariants')
+    )
+
+    expect(types).toMatchInlineSnapshot(`
+      {
+        "kind": "TypeAlias",
+        "name": "ButtonVariants",
+        "properties": [
+          {
+            "defaultValue": undefined,
+            "description": undefined,
+            "name": "color",
+            "required": true,
+            "type": "string",
+          },
+        ],
+        "unionProperties": [
+          [
+            {
+              "defaultValue": undefined,
+              "description": undefined,
+              "name": "backgroundColor",
+              "required": true,
+              "type": "string",
+            },
+          ],
+          [
+            {
+              "defaultValue": undefined,
+              "description": undefined,
+              "name": "borderColor",
+              "required": true,
+              "type": "string",
+            },
+          ],
+        ],
+      }
+    `)
+  })
+
+  test('property with union', () => {
+    const project = new Project()
+    const sourceFile = project.createSourceFile(
+      'test.ts',
+      dedent`
+      type Config = {
+        siteName: string
+        settings: {
+          apiEndpoint: string;
+          apiKey: string;
+        } | {
+          dbHost: string;
+          dbPort: number;
+          dbName: string;
+        };
+      }
+      `,
+      { overwrite: true }
+    )
+    const types = getTypeDocumentation(sourceFile.getTypeAliasOrThrow('Config'))
+
+    expect(types).toMatchInlineSnapshot(`
+      {
+        "kind": "TypeAlias",
+        "name": "Config",
+        "properties": [
+          {
+            "defaultValue": undefined,
+            "description": undefined,
+            "name": "siteName",
+            "required": true,
+            "type": "string",
+          },
+          {
+            "defaultValue": undefined,
+            "description": undefined,
+            "name": "settings",
+            "properties": [],
+            "required": true,
+            "type": "{
+          apiEndpoint: string;
+          apiKey: string;
+        } | {
+          dbHost: string;
+          dbPort: number;
+          dbName: string;
+        }",
+            "unionProperties": [
+              [
+                {
+                  "defaultValue": undefined,
+                  "description": undefined,
+                  "name": "apiEndpoint",
+                  "required": true,
+                  "type": "string",
+                },
+                {
+                  "defaultValue": undefined,
+                  "description": undefined,
+                  "name": "apiKey",
+                  "required": true,
+                  "type": "string",
+                },
+              ],
+              [
+                {
+                  "defaultValue": undefined,
+                  "description": undefined,
+                  "name": "dbHost",
+                  "required": true,
+                  "type": "string",
+                },
+                {
+                  "defaultValue": undefined,
+                  "description": undefined,
+                  "name": "dbPort",
+                  "required": true,
+                  "type": "number",
+                },
+                {
+                  "defaultValue": undefined,
+                  "description": undefined,
+                  "name": "dbName",
+                  "required": true,
+                  "type": "string",
+                },
+              ],
+            ],
+          },
+        ],
+      }
+    `)
+  })
+
+  test('argument with union', () => {
+    const project = new Project()
+    const sourceFile = project.createSourceFile(
+      'test.ts',
+      dedent`
+      function useCounter(
+        settings: { apiEndpoint: string; apiKey: string; } | { dbHost: string; dbPort: number; dbName: string; }
+      ) {}
+      `,
+      { overwrite: true }
+    )
+    const types = getTypeDocumentation(
+      sourceFile.getFunctionOrThrow('useCounter')
+    )
+
+    expect(types).toMatchInlineSnapshot(`
+      {
+        "kind": "Function",
+        "name": "useCounter",
+        "parameters": [
+          {
+            "defaultValue": undefined,
+            "description": undefined,
+            "name": "settings",
+            "properties": [],
+            "required": true,
+            "type": "{ apiEndpoint: string; apiKey: string; } | { dbHost: string; dbPort: number; dbName: string; }",
+            "unionProperties": [
+              [
+                {
+                  "defaultValue": undefined,
+                  "description": undefined,
+                  "name": "apiEndpoint",
+                  "required": true,
+                  "type": "string",
+                },
+                {
+                  "defaultValue": undefined,
+                  "description": undefined,
+                  "name": "apiKey",
+                  "required": true,
+                  "type": "string",
+                },
+              ],
+              [
+                {
+                  "defaultValue": undefined,
+                  "description": undefined,
+                  "name": "dbHost",
+                  "required": true,
+                  "type": "string",
+                },
+                {
+                  "defaultValue": undefined,
+                  "description": undefined,
+                  "name": "dbPort",
+                  "required": true,
+                  "type": "number",
+                },
+                {
+                  "defaultValue": undefined,
+                  "description": undefined,
+                  "name": "dbName",
+                  "required": true,
+                  "type": "string",
+                },
+              ],
+            ],
+          },
+        ],
+        "returnType": "void",
+        "type": "(settings: {    apiEndpoint: string;    apiKey: string;} | {    dbHost: string;    dbPort: number;    dbName: string;}) => void",
+      }
+    `)
+  })
+
   test('allows filtering specific node module types', () => {
     const project = new Project()
     const sourceFile = project.createSourceFile(
@@ -968,8 +1346,29 @@ describe('getTypeDocumentation', () => {
             "defaultValue": undefined,
             "description": undefined,
             "name": "variant",
+            "properties": [],
             "required": false,
             "type": "ButtonVariant",
+            "unionProperties": [
+              [
+                {
+                  "required": true,
+                  "type": ""primary"",
+                },
+              ],
+              [
+                {
+                  "required": true,
+                  "type": ""secondary"",
+                },
+              ],
+              [
+                {
+                  "required": true,
+                  "type": ""danger"",
+                },
+              ],
+            ],
           },
           {
             "defaultValue": undefined,

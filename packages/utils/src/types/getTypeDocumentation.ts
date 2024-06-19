@@ -35,11 +35,13 @@ interface SharedMetadata {
 export interface InterfaceMetadata extends SharedMetadata {
   kind: 'Interface'
   properties: PropertyMetadata[]
+  unionProperties?: PropertyMetadata[][]
 }
 
 export interface TypeAliasMetadata extends SharedMetadata {
   kind: 'TypeAlias'
   properties: PropertyMetadata[]
+  unionProperties?: PropertyMetadata[][]
 }
 
 export interface EnumMetadata extends SharedMetadata {
@@ -100,35 +102,23 @@ interface BasePropertyMetadata extends SharedMetadata {
   defaultValue?: any
   required: boolean
   type: string
+}
+
+interface FunctionTypePropertyMetadata extends BasePropertyMetadata {
+  parameters: ParameterMetadata[]
+  returnType: string
+}
+
+interface ObjectTypePropertyMetadata extends BasePropertyMetadata {
   properties?: PropertyMetadata[]
   unionProperties?: PropertyMetadata[][]
-  parameters?: ParameterMetadata[]
-  returnType?: string
 }
 
 export type PropertyMetadata =
-  | (BasePropertyMetadata & {
-      properties?: PropertyMetadata[]
-      unionProperties?: PropertyMetadata[][]
-    })
-  | (BasePropertyMetadata & {
-      parameters?: {
-        name?: string
-        description?: string
-        type: string
-      }[]
-      returnType?: string
-    })
+  | FunctionTypePropertyMetadata
+  | ObjectTypePropertyMetadata
 
-export interface ParameterMetadata {
-  name?: string
-  description?: string
-  defaultValue?: any
-  required: boolean
-  type: string
-  properties?: PropertyMetadata[]
-  unionProperties?: PropertyMetadata[][]
-}
+export type ParameterMetadata = PropertyMetadata
 
 export type PropertyFilter = (property: PropertySignature) => boolean
 
@@ -228,17 +218,33 @@ function processInterface(
   propertyFilter?: PropertyFilter
 ): InterfaceMetadata {
   const interfaceType = interfaceDeclaration.getType()
-
-  return {
+  const metadata: InterfaceMetadata = {
     kind: 'Interface',
     name: interfaceDeclaration.getName(),
-    properties: processTypeProperties(
-      interfaceType,
-      interfaceDeclaration,
-      propertyFilter
-    ),
+    properties: undefined as any,
     ...getJsDocMetadata(interfaceDeclaration),
   }
+
+  if (!isPrimitiveType(interfaceType)) {
+    if (interfaceType.isUnion()) {
+      const { properties, unionProperties } = processUnionType(
+        interfaceType,
+        interfaceDeclaration,
+        undefined,
+        propertyFilter
+      )
+      metadata.properties = properties
+      metadata.unionProperties = unionProperties
+    } else {
+      metadata.properties = processTypeProperties(
+        interfaceType,
+        interfaceDeclaration,
+        propertyFilter
+      )
+    }
+  }
+
+  return metadata
 }
 
 /** Processes a type alias into a metadata object. */
@@ -247,13 +253,33 @@ function processTypeAlias(
   propertyFilter?: PropertyFilter
 ): TypeAliasMetadata {
   const aliasType = typeAlias.getType()
-
-  return {
+  const metadata: TypeAliasMetadata = {
     kind: 'TypeAlias',
     name: typeAlias.getName(),
-    properties: processTypeProperties(aliasType, typeAlias, propertyFilter),
+    properties: undefined as any,
     ...getJsDocMetadata(typeAlias),
   }
+
+  if (!isPrimitiveType(aliasType)) {
+    if (aliasType.isUnion()) {
+      const { properties, unionProperties } = processUnionType(
+        aliasType,
+        typeAlias,
+        undefined,
+        propertyFilter
+      )
+      metadata.properties = properties
+      metadata.unionProperties = unionProperties
+    } else {
+      metadata.properties = processTypeProperties(
+        aliasType,
+        typeAlias,
+        propertyFilter
+      )
+    }
+  }
+
+  return metadata
 }
 
 /** Processes an enum declaration into a metadata object. */
@@ -322,9 +348,10 @@ function processFunctionOrExpression(
     : false
 
   if (isComponent) {
+    const firstParameter = parameterTypes.at(0)! as ObjectTypePropertyMetadata
     return {
       kind: 'Component',
-      properties: parameterTypes.at(0)!.properties!,
+      properties: firstParameter.properties!,
       ...sharedMetadata,
     }
   }
@@ -825,7 +852,10 @@ function processProperty(
     propertyMetadata.description = getSymbolDescription(property)
   }
 
-  if (propertyType?.isObject()) {
+  const isObject = propertyType?.isObject()
+  const isUnion = propertyType?.isUnion()
+
+  if (isObject || isUnion) {
     const typeDeclaration = propertyType.getSymbol()?.getDeclarations()?.at(0)
     const isLocalType =
       enclosingNode && typeDeclaration
@@ -833,20 +863,36 @@ function processProperty(
           typeDeclaration.getSourceFile().getFilePath()
         : false
 
-    if (isLocalType) {
+    if (isLocalType || isUnion) {
       const firstChild = declaration?.getFirstChild()
 
       if (propertyType.getCallSignatures().length > 0) {
         Object.assign(propertyMetadata, processFunctionType(propertyType))
-      } else {
-        propertyMetadata.properties = processTypeProperties(
-          propertyType,
-          enclosingNode,
-          propertyFilter,
-          Node.isObjectBindingPattern(firstChild)
-            ? getDefaultValuesFromProperties(firstChild.getElements())
-            : {}
-        )
+      } else if (!isPrimitiveType(propertyType)) {
+        if (propertyType.isUnion()) {
+          Object.assign(
+            propertyMetadata,
+            processUnionType(
+              propertyType,
+              enclosingNode,
+              Node.isObjectBindingPattern(firstChild)
+                ? getDefaultValuesFromProperties(firstChild.getElements())
+                : {},
+              propertyFilter
+            )
+          )
+        } else {
+          Object.assign(propertyMetadata, {
+            properties: processTypeProperties(
+              propertyType,
+              enclosingNode,
+              propertyFilter,
+              Node.isObjectBindingPattern(firstChild)
+                ? getDefaultValuesFromProperties(firstChild.getElements())
+                : {}
+            ),
+          })
+        }
       }
     }
   }
