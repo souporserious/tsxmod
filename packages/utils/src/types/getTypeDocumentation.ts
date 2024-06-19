@@ -85,6 +85,7 @@ export interface FunctionMetadata extends SharedMetadata {
 export interface ComponentMetadata extends SharedMetadata {
   kind: 'Component'
   properties: PropertyMetadata[]
+  unionProperties?: PropertyMetadata[][]
   returnType: string
 }
 
@@ -359,8 +360,9 @@ function processFunctionOrExpression(
       propertyFilter
     )
   })
+
   const isComponent = sharedMetadata.name
-    ? /[A-Z]/.test(sharedMetadata.name.charAt(0))
+    ? /[A-Z]/.test(sharedMetadata.name.charAt(0)) && parameterTypes.length === 1
     : false
 
   if (isComponent) {
@@ -368,6 +370,7 @@ function processFunctionOrExpression(
     return {
       kind: 'Component',
       properties: firstParameter.properties!,
+      unionProperties: firstParameter.unionProperties,
       ...sharedMetadata,
     }
   }
