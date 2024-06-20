@@ -780,7 +780,10 @@ describe('getTypeDocumentation', () => {
             ],
           },
         ],
-        "type": "Props",
+        "type": "{
+        variant: 'heading1' | 'heading2' | 'heading3' | 'body1' | 'body2'
+        width?: string | number
+      }",
       }
     `)
   })
@@ -1179,7 +1182,7 @@ describe('getTypeDocumentation', () => {
             "type": "string",
           },
         ],
-        "type": "ButtonVariants",
+        "type": "{ color:string } & ({ backgroundColor: string } | { borderColor: string })",
         "unionProperties": [
           [
             {
@@ -1294,7 +1297,17 @@ describe('getTypeDocumentation', () => {
             ],
           },
         ],
-        "type": "Config",
+        "type": "{
+        siteName: string
+        settings: {
+          apiEndpoint: string;
+          apiKey: string;
+        } | {
+          dbHost: string;
+          dbPort: number;
+          dbName: string;
+        };
+      }",
       }
     `)
   })
@@ -1682,7 +1695,12 @@ describe('getTypeDocumentation', () => {
               "type": "string",
             },
           ],
-          "type": "ExportedType",
+          "type": "NonNullable<
+        ReturnType<typeof getTypeDocumentation>
+      > & {
+        slug: string
+        filePath: string
+      }",
           "unionProperties": [
             [
               {

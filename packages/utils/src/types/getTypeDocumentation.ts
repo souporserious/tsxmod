@@ -247,14 +247,21 @@ function processTypeAlias(
   propertyFilter?: PropertyFilter
 ): TypeAliasMetadata {
   const typeAliasType = typeAlias.getType()
+  const name = typeAlias.getName()
+  const typeText = typeAliasType.getText(
+    typeAlias,
+    TypeFormatFlags.UseAliasDefinedOutsideCurrentScope
+  )
+  const nameIsSameAsType = name === typeText
   const metadata: TypeAliasMetadata = {
+    name,
     kind: 'TypeAlias',
     name: typeAlias.getName(),
     properties: undefined as any,
-    type: typeAliasType.getText(
-      typeAlias,
-      TypeFormatFlags.UseAliasDefinedOutsideCurrentScope
-    ),
+    // Use the type node text if the name is the same as the type to provide a more accurate type
+    type: nameIsSameAsType
+      ? typeAlias.getTypeNodeOrThrow().getText()
+      : typeText,
     ...getJsDocMetadata(typeAlias),
   }
 
