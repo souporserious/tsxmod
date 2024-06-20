@@ -33,6 +33,41 @@ export interface SharedMetadata {
   type: string
 }
 
+export interface SharedValueMetadata extends SharedMetadata {
+  defaultValue?: any
+  required?: boolean
+}
+
+export interface ValueMetadata extends SharedValueMetadata {
+  kind: 'Value'
+}
+
+/** Represents a function value e.g. { fn(): void } */
+export interface FunctionValueMetadata extends SharedValueMetadata {
+  kind: 'FunctionValue'
+  parameters: ParameterMetadata[]
+  returnType: string
+}
+
+/** Represents an object value e.g. { prop: 'value' } */
+export interface ObjectValueMetadata extends SharedValueMetadata {
+  kind: 'ObjectValue'
+  properties?: PropertyMetadata[]
+  unionProperties?: PropertyMetadata[][]
+}
+
+export type ParameterMetadata =
+  | ValueMetadata
+  | FunctionValueMetadata
+  | ObjectValueMetadata
+
+export type PropertyMetadata =
+  | ValueMetadata
+  | FunctionValueMetadata
+  | ObjectValueMetadata
+
+export type PropertyFilter = (property: PropertySignature) => boolean
+
 export interface InterfaceMetadata extends SharedMetadata {
   kind: 'Interface'
   properties: PropertyMetadata[]
@@ -57,27 +92,43 @@ export interface ClassMetadata extends SharedMetadata {
   }
   accessors?: ClassAccessorMetadata[]
   methods?: ClassMethodMetadata[]
-  properties?: Omit<PropertyMetadata, 'required'>[]
+  properties?: ClassPropertyMetadata[]
 }
 
-export interface ClassAccessorMetadata extends SharedMetadata {
-  modifier?: string
-  scope?: string
-  visibility?: string
+export interface SharedClassMemberMetadata extends SharedMetadata {
+  scope?: 'abstract' | 'static'
+  visibility?: 'private' | 'protected' | 'public'
+}
+
+export interface ClassGetAccessorMetadata extends SharedClassMemberMetadata {
+  kind: 'ClassGetAccessor'
+}
+
+export interface ClassSetAccessorMetadata extends SharedClassMemberMetadata {
+  kind: 'ClassSetAccessor'
   returnType: string
   parameters?: ParameterMetadata[]
 }
 
-export interface ClassMethodMetadata extends SharedMetadata {
-  modifier?: string
-  scope?: string
-  visibility?: string
+export type ClassAccessorMetadata =
+  | ClassGetAccessorMetadata
+  | ClassSetAccessorMetadata
+
+export interface ClassMethodMetadata extends SharedClassMemberMetadata {
+  kind: 'ClassMethod'
+  modifier?: 'async' | 'generator'
   returnType: string
   parameters: ParameterMetadata[]
 }
 
+export interface ClassPropertyMetadata extends SharedClassMemberMetadata {
+  kind: 'ClassProperty'
+  isReadonly: boolean
+}
+
 export interface FunctionMetadata extends SharedMetadata {
   kind: 'Function'
+  modifier?: 'async' | 'generator'
   parameters: ParameterMetadata[]
   returnType: string
 }
@@ -88,29 +139,6 @@ export interface ComponentMetadata extends SharedMetadata {
   unionProperties?: PropertyMetadata[][]
   returnType: string
 }
-
-export interface SharedPropertyMetadata extends SharedMetadata {
-  defaultValue?: any
-  required?: boolean
-}
-
-export interface FunctionTypePropertyMetadata extends SharedPropertyMetadata {
-  parameters: ParameterMetadata[]
-  returnType: string
-}
-
-export interface ObjectTypePropertyMetadata extends SharedPropertyMetadata {
-  properties?: PropertyMetadata[]
-  unionProperties?: PropertyMetadata[][]
-}
-
-export type PropertyMetadata =
-  | FunctionTypePropertyMetadata
-  | ObjectTypePropertyMetadata
-
-export type ParameterMetadata = PropertyMetadata
-
-export type PropertyFilter = (property: PropertySignature) => boolean
 
 type Declaration =
   | InterfaceDeclaration
@@ -372,7 +400,7 @@ function processFunctionOrExpression(
     : false
 
   if (isComponent) {
-    const firstParameter = parameterTypes.at(0)! as ObjectTypePropertyMetadata
+    const firstParameter = parameterTypes.at(0)! as ObjectValueMetadata
     return {
       kind: 'Component',
       properties: firstParameter.properties!,
@@ -428,21 +456,7 @@ function processFunctionType(
   }
 }
 
-function getModifier(
-  node:
-    | SetAccessorDeclaration
-    | GetAccessorDeclaration
-    | FunctionDeclaration
-    | MethodDeclaration
-) {
-  if (Node.isSetAccessorDeclaration(node)) {
-    return 'setter'
-  }
-
-  if (Node.isGetAccessorDeclaration(node)) {
-    return 'getter'
-  }
-
+function getModifier(node: FunctionDeclaration | MethodDeclaration) {
   if (node.isAsync()) {
     return 'async'
   }
@@ -565,29 +579,37 @@ function processClassAccessor(
   accessor: GetAccessorDeclaration | SetAccessorDeclaration,
   propertyFilter?: PropertyFilter
 ): ClassAccessorMetadata {
-  const isSetter = Node.isSetAccessorDeclaration(accessor)
-  const parameters = isSetter
-    ? accessor
-        .getParameters()
-        .map((parameter) =>
-          processParameterType(parameter, accessor, propertyFilter)
-        )
-    : []
-  const returnType = accessor
-    .getType()
-    .getText(accessor, TypeFormatFlags.UseAliasDefinedOutsideCurrentScope)
-
-  return {
-    ...(isSetter ? { parameters } : {}),
-    returnType,
+  const sharedMetadata: SharedClassMemberMetadata = {
     name: accessor.getName(),
-    modifier: getModifier(accessor),
     scope: getScope(accessor),
     visibility: getVisibility(accessor),
     type: accessor
       .getType()
       .getText(accessor, TypeFormatFlags.UseAliasDefinedOutsideCurrentScope),
     ...getJsDocMetadata(accessor),
+  }
+
+  if (Node.isSetAccessorDeclaration(accessor)) {
+    const parameters = accessor
+      .getParameters()
+      .map((parameter) =>
+        processParameterType(parameter, accessor, propertyFilter)
+      )
+    const returnType = accessor
+      .getType()
+      .getText(accessor, TypeFormatFlags.UseAliasDefinedOutsideCurrentScope)
+
+    return {
+      kind: 'ClassSetAccessor',
+      parameters,
+      returnType,
+      ...sharedMetadata,
+    }
+  }
+
+  return {
+    kind: 'ClassGetAccessor',
+    ...sharedMetadata,
   }
 }
 
@@ -610,6 +632,7 @@ function processClassMethod(
     )
 
   return {
+    kind: 'ClassMethod',
     parameters,
     name: method.getName(),
     modifier: getModifier(method),
@@ -626,8 +649,11 @@ function processClassMethod(
 }
 
 /** Processes a class property declaration into a metadata object. */
-function processClassPropertyDeclaration(property: PropertyDeclaration) {
+function processClassPropertyDeclaration(
+  property: PropertyDeclaration
+): ClassPropertyMetadata {
   return {
+    kind: 'ClassProperty',
     name: property.getName(),
     scope: getScope(property),
     visibility: getVisibility(property),
@@ -655,6 +681,7 @@ function processParameterType(
   )
   const metadata: ParameterMetadata = {
     defaultValue,
+    kind: 'Value',
     name: isObjectBindingPattern ? undefined : parameterDeclaration.getName(),
     required: !parameterDeclaration.hasQuestionToken() && !defaultValue,
     type: parameterType.getText(
@@ -699,23 +726,30 @@ function processParameterType(
     ? getDefaultValuesFromProperties(firstChild.getElements())
     : {}
 
-  if (!isPrimitiveType(parameterType)) {
+  if (parameterType.getCallSignatures().length > 0) {
+    ;(metadata as ParameterMetadata).kind = 'FunctionValue'
+    Object.assign(metadata, processFunctionType(parameterType))
+  } else if (!isPrimitiveType(parameterType)) {
+    ;(metadata as ParameterMetadata).kind = 'ObjectValue'
     if (parameterType.isUnion()) {
-      const { properties, unionProperties } = processUnionType(
-        parameterType,
-        enclosingNode,
-        propertyFilter,
-        defaultValues
+      Object.assign(
+        metadata,
+        processUnionType(
+          parameterType,
+          enclosingNode,
+          propertyFilter,
+          defaultValues
+        )
       )
-      metadata.properties = properties
-      metadata.unionProperties = unionProperties
     } else {
-      metadata.properties = processTypeProperties(
-        parameterType,
-        enclosingNode,
-        propertyFilter,
-        defaultValues
-      )
+      Object.assign(metadata, {
+        properties: processTypeProperties(
+          parameterType,
+          enclosingNode,
+          propertyFilter,
+          defaultValues
+        ),
+      })
     }
   }
 
@@ -781,6 +815,7 @@ function processTypeProperties(
     if (isUsedLocally) {
       return [
         {
+          kind: 'Value',
           type: type.getText(
             enclosingNode,
             TypeFormatFlags.UseAliasDefinedOutsideCurrentScope
@@ -807,6 +842,7 @@ function processTypeProperties(
 
     return [
       {
+        kind: 'Value',
         required: symbol ? !symbol.isOptional() : true,
         type: type.getText(
           enclosingNode,
@@ -858,7 +894,7 @@ function processProperty(
     property: PropertySignature
   ) => boolean = defaultPropertyFilter,
   defaultValues?: Record<string, any>
-) {
+): PropertyMetadata | undefined {
   let declaration = property.getValueDeclaration()
 
   if (!declaration) {
@@ -893,6 +929,7 @@ function processProperty(
   const defaultValue = defaultValues?.[propertyName]
   const propertyMetadata: PropertyMetadata = {
     defaultValue,
+    kind: 'Value',
     name: propertyName,
     required: !property.isOptional() && defaultValue === undefined,
     type: typeText ?? 'any',
@@ -926,8 +963,10 @@ function processProperty(
       const firstChild = declaration?.getFirstChild()
 
       if (propertyType.getCallSignatures().length > 0) {
+        ;(propertyMetadata as PropertyMetadata).kind = 'FunctionValue'
         Object.assign(propertyMetadata, processFunctionType(propertyType))
       } else if (!isPrimitiveType(propertyType)) {
+        ;(propertyMetadata as PropertyMetadata).kind = 'ObjectValue'
         if (propertyType.isUnion()) {
           Object.assign(
             propertyMetadata,

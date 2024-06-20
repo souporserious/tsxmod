@@ -29,6 +29,7 @@ describe('getTypeDocumentation', () => {
           {
             "defaultValue": "0",
             "description": "Provides the initial count.",
+            "kind": "Value",
             "name": "initialCount",
             "required": false,
             "type": "number",
@@ -60,11 +61,13 @@ describe('getTypeDocumentation', () => {
           {
             "defaultValue": undefined,
             "description": undefined,
+            "kind": "ObjectValue",
             "name": undefined,
             "properties": [
               {
                 "defaultValue": "0",
                 "description": "Provides the initial count.",
+                "kind": "Value",
                 "name": "initialCount",
                 "required": false,
                 "tags": undefined,
@@ -105,16 +108,19 @@ describe('getTypeDocumentation', () => {
           {
             "defaultValue": "{}",
             "description": undefined,
+            "kind": "ObjectValue",
             "name": undefined,
             "properties": [
               {
                 "defaultValue": "{ count: 0 }",
                 "description": undefined,
+                "kind": "ObjectValue",
                 "name": "initial",
                 "properties": [
                   {
                     "defaultValue": undefined,
                     "description": undefined,
+                    "kind": "Value",
                     "name": "count",
                     "required": true,
                     "type": "number",
@@ -152,6 +158,7 @@ describe('getTypeDocumentation', () => {
           {
             "defaultValue": "0",
             "description": undefined,
+            "kind": "Value",
             "name": "initialCount",
             "required": false,
             "type": "number",
@@ -181,6 +188,7 @@ describe('getTypeDocumentation', () => {
           {
             "defaultValue": "0",
             "description": undefined,
+            "kind": "Value",
             "name": "initialCount",
             "required": false,
             "type": "number",
@@ -214,6 +222,7 @@ describe('getTypeDocumentation', () => {
           {
             "defaultValue": undefined,
             "description": undefined,
+            "kind": "Value",
             "name": undefined,
             "required": true,
             "type": "CounterOptions",
@@ -248,6 +257,7 @@ describe('getTypeDocumentation', () => {
           {
             "defaultValue": undefined,
             "description": undefined,
+            "kind": "Value",
             "name": undefined,
             "required": true,
             "type": "ReturnType<typeof useCounter>",
@@ -282,11 +292,13 @@ describe('getTypeDocumentation', () => {
           {
             "defaultValue": undefined,
             "description": undefined,
+            "kind": "ObjectValue",
             "name": undefined,
             "properties": [
               {
                 "defaultValue": undefined,
                 "description": undefined,
+                "kind": "Value",
                 "name": "counterState",
                 "required": true,
                 "type": "ReturnType<typeof useCounter>",
@@ -320,6 +332,7 @@ describe('getTypeDocumentation', () => {
           {
             "defaultValue": undefined,
             "description": undefined,
+            "kind": "Value",
             "name": "color",
             "required": true,
             "type": "string",
@@ -332,6 +345,7 @@ describe('getTypeDocumentation', () => {
             {
               "defaultValue": undefined,
               "description": undefined,
+              "kind": "Value",
               "name": "source",
               "required": true,
               "type": "string",
@@ -341,6 +355,7 @@ describe('getTypeDocumentation', () => {
             {
               "defaultValue": undefined,
               "description": undefined,
+              "kind": "Value",
               "name": "value",
               "required": true,
               "type": "string",
@@ -371,6 +386,7 @@ describe('getTypeDocumentation', () => {
         "unionProperties": [
           [
             {
+              "kind": "Value",
               "required": true,
               "type": "string",
             },
@@ -379,6 +395,7 @@ describe('getTypeDocumentation', () => {
             {
               "defaultValue": undefined,
               "description": undefined,
+              "kind": "Value",
               "name": "color",
               "required": true,
               "type": "string",
@@ -411,6 +428,7 @@ describe('getTypeDocumentation', () => {
         "name": "Component",
         "properties": [
           {
+            "kind": "Value",
             "required": true,
             "type": "BaseProps",
           },
@@ -422,6 +440,7 @@ describe('getTypeDocumentation', () => {
             {
               "defaultValue": undefined,
               "description": undefined,
+              "kind": "Value",
               "name": "source",
               "required": true,
               "type": "string",
@@ -431,6 +450,7 @@ describe('getTypeDocumentation', () => {
             {
               "defaultValue": undefined,
               "description": undefined,
+              "kind": "Value",
               "name": "value",
               "required": true,
               "type": "string",
@@ -490,6 +510,7 @@ describe('getTypeDocumentation', () => {
           {
             "defaultValue": undefined,
             "description": undefined,
+            "kind": "Value",
             "name": "className",
             "required": false,
             "type": "string",
@@ -497,6 +518,7 @@ describe('getTypeDocumentation', () => {
           {
             "defaultValue": undefined,
             "description": undefined,
+            "kind": "Value",
             "name": "children",
             "required": true,
             "type": "ReactNode",
@@ -504,6 +526,7 @@ describe('getTypeDocumentation', () => {
           {
             "defaultValue": "'body1'",
             "description": undefined,
+            "kind": "ObjectValue",
             "name": "variant",
             "properties": [],
             "required": false,
@@ -511,24 +534,28 @@ describe('getTypeDocumentation', () => {
             "unionProperties": [
               [
                 {
+                  "kind": "Value",
                   "required": true,
                   "type": ""heading1"",
                 },
               ],
               [
                 {
+                  "kind": "Value",
                   "required": true,
                   "type": ""heading2"",
                 },
               ],
               [
                 {
+                  "kind": "Value",
                   "required": true,
                   "type": ""heading3"",
                 },
               ],
               [
                 {
+                  "kind": "Value",
                   "required": true,
                   "type": ""body1"",
                 },
@@ -538,6 +565,7 @@ describe('getTypeDocumentation', () => {
           {
             "defaultValue": undefined,
             "description": undefined,
+            "kind": "ObjectValue",
             "name": "alignment",
             "properties": [],
             "required": false,
@@ -545,18 +573,21 @@ describe('getTypeDocumentation', () => {
             "unionProperties": [
               [
                 {
+                  "kind": "Value",
                   "required": true,
                   "type": ""start"",
                 },
               ],
               [
                 {
+                  "kind": "Value",
                   "required": true,
                   "type": ""center"",
                 },
               ],
               [
                 {
+                  "kind": "Value",
                   "required": true,
                   "type": ""end"",
                 },
@@ -566,6 +597,7 @@ describe('getTypeDocumentation', () => {
           {
             "defaultValue": undefined,
             "description": undefined,
+            "kind": "ObjectValue",
             "name": "width",
             "properties": [],
             "required": false,
@@ -573,12 +605,14 @@ describe('getTypeDocumentation', () => {
             "unionProperties": [
               [
                 {
+                  "kind": "Value",
                   "required": true,
                   "type": "string",
                 },
               ],
               [
                 {
+                  "kind": "Value",
                   "required": true,
                   "type": "number",
                 },
@@ -588,6 +622,7 @@ describe('getTypeDocumentation', () => {
           {
             "defaultValue": undefined,
             "description": undefined,
+            "kind": "Value",
             "name": "lineHeight",
             "required": false,
             "type": "string",
@@ -631,6 +666,7 @@ describe('getTypeDocumentation', () => {
           {
             "defaultValue": undefined,
             "description": undefined,
+            "kind": "Value",
             "name": "gridTemplateColumns",
             "required": true,
             "type": "string",
@@ -638,6 +674,7 @@ describe('getTypeDocumentation', () => {
           {
             "defaultValue": undefined,
             "description": undefined,
+            "kind": "Value",
             "name": "gridTemplateRows",
             "required": false,
             "type": "string",
@@ -680,6 +717,7 @@ describe('getTypeDocumentation', () => {
           {
             "defaultValue": undefined,
             "description": undefined,
+            "kind": "Value",
             "name": "$gridTemplateColumns",
             "required": true,
             "type": "string",
@@ -687,6 +725,7 @@ describe('getTypeDocumentation', () => {
           {
             "defaultValue": undefined,
             "description": undefined,
+            "kind": "Value",
             "name": "$gridTemplateRows",
             "required": true,
             "type": "string",
@@ -720,6 +759,7 @@ describe('getTypeDocumentation', () => {
           {
             "defaultValue": undefined,
             "description": undefined,
+            "kind": "ObjectValue",
             "name": "variant",
             "properties": [],
             "required": true,
@@ -727,30 +767,35 @@ describe('getTypeDocumentation', () => {
             "unionProperties": [
               [
                 {
+                  "kind": "Value",
                   "required": true,
                   "type": ""heading1"",
                 },
               ],
               [
                 {
+                  "kind": "Value",
                   "required": true,
                   "type": ""heading2"",
                 },
               ],
               [
                 {
+                  "kind": "Value",
                   "required": true,
                   "type": ""heading3"",
                 },
               ],
               [
                 {
+                  "kind": "Value",
                   "required": true,
                   "type": ""body1"",
                 },
               ],
               [
                 {
+                  "kind": "Value",
                   "required": true,
                   "type": ""body2"",
                 },
@@ -760,6 +805,7 @@ describe('getTypeDocumentation', () => {
           {
             "defaultValue": undefined,
             "description": undefined,
+            "kind": "ObjectValue",
             "name": "width",
             "properties": [],
             "required": false,
@@ -767,12 +813,14 @@ describe('getTypeDocumentation', () => {
             "unionProperties": [
               [
                 {
+                  "kind": "Value",
                   "required": true,
                   "type": "string",
                 },
               ],
               [
                 {
+                  "kind": "Value",
                   "required": true,
                   "type": "number",
                 },
@@ -812,6 +860,7 @@ describe('getTypeDocumentation', () => {
           {
             "defaultValue": undefined,
             "description": undefined,
+            "kind": "ObjectValue",
             "name": "variant",
             "properties": [],
             "required": true,
@@ -819,30 +868,35 @@ describe('getTypeDocumentation', () => {
             "unionProperties": [
               [
                 {
+                  "kind": "Value",
                   "required": true,
                   "type": ""heading1"",
                 },
               ],
               [
                 {
+                  "kind": "Value",
                   "required": true,
                   "type": ""heading2"",
                 },
               ],
               [
                 {
+                  "kind": "Value",
                   "required": true,
                   "type": ""heading3"",
                 },
               ],
               [
                 {
+                  "kind": "Value",
                   "required": true,
                   "type": ""body1"",
                 },
               ],
               [
                 {
+                  "kind": "Value",
                   "required": true,
                   "type": ""body2"",
                 },
@@ -852,6 +906,7 @@ describe('getTypeDocumentation', () => {
           {
             "defaultValue": undefined,
             "description": undefined,
+            "kind": "ObjectValue",
             "name": "width",
             "properties": [],
             "required": false,
@@ -859,12 +914,14 @@ describe('getTypeDocumentation', () => {
             "unionProperties": [
               [
                 {
+                  "kind": "Value",
                   "required": true,
                   "type": "string",
                 },
               ],
               [
                 {
+                  "kind": "Value",
                   "required": true,
                   "type": "number",
                 },
@@ -874,6 +931,7 @@ describe('getTypeDocumentation', () => {
           {
             "defaultValue": undefined,
             "description": undefined,
+            "kind": "Value",
             "name": "color",
             "required": true,
             "type": "string",
@@ -967,12 +1025,13 @@ describe('getTypeDocumentation', () => {
         "accessors": [
           {
             "description": "Increments the count.",
-            "modifier": "setter",
+            "kind": "ClassSetAccessor",
             "name": "accessorCount",
             "parameters": [
               {
                 "defaultValue": undefined,
                 "description": undefined,
+                "kind": "Value",
                 "name": "value",
                 "required": true,
                 "type": "number",
@@ -986,9 +1045,8 @@ describe('getTypeDocumentation', () => {
           },
           {
             "description": "Returns the current count.",
-            "modifier": "getter",
+            "kind": "ClassGetAccessor",
             "name": "accessorCount",
-            "returnType": "number",
             "scope": undefined,
             "tags": undefined,
             "type": "number",
@@ -1002,6 +1060,7 @@ describe('getTypeDocumentation', () => {
             {
               "defaultValue": "0",
               "description": undefined,
+              "kind": "Value",
               "name": "initialCount",
               "required": false,
               "type": "number",
@@ -1014,6 +1073,7 @@ describe('getTypeDocumentation', () => {
         "methods": [
           {
             "description": "Increments the count.",
+            "kind": "ClassMethod",
             "modifier": undefined,
             "name": "increment",
             "parameters": [],
@@ -1025,6 +1085,7 @@ describe('getTypeDocumentation', () => {
           },
           {
             "description": "Decrements the count.",
+            "kind": "ClassMethod",
             "modifier": undefined,
             "name": "decrement",
             "parameters": [],
@@ -1036,12 +1097,14 @@ describe('getTypeDocumentation', () => {
           },
           {
             "description": "Returns the current count.",
+            "kind": "ClassMethod",
             "modifier": undefined,
             "name": "getCount",
             "parameters": [
               {
                 "defaultValue": "true",
                 "description": undefined,
+                "kind": "Value",
                 "name": "isFloored",
                 "required": false,
                 "type": "boolean",
@@ -1054,6 +1117,7 @@ describe('getTypeDocumentation', () => {
             "visibility": "public",
           },
           {
+            "kind": "ClassMethod",
             "modifier": undefined,
             "name": "getStaticCount",
             "parameters": [],
@@ -1067,6 +1131,7 @@ describe('getTypeDocumentation', () => {
         "properties": [
           {
             "isReadonly": false,
+            "kind": "ClassProperty",
             "name": "initialCount",
             "scope": undefined,
             "type": "number",
@@ -1074,6 +1139,7 @@ describe('getTypeDocumentation', () => {
           },
           {
             "isReadonly": false,
+            "kind": "ClassProperty",
             "name": "staticCount",
             "scope": "static",
             "type": "number",
@@ -1103,11 +1169,13 @@ describe('getTypeDocumentation', () => {
           {
             "defaultValue": "{}",
             "description": undefined,
+            "kind": "ObjectValue",
             "name": undefined,
             "properties": [
               {
                 "defaultValue": "0",
                 "description": undefined,
+                "kind": "Value",
                 "name": "initialCount",
                 "required": false,
                 "type": "number",
@@ -1139,6 +1207,7 @@ describe('getTypeDocumentation', () => {
           {
             "defaultValue": undefined,
             "description": undefined,
+            "kind": "Value",
             "name": "a",
             "required": true,
             "type": "number",
@@ -1146,6 +1215,7 @@ describe('getTypeDocumentation', () => {
           {
             "defaultValue": "0",
             "description": undefined,
+            "kind": "Value",
             "name": "b",
             "required": false,
             "type": "number",
@@ -1177,6 +1247,7 @@ describe('getTypeDocumentation', () => {
           {
             "defaultValue": undefined,
             "description": undefined,
+            "kind": "Value",
             "name": "color",
             "required": true,
             "type": "string",
@@ -1188,6 +1259,7 @@ describe('getTypeDocumentation', () => {
             {
               "defaultValue": undefined,
               "description": undefined,
+              "kind": "Value",
               "name": "backgroundColor",
               "required": true,
               "type": "string",
@@ -1197,6 +1269,7 @@ describe('getTypeDocumentation', () => {
             {
               "defaultValue": undefined,
               "description": undefined,
+              "kind": "Value",
               "name": "borderColor",
               "required": true,
               "type": "string",
@@ -1236,6 +1309,7 @@ describe('getTypeDocumentation', () => {
           {
             "defaultValue": undefined,
             "description": undefined,
+            "kind": "Value",
             "name": "siteName",
             "required": true,
             "type": "string",
@@ -1243,6 +1317,7 @@ describe('getTypeDocumentation', () => {
           {
             "defaultValue": undefined,
             "description": undefined,
+            "kind": "ObjectValue",
             "name": "settings",
             "properties": [],
             "required": true,
@@ -1259,6 +1334,7 @@ describe('getTypeDocumentation', () => {
                 {
                   "defaultValue": undefined,
                   "description": undefined,
+                  "kind": "Value",
                   "name": "apiEndpoint",
                   "required": true,
                   "type": "string",
@@ -1266,6 +1342,7 @@ describe('getTypeDocumentation', () => {
                 {
                   "defaultValue": undefined,
                   "description": undefined,
+                  "kind": "Value",
                   "name": "apiKey",
                   "required": true,
                   "type": "string",
@@ -1275,6 +1352,7 @@ describe('getTypeDocumentation', () => {
                 {
                   "defaultValue": undefined,
                   "description": undefined,
+                  "kind": "Value",
                   "name": "dbHost",
                   "required": true,
                   "type": "string",
@@ -1282,6 +1360,7 @@ describe('getTypeDocumentation', () => {
                 {
                   "defaultValue": undefined,
                   "description": undefined,
+                  "kind": "Value",
                   "name": "dbPort",
                   "required": true,
                   "type": "number",
@@ -1289,6 +1368,7 @@ describe('getTypeDocumentation', () => {
                 {
                   "defaultValue": undefined,
                   "description": undefined,
+                  "kind": "Value",
                   "name": "dbName",
                   "required": true,
                   "type": "string",
@@ -1335,6 +1415,7 @@ describe('getTypeDocumentation', () => {
           {
             "defaultValue": undefined,
             "description": undefined,
+            "kind": "ObjectValue",
             "name": "settings",
             "properties": [],
             "required": true,
@@ -1344,6 +1425,7 @@ describe('getTypeDocumentation', () => {
                 {
                   "defaultValue": undefined,
                   "description": undefined,
+                  "kind": "Value",
                   "name": "apiEndpoint",
                   "required": true,
                   "type": "string",
@@ -1351,6 +1433,7 @@ describe('getTypeDocumentation', () => {
                 {
                   "defaultValue": undefined,
                   "description": undefined,
+                  "kind": "Value",
                   "name": "apiKey",
                   "required": true,
                   "type": "string",
@@ -1360,6 +1443,7 @@ describe('getTypeDocumentation', () => {
                 {
                   "defaultValue": undefined,
                   "description": undefined,
+                  "kind": "Value",
                   "name": "dbHost",
                   "required": true,
                   "type": "string",
@@ -1367,6 +1451,7 @@ describe('getTypeDocumentation', () => {
                 {
                   "defaultValue": undefined,
                   "description": undefined,
+                  "kind": "Value",
                   "name": "dbPort",
                   "required": true,
                   "type": "number",
@@ -1374,6 +1459,7 @@ describe('getTypeDocumentation', () => {
                 {
                   "defaultValue": undefined,
                   "description": undefined,
+                  "kind": "Value",
                   "name": "dbName",
                   "required": true,
                   "type": "string",
@@ -1425,6 +1511,7 @@ describe('getTypeDocumentation', () => {
           {
             "defaultValue": undefined,
             "description": undefined,
+            "kind": "ObjectValue",
             "name": "variant",
             "properties": [],
             "required": false,
@@ -1432,18 +1519,21 @@ describe('getTypeDocumentation', () => {
             "unionProperties": [
               [
                 {
+                  "kind": "Value",
                   "required": true,
                   "type": ""primary"",
                 },
               ],
               [
                 {
+                  "kind": "Value",
                   "required": true,
                   "type": ""secondary"",
                 },
               ],
               [
                 {
+                  "kind": "Value",
                   "required": true,
                   "type": ""danger"",
                 },
@@ -1453,6 +1543,7 @@ describe('getTypeDocumentation', () => {
           {
             "defaultValue": undefined,
             "description": undefined,
+            "kind": "Value",
             "name": "onClick",
             "required": false,
             "type": "MouseEventHandler<T> | undefined",
@@ -1516,6 +1607,7 @@ describe('getTypeDocumentation', () => {
               {
                 "defaultValue": undefined,
                 "description": undefined,
+                "kind": "Value",
                 "name": "exportedTypes",
                 "required": true,
                 "type": "ReturnType<typeof getExportedTypes>",
@@ -1534,6 +1626,7 @@ describe('getTypeDocumentation', () => {
             {
               "defaultValue": undefined,
               "description": undefined,
+              "kind": "Value",
               "name": "source",
               "required": true,
               "type": "string",
@@ -1543,6 +1636,7 @@ describe('getTypeDocumentation', () => {
             {
               "defaultValue": undefined,
               "description": undefined,
+              "kind": "Value",
               "name": "filename",
               "required": true,
               "type": "string",
@@ -1550,6 +1644,7 @@ describe('getTypeDocumentation', () => {
             {
               "defaultValue": undefined,
               "description": undefined,
+              "kind": "Value",
               "name": "value",
               "required": true,
               "type": "string",
@@ -1683,6 +1778,7 @@ describe('getTypeDocumentation', () => {
             {
               "defaultValue": undefined,
               "description": undefined,
+              "kind": "Value",
               "name": "slug",
               "required": true,
               "type": "string",
@@ -1690,6 +1786,7 @@ describe('getTypeDocumentation', () => {
             {
               "defaultValue": undefined,
               "description": undefined,
+              "kind": "Value",
               "name": "filePath",
               "required": true,
               "type": "string",
@@ -1704,36 +1801,42 @@ describe('getTypeDocumentation', () => {
           "unionProperties": [
             [
               {
+                "kind": "Value",
                 "required": true,
                 "type": "InterfaceMetadata",
               },
             ],
             [
               {
+                "kind": "Value",
                 "required": true,
                 "type": "TypeAliasMetadata",
               },
             ],
             [
               {
+                "kind": "Value",
                 "required": true,
                 "type": "EnumMetadata",
               },
             ],
             [
               {
+                "kind": "Value",
                 "required": true,
                 "type": "ClassMetadata",
               },
             ],
             [
               {
+                "kind": "Value",
                 "required": true,
                 "type": "FunctionMetadata",
               },
             ],
             [
               {
+                "kind": "Value",
                 "required": true,
                 "type": "ComponentMetadata",
               },
@@ -1749,6 +1852,7 @@ describe('getTypeDocumentation', () => {
             {
               "defaultValue": undefined,
               "description": undefined,
+              "kind": "Value",
               "name": "title",
               "required": true,
               "type": "string",
@@ -1756,6 +1860,7 @@ describe('getTypeDocumentation', () => {
             {
               "defaultValue": undefined,
               "description": undefined,
+              "kind": "ObjectValue",
               "name": "previous",
               "properties": [],
               "required": false,
@@ -1763,6 +1868,7 @@ describe('getTypeDocumentation', () => {
               "unionProperties": [
                 [
                   {
+                    "kind": "Value",
                     "required": true,
                     "type": "undefined",
                   },
@@ -1771,6 +1877,7 @@ describe('getTypeDocumentation', () => {
                   {
                     "defaultValue": undefined,
                     "description": undefined,
+                    "kind": "Value",
                     "name": "label",
                     "required": true,
                     "type": "string",
@@ -1778,6 +1885,7 @@ describe('getTypeDocumentation', () => {
                   {
                     "defaultValue": undefined,
                     "description": undefined,
+                    "kind": "Value",
                     "name": "pathname",
                     "required": true,
                     "type": "string",
@@ -1788,6 +1896,7 @@ describe('getTypeDocumentation', () => {
             {
               "defaultValue": undefined,
               "description": undefined,
+              "kind": "ObjectValue",
               "name": "executionEnvironment",
               "properties": [],
               "required": false,
@@ -1795,24 +1904,28 @@ describe('getTypeDocumentation', () => {
               "unionProperties": [
                 [
                   {
+                    "kind": "Value",
                     "required": true,
                     "type": "undefined",
                   },
                 ],
                 [
                   {
+                    "kind": "Value",
                     "required": true,
                     "type": ""server"",
                   },
                 ],
                 [
                   {
+                    "kind": "Value",
                     "required": true,
                     "type": ""client"",
                   },
                 ],
                 [
                   {
+                    "kind": "Value",
                     "required": true,
                     "type": ""isomorphic"",
                   },
@@ -1822,6 +1935,7 @@ describe('getTypeDocumentation', () => {
             {
               "defaultValue": undefined,
               "description": undefined,
+              "kind": "ObjectValue",
               "name": "isMainExport",
               "properties": [],
               "required": false,
@@ -1829,18 +1943,21 @@ describe('getTypeDocumentation', () => {
               "unionProperties": [
                 [
                   {
+                    "kind": "Value",
                     "required": true,
                     "type": "undefined",
                   },
                 ],
                 [
                   {
+                    "kind": "Value",
                     "required": true,
                     "type": "false",
                   },
                 ],
                 [
                   {
+                    "kind": "Value",
                     "required": true,
                     "type": "true",
                   },
@@ -1850,6 +1967,7 @@ describe('getTypeDocumentation', () => {
             {
               "defaultValue": undefined,
               "description": undefined,
+              "kind": "Value",
               "name": "exportedTypes",
               "required": true,
               "type": "DistributiveOmit<
@@ -1864,6 +1982,7 @@ describe('getTypeDocumentation', () => {
             {
               "defaultValue": undefined,
               "description": undefined,
+              "kind": "Value",
               "name": "examples",
               "required": true,
               "type": "ReturnType<typeof getExamplesFromSourceFile>",
@@ -1871,6 +1990,7 @@ describe('getTypeDocumentation', () => {
             {
               "defaultValue": undefined,
               "description": undefined,
+              "kind": "Value",
               "name": "authors",
               "required": true,
               "type": "string",
@@ -1878,6 +1998,7 @@ describe('getTypeDocumentation', () => {
             {
               "defaultValue": undefined,
               "description": undefined,
+              "kind": "Value",
               "name": "createdAt",
               "required": true,
               "type": "string",
@@ -1885,6 +2006,7 @@ describe('getTypeDocumentation', () => {
             {
               "defaultValue": undefined,
               "description": undefined,
+              "kind": "Value",
               "name": "updatedAt",
               "required": true,
               "type": "string",
@@ -1893,6 +2015,7 @@ describe('getTypeDocumentation', () => {
               "defaultValue": undefined,
               "description": "
       ",
+              "kind": "Value",
               "name": "frontMatter",
               "required": true,
               "type": "Record<string, any>",
@@ -1948,6 +2071,7 @@ describe('getTypeDocumentation', () => {
         "unionProperties": [
           [
             {
+              "kind": "Value",
               "type": "InterfaceMetadata",
             },
           ],
@@ -1955,6 +2079,7 @@ describe('getTypeDocumentation', () => {
             {
               "defaultValue": undefined,
               "description": undefined,
+              "kind": "Value",
               "name": "kind",
               "required": true,
               "type": "'TypeAlias'",
@@ -1962,6 +2087,7 @@ describe('getTypeDocumentation', () => {
             {
               "defaultValue": undefined,
               "description": undefined,
+              "kind": "Value",
               "name": "name",
               "required": true,
               "type": "string",
