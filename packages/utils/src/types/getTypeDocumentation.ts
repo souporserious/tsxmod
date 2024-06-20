@@ -408,18 +408,14 @@ function processFunctionType(
     // TODO: function type parameter types need to be processed differently since they don't have default values, required, etc.
     const parameterDeclaration = getSymbolDeclaration(parameter)
 
-    if (!parameterDeclaration) {
-      throw new Error(
-        `No declaration found for parameter "${parameter.getName()}" while processing FunctionType: ${typeText}`
+    if (parameterDeclaration) {
+      const parameterType = processParameterType(
+        parameterDeclaration as ParameterDeclaration,
+        declaration,
+        propertyFilter
       )
+      parameterTypes.push(parameterType)
     }
-
-    const parameterType = processParameterType(
-      parameterDeclaration as ParameterDeclaration,
-      declaration,
-      propertyFilter
-    )
-    parameterTypes.push(parameterType)
   }
 
   return {
@@ -1041,49 +1037,35 @@ function getSymbolDeclaration(symbol?: Symbol) {
 }
 
 /** Parses duplicate types from an array of arrays. */
-function parseDuplicateTypes<Item extends { type: string }>(
+function parseDuplicateTypes<Item extends PropertyMetadata>(
   arrays: Item[][]
 ): { duplicates: Item[]; filtered: Item[][] } {
-  const seenTypes = new Set<string>()
-  const duplicatesMap: { [key: string]: Item } = {}
+  const seenTypes = new Map<string, Item>()
+  const duplicatesMap = new Map<string, Item>()
   const uniqueDuplicates: Item[] = []
+  const getKey = (item: Item) => item.name + item.type
 
-  // Iterate through each array and each item within the array
   for (let arrayIndex = 0; arrayIndex < arrays.length; arrayIndex++) {
     const array = arrays[arrayIndex]
 
     for (let itemIndex = 0; itemIndex < array.length; itemIndex++) {
       const item = array[itemIndex]
-      const itemId = JSON.stringify(item)
+      const key = getKey(item)
 
-      if (seenTypes.has(itemId)) {
-        if (!(itemId in duplicatesMap)) {
-          duplicatesMap[itemId] = item
+      if (seenTypes.has(key)) {
+        if (!duplicatesMap.has(key)) {
+          duplicatesMap.set(key, item)
           uniqueDuplicates.push(item)
         }
       } else {
-        seenTypes.add(itemId)
+        seenTypes.set(key, item)
       }
     }
   }
 
-  // Create filtered arrays by excluding duplicates
-  const filteredArrays: Item[][] = new Array(arrays.length)
-
-  for (let arrayIndex = 0; arrayIndex < arrays.length; arrayIndex++) {
-    const array = arrays[arrayIndex]
-    const filteredArray: Item[] = []
-
-    for (let itemIndex = 0; itemIndex < array.length; itemIndex++) {
-      const item = array[itemIndex]
-      const itemId = JSON.stringify(item)
-      if (!(itemId in duplicatesMap)) {
-        filteredArray.push(item)
-      }
-    }
-
-    filteredArrays[arrayIndex] = filteredArray
-  }
+  const filteredArrays: Item[][] = arrays.map((array) =>
+    array.filter((item) => !duplicatesMap.has(getKey(item)))
+  )
 
   return {
     duplicates: uniqueDuplicates,
