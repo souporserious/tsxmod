@@ -91,7 +91,7 @@ export interface ComponentMetadata extends SharedMetadata {
 
 export interface SharedPropertyMetadata extends SharedMetadata {
   defaultValue?: any
-  required: boolean
+  required?: boolean
 }
 
 export interface FunctionTypePropertyMetadata extends SharedPropertyMetadata {
@@ -256,7 +256,6 @@ function processTypeAlias(
   const metadata: TypeAliasMetadata = {
     name,
     kind: 'TypeAlias',
-    name: typeAlias.getName(),
     properties: undefined as any,
     // Use the type node text if the name is the same as the type to provide a more accurate type
     type: nameIsSameAsType
@@ -734,6 +733,9 @@ function processUnionType(
   propertyFilter?: PropertyFilter,
   defaultValues?: Record<string, any>
 ) {
+  const unionTypeInNodeModules = getSymbolDeclaration(unionType.getSymbol())
+    ?.getSourceFile()
+    .isInNodeModules()
   const allUnionTypes = unionType
     .getUnionTypes()
     .map((subType) =>
@@ -741,7 +743,8 @@ function processUnionType(
         subType,
         enclosingNode,
         propertyFilter,
-        defaultValues
+        defaultValues,
+        !unionTypeInNodeModules
       )
     )
   const { duplicates, filtered } = parseDuplicateTypes(allUnionTypes)
@@ -757,7 +760,8 @@ function processTypeProperties(
   type: Type,
   enclosingNode?: Node,
   propertyFilter?: PropertyFilter,
-  defaultValues: Record<string, any> = {}
+  defaultValues: Record<string, any> = {},
+  isUsedLocally = false
 ): PropertyMetadata[] {
   // Handle intersection types by recursively processing each type in the intersection
   if (type.isIntersection()) {
@@ -768,16 +772,31 @@ function processTypeProperties(
         intersectType,
         enclosingNode,
         propertyFilter,
-        defaultValues
+        defaultValues,
+        isUsedLocally
       )
     )
   }
 
   const typeMetadata = getTypeMetadata(type, enclosingNode)
 
-  /** If no property filter is provided, short-circuit for types in node_modules. */
-  if (!propertyFilter && typeMetadata.isInNodeModules) {
-    return []
+  if (typeMetadata.isInNodeModules) {
+    /** If the node modules type is used locally, return the type text and the library that it is from. */
+    if (isUsedLocally) {
+      return [
+        {
+          type: type.getText(
+            enclosingNode,
+            TypeFormatFlags.UseAliasDefinedOutsideCurrentScope
+          ),
+        },
+      ]
+    }
+
+    /** If no property filter is provided, short-circuit for types in node_modules. */
+    if (!propertyFilter) {
+      return []
+    }
   }
 
   /**

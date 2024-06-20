@@ -1909,4 +1909,66 @@ describe('getTypeDocumentation', () => {
       }
     `)
   })
+
+  test('printing imported node module union types', () => {
+    project.createSourceFile(
+      'node_modules/library/index.d.ts',
+      dedent`
+      export type InterfaceMetadata = {
+        kind: 'Interface'
+        name: string
+      }
+      `
+    )
+
+    const sourceFile = project.createSourceFile(
+      'test.ts',
+      dedent`
+      import type { InterfaceMetadata } from 'library'
+
+      export type TypeAliasMetadata = {
+        kind: 'TypeAlias'
+        name: string
+      }
+
+      type AllMetadata = InterfaceMetadata | TypeAliasMetadata
+      `,
+      { overwrite: true }
+    )
+    const types = getTypeDocumentation(
+      sourceFile.getTypeAliasOrThrow('AllMetadata')
+    )
+
+    expect(types).toMatchInlineSnapshot(`
+      {
+        "kind": "TypeAlias",
+        "name": "AllMetadata",
+        "properties": [],
+        "type": "InterfaceMetadata | TypeAliasMetadata",
+        "unionProperties": [
+          [
+            {
+              "type": "InterfaceMetadata",
+            },
+          ],
+          [
+            {
+              "defaultValue": undefined,
+              "description": undefined,
+              "name": "kind",
+              "required": true,
+              "type": "'TypeAlias'",
+            },
+            {
+              "defaultValue": undefined,
+              "description": undefined,
+              "name": "name",
+              "required": true,
+              "type": "string",
+            },
+          ],
+        ],
+      }
+    `)
+  })
 })
