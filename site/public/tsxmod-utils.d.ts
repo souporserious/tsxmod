@@ -1,5 +1,5 @@
 import * as ts_morph from 'ts-morph';
-import { DiagnosticMessageChain, SourceFile, Expression, Identifier, Node, Project, ts, ImportClause, ImportDeclaration, ImportSpecifier, JsxOpeningElement, JsxSelfClosingElement, JsxElement, VariableDeclaration, FunctionDeclaration, FunctionExpression, ArrowFunction, ClassDeclaration, JsxAttribute, ObjectLiteralExpression, BindingElement, ParameterDeclaration, PropertyAssignment, CallExpression, Symbol, PropertySignature, InterfaceDeclaration, TypeAliasDeclaration } from 'ts-morph';
+import { DiagnosticMessageChain, SourceFile, Expression, ArrayLiteralExpression, ObjectLiteralExpression, Identifier, Node, Project, ts, ImportClause, ImportDeclaration, ImportSpecifier, JsxOpeningElement, JsxSelfClosingElement, JsxElement, VariableDeclaration, FunctionDeclaration, FunctionExpression, ArrowFunction, ClassDeclaration, JsxAttribute, BindingElement, ParameterDeclaration, PropertyAssignment, CallExpression, Symbol as Symbol$1, PropertySignature, InterfaceDeclaration, TypeAliasDeclaration, EnumDeclaration } from 'ts-morph';
 
 /** Parses a diagnostic message into a string. */
 declare function getDiagnosticMessageText(message: string | DiagnosticMessageChain): string;
@@ -7,9 +7,15 @@ declare function getDiagnosticMessageText(message: string | DiagnosticMessageCha
 /** Extract a single export and its local dependencies from a source file. */
 declare function extractExportByIdentifier(sourceFile: SourceFile, identifier: string): string;
 
-type ExpressionValue = null | boolean | number | string | Record<string, any> | ExpressionValue[];
+type LiteralExpressionValue = null | boolean | number | string | Record<string, any> | LiteralExpressionValue[];
 /** Recursively resolves an expression into a literal value. */
-declare function resolveExpression(expression: Expression): ExpressionValue | ExpressionValue[];
+declare function resolveLiteralExpression(expression: Expression): LiteralExpressionValue | LiteralExpressionValue[] | Symbol;
+/** Resolves an array literal expression to an array. */
+declare function resolveArrayLiteralExpression(expression: ArrayLiteralExpression): LiteralExpressionValue[];
+/** Resolves an object literal expression to a plain object. */
+declare function resolveObjectLiteralExpression(expression: ObjectLiteralExpression): Record<string, any>;
+/** Determines when a value was resolved in `resolveLiteralExpression`. */
+declare function isLiteralExpressionValue(value: ReturnType<typeof resolveLiteralExpression>): value is LiteralExpressionValue | LiteralExpressionValue[];
 
 /** Find all references for an identifier in the file it is defined in or another source file. */
 declare function findReferencesInSourceFile(identifier: Identifier, sourceFile?: SourceFile): Node[];
@@ -80,15 +86,6 @@ declare function getJsxElement(node: Node, name: string): JsxSelfClosingElement 
 /** Get all descendant JsxElement nodes. */
 declare function getJsxElements(node: Node): (JsxSelfClosingElement | JsxElement)[];
 
-/** Gets the prop types for a component declaration. */
-declare function getPropTypes(declaration: Node): ({
-    name: string;
-    required: boolean;
-    description: string | null;
-    type: string;
-    defaultValue: string | number | boolean | null;
-} | null)[] | null;
-
 /** Determines if a node is a JSX component. */
 declare function isJsxComponent(node: Node): node is VariableDeclaration | FunctionDeclaration | FunctionExpression | ArrowFunction | ClassDeclaration;
 
@@ -96,7 +93,7 @@ declare function isJsxComponent(node: Node): node is VariableDeclaration | Funct
 declare function renameJsxIdentifier(jsxElement: JsxElement | JsxSelfClosingElement, identifier: string): boolean;
 
 /** Resolves the value of a JSX attribute into a literal value. */
-declare function resolveJsxAttributeValue(attribute: JsxAttribute): (string | number | boolean | Record<string, any> | (string | number | boolean | Record<string, any> | (string | number | boolean | Record<string, any> | (string | number | boolean | Record<string, any> | (string | number | boolean | Record<string, any> | (string | number | boolean | Record<string, any> | (string | number | boolean | Record<string, any> | (string | number | boolean | Record<string, any> | (string | number | boolean | Record<string, any> | (string | number | boolean | Record<string, any> | (string | number | boolean | Record<string, any> | (string | number | boolean | Record<string, any> | any | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null) | undefined;
+declare function resolveJsxAttributeLiteralValue(attribute: JsxAttribute): LiteralExpressionValue | Symbol | undefined;
 
 declare const TreeMode: {
     readonly getChildren: "getChildren";
@@ -118,9 +115,6 @@ declare function getChildrenFunction(mode: keyof typeof TreeMode): (node: Node) 
  */
 declare function getDescendantAtRange(sourceFile: SourceFile, range: [number, number], mode?: keyof typeof TreeMode): Node;
 
-/** Resolves an object literal expression to a plain object. */
-declare function resolveObject(expression: ObjectLiteralExpression): Record<string, any>;
-
 /** Generates type declarations from a project. */
 declare function getTypeDeclarationsFromProject(project: Project): Promise<{
     path: string;
@@ -128,7 +122,7 @@ declare function getTypeDeclarationsFromProject(project: Project): Promise<{
 }[]>;
 
 /** Gets the default values for a set of properties. */
-declare function getDefaultValuesFromProperties(properties: Array<BindingElement | ParameterDeclaration | PropertyAssignment>): Record<string, string | number | boolean | null>;
+declare function getDefaultValuesFromProperties(properties: Array<BindingElement | ParameterDeclaration | PropertyAssignment>): Record<string, LiteralExpressionValue>;
 
 /** Returns a functional component declaration, unwrapping forwardRef if needed. */
 declare function getReactFunctionDeclaration(declaration: Node): ArrowFunction | FunctionDeclaration | FunctionExpression | null;
@@ -137,9 +131,13 @@ declare function getReactFunctionDeclaration(declaration: Node): ArrowFunction |
 declare function isForwardRefExpression(node: Node): node is CallExpression;
 
 /** Gets the description from a symbol's JSDoc or leading comment range. */
-declare function getSymbolDescription(symbol: Symbol): string | undefined;
+declare function getSymbolDescription(symbol: Symbol$1): string | undefined;
 
-/** Modifies a source file to add computed types to all eligible type aliases and interfaces. */
+/**
+ * Modifies a source file to add computed types to all eligible type aliases and interfaces.
+ *
+ * **Note:** This function requires lib files to be present in the project to work correctly.
+ */
 declare function addComputedTypes(sourceFile: SourceFile): void;
 
 /**
@@ -149,111 +147,97 @@ declare function addComputedTypes(sourceFile: SourceFile): void;
  */
 declare function getComputedQuickInfoAtPosition(sourceFile: SourceFile, position: number): ts.QuickInfo | undefined;
 
-interface InterfaceMetadata {
-    name: string;
-    properties: PropertyMetadata[];
-    description?: string;
-    tags?: {
-        tagName: string;
-        text?: string;
-    }[];
-}
-interface TypeAliasMetadata {
-    name: string;
-    properties: PropertyMetadata[];
-    description?: string;
-    tags?: {
-        tagName: string;
-        text?: string;
-    }[];
-}
-interface ClassMetadata {
+interface SharedMetadata {
     name?: string;
-    constructor?: {
-        name: string;
-        parameters?: ParameterMetadata[];
-        description?: string;
-        tags?: {
-            tagName: string;
-            text?: string;
-        }[];
+    description?: string;
+    tags?: {
+        tagName: string;
+        text?: string;
+    }[];
+    type: string;
+}
+interface SharedValueMetadata extends SharedMetadata {
+    defaultValue?: any;
+    required?: boolean;
+}
+interface ValueMetadata extends SharedValueMetadata {
+    kind: 'Value';
+}
+/** Represents a function value e.g. { fn(): void } */
+interface FunctionValueMetadata extends SharedValueMetadata {
+    kind: 'FunctionValue';
+    parameters: ParameterMetadata[];
+    returnType: string;
+}
+/** Represents an object value e.g. { prop: 'value' } */
+interface ObjectValueMetadata extends SharedValueMetadata {
+    kind: 'ObjectValue';
+    properties?: PropertyMetadata[];
+    unionProperties?: PropertyMetadata[][];
+}
+type ParameterMetadata = ValueMetadata | FunctionValueMetadata | ObjectValueMetadata;
+type PropertyMetadata = ValueMetadata | FunctionValueMetadata | ObjectValueMetadata;
+type PropertyFilter = (property: PropertySignature) => boolean;
+interface InterfaceMetadata extends SharedMetadata {
+    kind: 'Interface';
+    properties: PropertyMetadata[];
+    unionProperties?: PropertyMetadata[][];
+}
+interface TypeAliasMetadata extends SharedMetadata {
+    kind: 'TypeAlias';
+    properties: PropertyMetadata[];
+    unionProperties?: PropertyMetadata[][];
+}
+interface EnumMetadata extends SharedMetadata {
+    kind: 'Enum';
+    members: string[];
+}
+interface ClassMetadata extends SharedMetadata {
+    kind: 'Class';
+    constructor?: SharedMetadata & {
+        parameters: ParameterMetadata[];
     };
     accessors?: ClassAccessorMetadata[];
     methods?: ClassMethodMetadata[];
-    properties?: Omit<PropertyMetadata, 'required'>[];
-    description?: string;
-    tags?: {
-        tagName: string;
-        text?: string;
-    }[];
+    properties?: ClassPropertyMetadata[];
 }
-interface ClassAccessorMetadata {
-    name: string;
-    description?: string;
-    tags?: {
-        tagName: string;
-        text?: string;
-    }[];
-    modifier?: string;
-    scope?: string;
-    visibility?: string;
-    type: string;
+interface SharedClassMemberMetadata extends SharedMetadata {
+    scope?: 'abstract' | 'static';
+    visibility?: 'private' | 'protected' | 'public';
+}
+interface ClassGetAccessorMetadata extends SharedClassMemberMetadata {
+    kind: 'ClassGetAccessor';
+}
+interface ClassSetAccessorMetadata extends SharedClassMemberMetadata {
+    kind: 'ClassSetAccessor';
     returnType: string;
     parameters?: ParameterMetadata[];
 }
-interface ClassMethodMetadata {
-    name: string;
-    description?: string;
-    tags?: {
-        tagName: string;
-        text?: string;
-    }[];
-    modifier?: string;
-    scope?: string;
-    visibility?: string;
-    type: string;
+type ClassAccessorMetadata = ClassGetAccessorMetadata | ClassSetAccessorMetadata;
+interface ClassMethodMetadata extends SharedClassMemberMetadata {
+    kind: 'ClassMethod';
+    modifier?: 'async' | 'generator';
     returnType: string;
     parameters: ParameterMetadata[];
 }
-interface FunctionMetadata {
-    name?: string;
+interface ClassPropertyMetadata extends SharedClassMemberMetadata {
+    kind: 'ClassProperty';
+    isReadonly: boolean;
+}
+interface FunctionMetadata extends SharedMetadata {
+    kind: 'Function';
+    modifier?: 'async' | 'generator';
     parameters: ParameterMetadata[];
-    type: string;
     returnType: string;
-    description?: string;
-    tags?: {
-        tagName: string;
-        text?: string;
-    }[];
 }
-interface PropertyMetadata {
-    name?: string;
-    description?: string;
-    tags?: {
-        tagName: string;
-        text?: string;
-    }[];
-    defaultValue?: any;
-    required: boolean;
-    type: string;
-    properties?: PropertyMetadata[];
+interface ComponentMetadata extends SharedMetadata {
+    kind: 'Component';
+    properties: PropertyMetadata[];
     unionProperties?: PropertyMetadata[][];
+    returnType: string;
 }
-interface ParameterMetadata {
-    name?: string;
-    description?: string;
-    defaultValue?: any;
-    required: boolean;
-    type: string;
-    properties?: PropertyMetadata[];
-    unionProperties?: PropertyMetadata[][];
-}
-type PropertyFilter = (property: PropertySignature) => boolean;
-/** Analyzes metadata from interfaces, type aliases, classes, functions, and variable declarations. */
-declare function getTypeDocumentation(declaration: InterfaceDeclaration, propertyFilter?: PropertyFilter): InterfaceMetadata;
-declare function getTypeDocumentation(declaration: TypeAliasDeclaration, propertyFilter?: PropertyFilter): TypeAliasMetadata;
-declare function getTypeDocumentation(declaration: ClassDeclaration, propertyFilter?: PropertyFilter): ClassMetadata;
-declare function getTypeDocumentation(declaration: FunctionDeclaration, propertyFilter?: PropertyFilter): FunctionMetadata;
-declare function getTypeDocumentation(declaration: VariableDeclaration, propertyFilter?: PropertyFilter): FunctionMetadata;
+type Declaration = InterfaceDeclaration | TypeAliasDeclaration | EnumDeclaration | ClassDeclaration | FunctionDeclaration | VariableDeclaration;
+type DocumentationMetadata<Type> = Type extends InterfaceDeclaration ? InterfaceMetadata : Type extends TypeAliasDeclaration ? TypeAliasMetadata : Type extends ClassDeclaration ? ClassMetadata : Type extends EnumDeclaration ? EnumMetadata : Type extends FunctionDeclaration ? FunctionMetadata | ComponentMetadata : Type extends VariableDeclaration ? FunctionMetadata | ComponentMetadata : never;
+declare function getTypeDocumentation<Type extends Declaration>(declaration: Type, propertyFilter?: PropertyFilter): DocumentationMetadata<Type>;
 
-export { type ClassAccessorMetadata, type ClassMetadata, type ClassMethodMetadata, type FunctionMetadata, type InterfaceMetadata, type ParameterMetadata, type PropertyFilter, type PropertyMetadata, TreeMode, type TypeAliasMetadata, addComputedTypes, extractExportByIdentifier, findClosestComponentDeclaration, findNamedImportReferences, findReferencesAsJsxElements, findReferencesInSourceFile, findRootComponentReferences, getChildrenFunction, getClassNamesForJsxElement, getComputedQuickInfoAtPosition, getDefaultValuesFromProperties, getDescendantAtRange, getDiagnosticMessageText, getImportClause, getImportDeclaration, getImportSpecifier, getJsDocMetadata, getJsxElement, getJsxElements, getPropTypes, getReactFunctionDeclaration, getSymbolDescription, getTypeDeclarationsFromProject, getTypeDocumentation, hasJsDocTag, isForwardRefExpression, isJsxComponent, renameJsxIdentifier, resolveExpression, resolveJsxAttributeValue, resolveObject };
+export { type ClassAccessorMetadata, type ClassGetAccessorMetadata, type ClassMetadata, type ClassMethodMetadata, type ClassPropertyMetadata, type ClassSetAccessorMetadata, type ComponentMetadata, type DocumentationMetadata, type EnumMetadata, type FunctionMetadata, type FunctionValueMetadata, type InterfaceMetadata, type LiteralExpressionValue, type ObjectValueMetadata, type ParameterMetadata, type PropertyFilter, type PropertyMetadata, type SharedClassMemberMetadata, type SharedMetadata, type SharedValueMetadata, TreeMode, type TypeAliasMetadata, type ValueMetadata, addComputedTypes, extractExportByIdentifier, findClosestComponentDeclaration, findNamedImportReferences, findReferencesAsJsxElements, findReferencesInSourceFile, findRootComponentReferences, getChildrenFunction, getClassNamesForJsxElement, getComputedQuickInfoAtPosition, getDefaultValuesFromProperties, getDescendantAtRange, getDiagnosticMessageText, getImportClause, getImportDeclaration, getImportSpecifier, getJsDocMetadata, getJsxElement, getJsxElements, getReactFunctionDeclaration, getSymbolDescription, getTypeDeclarationsFromProject, getTypeDocumentation, hasJsDocTag, isForwardRefExpression, isJsxComponent, isLiteralExpressionValue, renameJsxIdentifier, resolveArrayLiteralExpression, resolveJsxAttributeLiteralValue, resolveLiteralExpression, resolveObjectLiteralExpression };
