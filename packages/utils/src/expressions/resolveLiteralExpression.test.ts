@@ -1,7 +1,7 @@
 import { Project, SyntaxKind } from 'ts-morph'
-import { resolveExpression } from '../expressions/resolveExpression'
+import { resolveLiteralExpression } from './resolveLiteralExpression'
 
-describe('resolveExpression', () => {
+describe('resolveLiteralExpression', () => {
   const project = new Project()
 
   it('should correctly resolve null literals', () => {
@@ -14,7 +14,7 @@ describe('resolveExpression', () => {
       SyntaxKind.NullKeyword
     )
 
-    expect(resolveExpression(nullLiteral!)).toBeNull()
+    expect(resolveLiteralExpression(nullLiteral!)).toBeNull()
   })
 
   it('should correctly resolve boolean literals', () => {
@@ -27,7 +27,7 @@ describe('resolveExpression', () => {
       SyntaxKind.TrueKeyword
     )
 
-    expect(resolveExpression(trueLiteral!)).toBe(true)
+    expect(resolveLiteralExpression(trueLiteral!)).toBe(true)
   })
 
   it('should correctly resolve numeric literals', () => {
@@ -40,7 +40,7 @@ describe('resolveExpression', () => {
       SyntaxKind.NumericLiteral
     )
 
-    expect(resolveExpression(numericLiteral!)).toBe(123)
+    expect(resolveLiteralExpression(numericLiteral!)).toBe(123)
   })
 
   it('should correctly resolve string literals', () => {
@@ -53,7 +53,7 @@ describe('resolveExpression', () => {
       SyntaxKind.StringLiteral
     )
 
-    expect(resolveExpression(stringLiteral!)).toBe('test')
+    expect(resolveLiteralExpression(stringLiteral!)).toBe('test')
   })
 
   it('should correctly resolve object literal expressions', () => {
@@ -66,7 +66,9 @@ describe('resolveExpression', () => {
       SyntaxKind.ObjectLiteralExpression
     )
 
-    expect(resolveExpression(objectLiteral!)).toEqual({ property: 'test' })
+    expect(resolveLiteralExpression(objectLiteral!)).toEqual({
+      property: 'test',
+    })
   })
 
   it('should correctly resolve array literal expressions', () => {
@@ -79,7 +81,7 @@ describe('resolveExpression', () => {
       SyntaxKind.ArrayLiteralExpression
     )
 
-    expect(resolveExpression(arrayLiteral!)).toEqual([1, 2, 3])
+    expect(resolveLiteralExpression(arrayLiteral!)).toEqual([1, 2, 3])
   })
 
   it('should correctly resolve identifiers', () => {
@@ -92,7 +94,7 @@ describe('resolveExpression', () => {
       .getVariableDeclaration('anotherTest')!
       .getInitializer()!
 
-    expect(resolveExpression(identifier)).toBe(123)
+    expect(resolveLiteralExpression(identifier)).toBe(123)
   })
 
   it('resolve as const values', () => {
@@ -105,6 +107,6 @@ describe('resolveExpression', () => {
       .getVariableDeclaration('test')!
       .getInitializer()!
 
-    expect(resolveExpression(identifier)).toBe(123)
+    expect(resolveLiteralExpression(identifier)).toBe(123)
   })
 })

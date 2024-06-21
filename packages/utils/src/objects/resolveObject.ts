@@ -1,6 +1,6 @@
 import type { ObjectLiteralExpression } from 'ts-morph'
 import { Node } from 'ts-morph'
-import { resolveExpression } from '../expressions/resolveExpression'
+import { resolveLiteralExpression } from '../expressions/resolveLiteralExpression'
 
 /** Resolves an object literal expression to a plain object. */
 export function resolveObject(expression: ObjectLiteralExpression) {
@@ -8,7 +8,7 @@ export function resolveObject(expression: ObjectLiteralExpression) {
 
   for (const property of expression.getProperties()) {
     if (Node.isPropertyAssignment(property)) {
-      object[property.getName()] = resolveExpression(
+      object[property.getName()] = resolveLiteralExpression(
         property.getInitializerOrThrow()
       )
     }
@@ -16,7 +16,7 @@ export function resolveObject(expression: ObjectLiteralExpression) {
     if (Node.isSpreadAssignment(property)) {
       const spreadExpression = property.getExpression()
 
-      Object.assign(object, resolveExpression(spreadExpression))
+      Object.assign(object, resolveLiteralExpression(spreadExpression))
     }
   }
 

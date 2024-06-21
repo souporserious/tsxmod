@@ -1,5 +1,5 @@
 import { JsxAttribute, Node } from 'ts-morph'
-import { resolveExpression } from '../expressions'
+import { resolveLiteralExpression } from '../expressions'
 
 /** Resolves the value of a JSX attribute into a literal value. */
 export function resolveJsxAttributeValue(attribute: JsxAttribute) {
@@ -10,7 +10,7 @@ export function resolveJsxAttributeValue(attribute: JsxAttribute) {
     const expression = initializer.getExpression()
 
     if (expression) {
-      value = resolveExpression(expression)
+      value = resolveLiteralExpression(expression)
     }
   } else if (Node.isStringLiteral(initializer)) {
     value = initializer.getLiteralValue()

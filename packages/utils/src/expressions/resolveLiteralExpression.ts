@@ -1,18 +1,18 @@
 import type { Expression } from 'ts-morph'
 import { Node } from 'ts-morph'
 
-type ExpressionValue =
+export type LiteralExpressionValue =
   | null
   | boolean
   | number
   | string
   | Record<string, any>
-  | ExpressionValue[]
+  | LiteralExpressionValue[]
 
 /** Recursively resolves an expression into a literal value. */
-export function resolveExpression(
+export function resolveLiteralExpression(
   expression: Expression
-): ExpressionValue | ExpressionValue[] {
+): LiteralExpressionValue | LiteralExpressionValue[] {
   if (Node.isNullLiteral(expression)) {
     return null
   }
@@ -29,11 +29,10 @@ export function resolveExpression(
     return expression.getLiteralValue()
   }
 
-  if (Node.isStringLiteral(expression)) {
-    return expression.getLiteralText()
-  }
-
-  if (Node.isNoSubstitutionTemplateLiteral(expression)) {
+  if (
+    Node.isStringLiteral(expression) ||
+    Node.isNoSubstitutionTemplateLiteral(expression)
+  ) {
     return expression.getLiteralText()
   }
 
@@ -42,7 +41,7 @@ export function resolveExpression(
 
     for (const property of expression.getProperties()) {
       if (Node.isPropertyAssignment(property)) {
-        object[property.getName()] = resolveExpression(
+        object[property.getName()] = resolveLiteralExpression(
           property.getInitializerOrThrow()
         )
       }
@@ -50,7 +49,7 @@ export function resolveExpression(
       if (Node.isSpreadAssignment(property)) {
         const spreadExpression = property.getExpression()
 
-        Object.assign(object, resolveExpression(spreadExpression))
+        Object.assign(object, resolveLiteralExpression(spreadExpression))
       }
     }
 
@@ -59,7 +58,7 @@ export function resolveExpression(
 
   if (Node.isArrayLiteralExpression(expression)) {
     return expression.getElements().map((element) => {
-      return resolveExpression(element)
+      return resolveLiteralExpression(element)
     })
   }
 
@@ -71,19 +70,19 @@ export function resolveExpression(
         initializer = node.getInitializer()
 
         if (initializer) {
-          return resolveExpression(initializer)
+          return resolveLiteralExpression(initializer)
         }
       }
     }
   }
 
-  if (Node.isSpreadElement(expression)) {
-    return resolveExpression(expression.getExpression())
+  if (Node.isSpreadElement(expression) || Node.isAsExpression(expression)) {
+    return resolveLiteralExpression(expression.getExpression())
   }
 
-  if (Node.isAsExpression(expression)) {
-    return resolveExpression(expression.getExpression())
-  }
+  const sourceFilePath = expression.getSourceFile().getFilePath()
 
-  throw new Error(`Unsupported expression: ${expression.getText()}`)
+  throw new Error(
+    `Unsupported expression "${expression.getKindName()}": ${expression.getText()}\nFile: ${sourceFilePath}`
+  )
 }

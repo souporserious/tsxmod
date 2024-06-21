@@ -1,1 +1,4 @@
-export { resolveExpression } from './resolveExpression'
+export {
+  resolveLiteralExpression,
+  type LiteralExpressionValue,
+} from './resolveLiteralExpression'
