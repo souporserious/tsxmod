@@ -1,9 +1,11 @@
 import type { ObjectLiteralExpression } from 'ts-morph'
 import { Node } from 'ts-morph'
-import { resolveLiteralExpression } from '../expressions/resolveLiteralExpression'
+import { resolveLiteralExpression } from './resolveLiteralExpression'
 
 /** Resolves an object literal expression to a plain object. */
-export function resolveObject(expression: ObjectLiteralExpression) {
+export function resolveObjectLiteralExpression(
+  expression: ObjectLiteralExpression
+) {
   let object: Record<string, any> = {}
 
   for (const property of expression.getProperties()) {

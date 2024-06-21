@@ -1,1 +1,0 @@
-export { resolveObject } from './resolveObject'

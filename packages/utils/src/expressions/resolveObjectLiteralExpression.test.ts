@@ -1,5 +1,5 @@
 import { Project, SyntaxKind } from 'ts-morph'
-import { resolveObject } from './resolveObject'
+import { resolveObjectLiteralExpression } from './resolveObjectLiteralExpression'
 
 describe('resolveObject', () => {
   it('should correctly resolve property assignments', () => {
@@ -11,7 +11,7 @@ describe('resolveObject', () => {
     const objectLiteral = sourceFile.getFirstDescendantByKind(
       SyntaxKind.ObjectLiteralExpression
     )
-    const object = resolveObject(objectLiteral!)
+    const object = resolveObjectLiteralExpression(objectLiteral!)
 
     expect(object).toEqual({ property: 'test' })
   })
@@ -25,7 +25,7 @@ describe('resolveObject', () => {
     const objectLiteral = sourceFile.getFirstDescendantByKind(
       SyntaxKind.ObjectLiteralExpression
     )
-    const object = resolveObject(objectLiteral!)
+    const object = resolveObjectLiteralExpression(objectLiteral!)
 
     expect(object).toEqual({ spread: 'test' })
   })
@@ -39,7 +39,7 @@ describe('resolveObject', () => {
     const objectLiteral = sourceFile.getFirstDescendantByKind(
       SyntaxKind.ObjectLiteralExpression
     )
-    const object = resolveObject(objectLiteral!)
+    const object = resolveObjectLiteralExpression(objectLiteral!)
 
     expect(object).toEqual({ spread: 'test' })
   })
