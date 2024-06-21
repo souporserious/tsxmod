@@ -65,7 +65,7 @@ describe('getTypeDocumentation', () => {
             "name": undefined,
             "properties": [
               {
-                "defaultValue": "0",
+                "defaultValue": 0,
                 "description": "Provides the initial count.",
                 "kind": "Value",
                 "name": "initialCount",
@@ -112,7 +112,9 @@ describe('getTypeDocumentation', () => {
             "name": undefined,
             "properties": [
               {
-                "defaultValue": "{ count: 0 }",
+                "defaultValue": {
+                  "count": 0,
+                },
                 "description": undefined,
                 "kind": "ObjectValue",
                 "name": "initial",
@@ -524,7 +526,7 @@ describe('getTypeDocumentation', () => {
             "type": "ReactNode",
           },
           {
-            "defaultValue": "'body1'",
+            "defaultValue": "body1",
             "description": undefined,
             "kind": "ObjectValue",
             "name": "variant",
@@ -1173,7 +1175,7 @@ describe('getTypeDocumentation', () => {
             "name": undefined,
             "properties": [
               {
-                "defaultValue": "0",
+                "defaultValue": 0,
                 "description": undefined,
                 "kind": "Value",
                 "name": "initialCount",

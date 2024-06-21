@@ -17,8 +17,8 @@ describe('getDefaultValuesFromProperties', () => {
       functionDeclaration.getParameters()
     )
     expect(defaultValues).toEqual({
-      initialCount: '0',
-      options: '{ incrementBy: 1 }',
+      initialCount: 0,
+      options: { incrementBy: 1 },
     })
   })
 
@@ -36,7 +36,7 @@ describe('getDefaultValuesFromProperties', () => {
     )
 
     expect(types).toEqual({
-      initialCount: '0',
+      initialCount: 0,
     })
   })
 })
