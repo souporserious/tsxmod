@@ -1,6 +1,8 @@
 import type { Expression } from 'ts-morph'
 import { Node } from 'ts-morph'
 
+import { resolveObjectLiteralExpression } from './resolveObjectLiteralExpression'
+
 export type LiteralExpressionValue =
   | null
   | boolean
@@ -12,7 +14,7 @@ export type LiteralExpressionValue =
 /** Recursively resolves an expression into a literal value. */
 export function resolveLiteralExpression(
   expression: Expression
-): LiteralExpressionValue | LiteralExpressionValue[] {
+): LiteralExpressionValue | LiteralExpressionValue[] | undefined {
   if (Node.isNullLiteral(expression)) {
     return null
   }
@@ -37,23 +39,7 @@ export function resolveLiteralExpression(
   }
 
   if (Node.isObjectLiteralExpression(expression)) {
-    let object: Record<string, any> = {}
-
-    for (const property of expression.getProperties()) {
-      if (Node.isPropertyAssignment(property)) {
-        object[property.getName()] = resolveLiteralExpression(
-          property.getInitializerOrThrow()
-        )
-      }
-
-      if (Node.isSpreadAssignment(property)) {
-        const spreadExpression = property.getExpression()
-
-        Object.assign(object, resolveLiteralExpression(spreadExpression))
-      }
-    }
-
-    return object
+    return resolveObjectLiteralExpression(expression)
   }
 
   if (Node.isArrayLiteralExpression(expression)) {
@@ -79,10 +65,4 @@ export function resolveLiteralExpression(
   if (Node.isSpreadElement(expression) || Node.isAsExpression(expression)) {
     return resolveLiteralExpression(expression.getExpression())
   }
-
-  const sourceFilePath = expression.getSourceFile().getFilePath()
-
-  throw new Error(
-    `Unsupported expression "${expression.getKindName()}": ${expression.getText()}\nFile: ${sourceFilePath}`
-  )
 }
