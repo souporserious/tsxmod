@@ -37,7 +37,7 @@ export interface SharedMetadata {
 }
 
 export interface SharedValueMetadata extends SharedMetadata {
-  defaultValue?: any
+  defaultValue?: ReturnType<typeof resolveLiteralExpression>
   required?: boolean
 }
 
@@ -76,16 +76,17 @@ export type PropertyMetadata =
 
 export type PropertyFilter = (property: PropertySignature) => boolean
 
-export interface InterfaceMetadata extends SharedMetadata {
-  kind: 'Interface'
+export interface PropertiesMetadata extends SharedMetadata {
   properties: PropertyMetadata[]
   unionProperties?: PropertyMetadata[][]
 }
 
-export interface TypeAliasMetadata extends SharedMetadata {
+export interface InterfaceMetadata extends PropertiesMetadata {
+  kind: 'Interface'
+}
+
+export interface TypeAliasMetadata extends PropertiesMetadata {
   kind: 'TypeAlias'
-  properties: PropertyMetadata[]
-  unionProperties?: PropertyMetadata[][]
 }
 
 export interface EnumMetadata extends SharedMetadata {
@@ -114,8 +115,8 @@ export interface ClassGetAccessorMetadata extends SharedClassMemberMetadata {
 
 export interface ClassSetAccessorMetadata extends SharedClassMemberMetadata {
   kind: 'ClassSetAccessor'
-  returnType: string
   parameters?: ParameterMetadata[]
+  returnType: string
 }
 
 export type ClassAccessorMetadata =
@@ -125,8 +126,8 @@ export type ClassAccessorMetadata =
 export interface ClassMethodMetadata extends SharedClassMemberMetadata {
   kind: 'ClassMethod'
   modifier?: 'async' | 'generator'
-  returnType: string
   parameters: ParameterMetadata[]
+  returnType: string
 }
 
 export interface ClassPropertyMetadata extends SharedClassMemberMetadata {
@@ -141,16 +142,38 @@ export interface FunctionMetadata extends SharedMetadata {
   returnType: string
 }
 
-export interface ComponentMetadata extends SharedMetadata {
+export interface ComponentMetadata extends PropertiesMetadata {
   kind: 'Component'
-  properties: PropertyMetadata[]
-  unionProperties?: PropertyMetadata[][]
   returnType: string
 }
 
 export interface UnknownMetadata extends SharedMetadata {
   kind: 'Unknown'
 }
+
+export type MetadataMap = {
+  Value: ValueMetadata
+  FunctionValue: FunctionValueMetadata
+  ObjectValue: ObjectValueMetadata
+  LiteralValue: LiteralValueMetadata
+  Parameter: ParameterMetadata
+  Property: PropertyMetadata
+  Properties: PropertiesMetadata
+  Interface: InterfaceMetadata
+  TypeAlias: TypeAliasMetadata
+  Enum: EnumMetadata
+  Class: ClassMetadata
+  ClassGetAccessor: ClassGetAccessorMetadata
+  ClassSetAccessor: ClassSetAccessorMetadata
+  ClassMethod: ClassMethodMetadata
+  ClassProperty: ClassPropertyMetadata
+  Function: FunctionMetadata
+  Component: ComponentMetadata
+  Unknown: UnknownMetadata
+}
+
+export type MetadataOfKind<Key extends keyof MetadataMap = keyof MetadataMap> =
+  MetadataMap[Key]
 
 type Declaration =
   | InterfaceDeclaration
