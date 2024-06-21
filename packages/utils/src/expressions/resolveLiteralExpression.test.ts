@@ -1,5 +1,5 @@
 import { Project, SyntaxKind } from 'ts-morph'
-import { resolveLiteralExpression } from './resolveLiteralExpression'
+import { resolveLiteralExpression } from './resolveExpressions'
 
 describe('resolveLiteralExpression', () => {
   const project = new Project()

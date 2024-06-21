@@ -1,6 +1,6 @@
 export {
   resolveLiteralExpression,
+  resolveObjectLiteralExpression,
   isLiteralExpressionValue,
   type LiteralExpressionValue,
-} from './resolveLiteralExpression'
-export { resolveObjectLiteralExpression } from './resolveObjectLiteralExpression'
+} from './resolveExpressions'

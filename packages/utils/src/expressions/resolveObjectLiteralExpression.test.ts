@@ -1,5 +1,5 @@
 import { Project, SyntaxKind } from 'ts-morph'
-import { resolveObjectLiteralExpression } from './resolveObjectLiteralExpression'
+import { resolveObjectLiteralExpression } from './resolveExpressions'
 
 describe('resolveObject', () => {
   it('should correctly resolve property assignments', () => {
