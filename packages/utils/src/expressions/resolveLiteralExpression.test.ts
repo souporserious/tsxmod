@@ -84,10 +84,26 @@ describe('resolveLiteralExpression', () => {
     expect(resolveLiteralExpression(arrayLiteral!)).toEqual([1, 2, 3])
   })
 
-  it('should correctly resolve identifiers', () => {
+  it('resolve identifiers', () => {
     const sourceFile = project.createSourceFile(
       'test.ts',
       'const test = 123; const anotherTest = test;',
+      { overwrite: true }
+    )
+    const identifier = sourceFile
+      .getVariableDeclaration('anotherTest')!
+      .getInitializer()!
+
+    expect(resolveLiteralExpression(identifier)).toBe(123)
+  })
+
+  it('resolves identifiers across files', () => {
+    project.createSourceFile('foo.ts', 'export const foo = 123;', {
+      overwrite: true,
+    })
+    const sourceFile = project.createSourceFile(
+      'test.ts',
+      `import { foo } from './foo.ts'; const anotherTest = foo;`,
       { overwrite: true }
     )
     const identifier = sourceFile
