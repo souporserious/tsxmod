@@ -20,11 +20,14 @@ import type {
   ts,
 } from 'ts-morph'
 import { Node, SyntaxKind, TypeFormatFlags } from 'ts-morph'
+
 import {
-  getDefaultValuesFromProperties,
-  getJsDocMetadata,
-  getSymbolDescription,
-} from '../index'
+  resolveLiteralExpression,
+  isLiteralExpressionValue,
+} from '../expressions'
+import { getJsDocMetadata } from '../js-docs'
+import { getDefaultValuesFromProperties } from '../properties'
+import { getSymbolDescription } from '../symbols'
 
 export interface SharedMetadata {
   name?: string
@@ -54,6 +57,11 @@ export interface ObjectValueMetadata extends SharedValueMetadata {
   kind: 'ObjectValue'
   properties?: PropertyMetadata[]
   unionProperties?: PropertyMetadata[][]
+}
+
+export interface LiteralValueMetadata extends SharedMetadata {
+  kind: 'LiteralValue'
+  value: ReturnType<typeof resolveLiteralExpression>
 }
 
 export type ParameterMetadata =
@@ -140,6 +148,10 @@ export interface ComponentMetadata extends SharedMetadata {
   returnType: string
 }
 
+export interface UnknownMetadata extends SharedMetadata {
+  kind: 'Unknown'
+}
+
 type Declaration =
   | InterfaceDeclaration
   | TypeAliasDeclaration
@@ -155,6 +167,8 @@ type Metadata =
   | ClassMetadata
   | FunctionMetadata
   | ComponentMetadata
+  | LiteralValueMetadata
+  | UnknownMetadata
 
 export type DocumentationMetadata<Type> = Type extends InterfaceDeclaration
   ? InterfaceMetadata
@@ -205,6 +219,7 @@ export function getTypeDocumentation(
 
   if (Node.isVariableDeclaration(declaration)) {
     const initializer = declaration.getInitializer()
+
     if (
       Node.isArrowFunction(initializer) ||
       Node.isFunctionExpression(initializer) ||
@@ -218,16 +233,34 @@ export function getTypeDocumentation(
       )
     }
 
-    if (initializer) {
-      throw new Error(
-        `Unsupported declaration while processing type documentation for variable declaration with initializer: (kind: ${initializer.getKindName()}) ${initializer.getText()}`
-      )
+    if (Node.isExpression(initializer)) {
+      const resolvedLiteral = resolveLiteralExpression(initializer)
+
+      if (isLiteralExpressionValue(resolvedLiteral)) {
+        return {
+          kind: 'LiteralValue',
+          value: resolvedLiteral,
+          ...processDefaultDeclaration(declaration),
+        }
+      }
     }
   }
 
-  throw new Error(
-    `Unsupported declaration while processing type documentation for: (kind: ${declaration.getKindName()}) ${declaration.getText()}`
-  )
+  return {
+    kind: declaration.getKindName() as 'Unknown',
+    ...processDefaultDeclaration(declaration),
+  }
+}
+
+function processDefaultDeclaration(declaration: Declaration): SharedMetadata {
+  return {
+    name: declaration.getName(),
+    type: declaration
+      .getType()
+      .getText(declaration, TypeFormatFlags.UseAliasDefinedOutsideCurrentScope),
+    description: getJsDocMetadata(declaration)?.description || '',
+    tags: getJsDocMetadata(declaration)?.tags || [],
+  }
 }
 
 /** Processes an interface into a metadata object. */
@@ -249,20 +282,23 @@ function processInterface(
 
   if (!isPrimitiveType(interfaceType)) {
     if (interfaceType.isUnion()) {
-      const { properties, unionProperties } = processUnionType(
-        interfaceType,
-        interfaceDeclaration,
-        propertyFilter,
-        undefined
+      Object.assign(
+        metadata,
+        processUnionType(
+          interfaceType,
+          interfaceDeclaration,
+          propertyFilter,
+          undefined
+        )
       )
-      metadata.properties = properties
-      metadata.unionProperties = unionProperties
     } else {
-      metadata.properties = processTypeProperties(
-        interfaceType,
-        interfaceDeclaration,
-        propertyFilter
-      )
+      Object.assign(metadata, {
+        properties: processTypeProperties(
+          interfaceType,
+          interfaceDeclaration,
+          propertyFilter
+        ),
+      })
     }
   }
 

@@ -2097,4 +2097,124 @@ describe('getTypeDocumentation', () => {
       }
     `)
   })
+
+  test('variable declaration with primitive value', () => {
+    const sourceFile = project.createSourceFile(
+      'test.ts',
+      dedent`
+      /**
+       * The initial count of the counter.
+       * @internal only for internal use
+       */
+      export const initialCount = 0
+      `,
+      { overwrite: true }
+    )
+    const types = getTypeDocumentation(
+      sourceFile.getVariableDeclarationOrThrow('initialCount')
+    )
+
+    expect(types).toMatchInlineSnapshot(`
+      {
+        "description": "
+      The initial count of the counter.",
+        "kind": "LiteralValue",
+        "name": "initialCount",
+        "tags": [
+          {
+            "tagName": "internal",
+            "text": "only for internal use",
+          },
+        ],
+        "type": "0",
+        "value": 0,
+      }
+    `)
+  })
+
+  test('variable declaration with "as const" object', () => {
+    const sourceFile = project.createSourceFile(
+      'test.ts',
+      dedent`
+      export const colors = {
+        primary: '#ff0000',
+        secondary: '#00ff00',
+        tertiary: '#0000ff'
+      } as const
+      `,
+      { overwrite: true }
+    )
+    const types = getTypeDocumentation(
+      sourceFile.getVariableDeclarationOrThrow('colors')
+    )
+
+    expect(types).toMatchInlineSnapshot(`
+      {
+        "description": "",
+        "kind": "LiteralValue",
+        "name": "colors",
+        "tags": [],
+        "type": "{ readonly primary: "#ff0000"; readonly secondary: "#00ff00"; readonly tertiary: "#0000ff"; }",
+        "value": {
+          "primary": "#ff0000",
+          "secondary": "#00ff00",
+          "tertiary": "#0000ff",
+        },
+      }
+    `)
+  })
+
+  test('unknown initializers', () => {
+    const sourceFile = project.createSourceFile(
+      'test.ts',
+      dedent`
+      class Counter {
+        count: number = 0;
+        increment() {
+          this.count++;
+        }
+      }
+
+      const counter = new Counter();
+      const promise = new Promise<number>((resolve) => resolve(0));
+      const awaited = await promise;
+      `,
+      { overwrite: true }
+    )
+    const counterTypes = getTypeDocumentation(
+      sourceFile.getVariableDeclarationOrThrow('counter')
+    )
+    const promiseTypes = getTypeDocumentation(
+      sourceFile.getVariableDeclarationOrThrow('promise')
+    )
+    const awaitedTypes = getTypeDocumentation(
+      sourceFile.getVariableDeclarationOrThrow('awaited')
+    )
+
+    expect({ counterTypes, promiseTypes, awaitedTypes }).toMatchInlineSnapshot(`
+      {
+        "awaitedTypes": {
+          "description": "",
+          "kind": "VariableDeclaration",
+          "name": "awaited",
+          "tags": [],
+          "type": "number",
+        },
+        "counterTypes": {
+          "description": "",
+          "kind": "VariableDeclaration",
+          "name": "counter",
+          "tags": [],
+          "type": "Counter",
+        },
+        "promiseTypes": {
+          "description": "",
+          "kind": "VariableDeclaration",
+          "name": "promise",
+          "tags": [],
+          "type": "Promise<number>",
+        },
+      }
+    `)
+  })
 })
