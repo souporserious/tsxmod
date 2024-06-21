@@ -1,5 +1,6 @@
 export {
   resolveLiteralExpression,
+  resolveArrayLiteralExpression,
   resolveObjectLiteralExpression,
   isLiteralExpressionValue,
   type LiteralExpressionValue,

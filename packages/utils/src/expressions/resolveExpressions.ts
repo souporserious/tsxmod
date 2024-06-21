@@ -1,4 +1,8 @@
-import type { Expression, ObjectLiteralExpression } from 'ts-morph'
+import type {
+  Expression,
+  ArrayLiteralExpression,
+  ObjectLiteralExpression,
+} from 'ts-morph'
 import { Node } from 'ts-morph'
 
 export type LiteralExpressionValue =
@@ -38,16 +42,6 @@ export function resolveLiteralExpression(
     return expression.getLiteralText()
   }
 
-  if (Node.isObjectLiteralExpression(expression)) {
-    return resolveObjectLiteralExpression(expression)
-  }
-
-  if (Node.isArrayLiteralExpression(expression)) {
-    return expression.getElements().map((element) => {
-      return resolveLiteralExpression(element)
-    })
-  }
-
   if (Node.isIdentifier(expression)) {
     let initializer
 
@@ -61,11 +55,28 @@ export function resolveLiteralExpression(
     }
   }
 
+  if (Node.isArrayLiteralExpression(expression)) {
+    return resolveArrayLiteralExpression(expression)
+  }
+
+  if (Node.isObjectLiteralExpression(expression)) {
+    return resolveObjectLiteralExpression(expression)
+  }
+
   if (Node.isSpreadElement(expression) || Node.isAsExpression(expression)) {
     return resolveLiteralExpression(expression.getExpression())
   }
 
   return EMPTY_LITERAL_EXPRESSION_VALUE
+}
+
+/** Resolves an array literal expression to an array. */
+export function resolveArrayLiteralExpression(
+  expression: ArrayLiteralExpression
+): LiteralExpressionValue[] {
+  return expression.getElements().map((element) => {
+    return resolveLiteralExpression(element)
+  })
 }
 
 /** Resolves an object literal expression to a plain object. */
