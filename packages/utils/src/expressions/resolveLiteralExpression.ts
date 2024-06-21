@@ -11,10 +11,12 @@ export type LiteralExpressionValue =
   | Record<string, any>
   | LiteralExpressionValue[]
 
+const EMPTY_LITERAL_EXPRESSION_VALUE = Symbol('EMPTY_LITERAL_EXPRESSION_VALUE')
+
 /** Recursively resolves an expression into a literal value. */
 export function resolveLiteralExpression(
   expression: Expression
-): LiteralExpressionValue | LiteralExpressionValue[] | undefined {
+): LiteralExpressionValue | LiteralExpressionValue[] | Symbol {
   if (Node.isNullLiteral(expression)) {
     return null
   }
@@ -65,4 +67,13 @@ export function resolveLiteralExpression(
   if (Node.isSpreadElement(expression) || Node.isAsExpression(expression)) {
     return resolveLiteralExpression(expression.getExpression())
   }
+
+  return EMPTY_LITERAL_EXPRESSION_VALUE
+}
+
+/** Determines when a value was resolved in `resolveLiteralExpression`. */
+export function isLiteralExpressionValue(
+  value: ReturnType<typeof resolveLiteralExpression>
+): value is LiteralExpressionValue | LiteralExpressionValue[] {
+  return value !== EMPTY_LITERAL_EXPRESSION_VALUE
 }
