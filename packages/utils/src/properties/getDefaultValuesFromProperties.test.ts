@@ -4,7 +4,7 @@ import { getDefaultValuesFromProperties } from './getDefaultValuesFromProperties
 describe('getDefaultValuesFromProperties', () => {
   const project = new Project()
 
-  test('should parse a set of properties', () => {
+  test('parses a set of properties', () => {
     const sourceFile = project.createSourceFile(
       'test.ts',
       `const createCounter = (initialCount = 0, options: { incrementBy: number } = { incrementBy: 1 }) => {}`,
@@ -22,7 +22,7 @@ describe('getDefaultValuesFromProperties', () => {
     })
   })
 
-  test('handles renamed property default values', () => {
+  test('renamed property default values', () => {
     const sourceFile = project.createSourceFile(
       'test.ts',
       `function useCounter({ initialCount: renamedInitialCount = 0 }: { initialCount: number }) {}`,
@@ -37,6 +37,40 @@ describe('getDefaultValuesFromProperties', () => {
 
     expect(types).toEqual({
       initialCount: 0,
+    })
+  })
+
+  test('template string default values', () => {
+    const sourceFile = project.createSourceFile(
+      'test.ts',
+      'const a = 1; const b = 2; const createCounter = (initialCount = `${a + b}`) => {}',
+      { overwrite: true }
+    )
+    const functionDeclaration = sourceFile.getFirstDescendantByKindOrThrow(
+      SyntaxKind.ArrowFunction
+    )
+    const defaultValues = getDefaultValuesFromProperties(
+      functionDeclaration.getParameters()
+    )
+    expect(defaultValues).toEqual({
+      initialCount: '3',
+    })
+  })
+
+  test('function default values', () => {
+    const sourceFile = project.createSourceFile(
+      'test.ts',
+      `const createCounter = (initialCount = () => 0) => {}`,
+      { overwrite: true }
+    )
+    const functionDeclaration = sourceFile.getFirstDescendantByKindOrThrow(
+      SyntaxKind.ArrowFunction
+    )
+    const defaultValues = getDefaultValuesFromProperties(
+      functionDeclaration.getParameters()
+    )
+    expect(defaultValues).toEqual({
+      initialCount: '() => 0',
     })
   })
 })

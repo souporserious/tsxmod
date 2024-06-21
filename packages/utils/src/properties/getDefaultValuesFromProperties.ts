@@ -32,7 +32,7 @@ export function getDefaultValuesFromProperties(
 
       defaultValues[name] = isLiteralExpressionValue(resolvedValue)
         ? resolvedValue
-        : initializer.getText()
+        : initializer.getType().getLiteralValue() ?? initializer.getText()
     }
   })
 
