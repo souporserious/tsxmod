@@ -1,7 +1,7 @@
 import { Project, SyntaxKind } from 'ts-morph'
-import { resolveJsxAttributeValue } from './resolveJsxAttributeValue'
+import { resolveJsxAttributeLiteralValue } from './resolveJsxAttributeLiteralValue'
 
-describe('resolveJsxAttributeValue', () => {
+describe('resolveJsxAttributeLiteralValue', () => {
   const project = new Project()
 
   it('should correctly resolve string literals', () => {
@@ -14,6 +14,6 @@ describe('resolveJsxAttributeValue', () => {
       SyntaxKind.JsxAttribute
     )!
 
-    expect(resolveJsxAttributeValue(jsxAttribute!)).toBe(123)
+    expect(resolveJsxAttributeLiteralValue(jsxAttribute!)).toBe(123)
   })
 })
