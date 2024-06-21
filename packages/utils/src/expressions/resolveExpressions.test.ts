@@ -1,13 +1,14 @@
 import { Project, SyntaxKind } from 'ts-morph'
 import {
   resolveLiteralExpression,
+  resolveArrayLiteralExpression,
   resolveObjectLiteralExpression,
 } from './resolveExpressions'
 
-describe('resolveLiteralExpression', () => {
-  const project = new Project()
+const project = new Project()
 
-  it('should correctly resolve null literals', () => {
+describe('resolveLiteralExpression', () => {
+  test('null literals', () => {
     const sourceFile = project.createSourceFile(
       'test.ts',
       'const test = null;',
@@ -20,7 +21,7 @@ describe('resolveLiteralExpression', () => {
     expect(resolveLiteralExpression(nullLiteral!)).toBeNull()
   })
 
-  it('should correctly resolve boolean literals', () => {
+  test('boolean literals', () => {
     const sourceFile = project.createSourceFile(
       'test.ts',
       'const test = true;',
@@ -33,7 +34,7 @@ describe('resolveLiteralExpression', () => {
     expect(resolveLiteralExpression(trueLiteral!)).toBe(true)
   })
 
-  it('should correctly resolve numeric literals', () => {
+  test('numeric literals', () => {
     const sourceFile = project.createSourceFile(
       'test.ts',
       'const test = 123;',
@@ -46,7 +47,7 @@ describe('resolveLiteralExpression', () => {
     expect(resolveLiteralExpression(numericLiteral!)).toBe(123)
   })
 
-  it('should correctly resolve string literals', () => {
+  test('string literals', () => {
     const sourceFile = project.createSourceFile(
       'test.ts',
       'const test = "test";',
@@ -59,7 +60,7 @@ describe('resolveLiteralExpression', () => {
     expect(resolveLiteralExpression(stringLiteral!)).toBe('test')
   })
 
-  it('should correctly resolve object literal expressions', () => {
+  test('object literal expressions', () => {
     const sourceFile = project.createSourceFile(
       'test.ts',
       'const test = { property: "test" };',
@@ -74,7 +75,7 @@ describe('resolveLiteralExpression', () => {
     })
   })
 
-  it('should correctly resolve array literal expressions', () => {
+  test('array literal expressions', () => {
     const sourceFile = project.createSourceFile(
       'test.ts',
       'const test = [1, 2, 3];',
@@ -87,7 +88,7 @@ describe('resolveLiteralExpression', () => {
     expect(resolveLiteralExpression(arrayLiteral!)).toEqual([1, 2, 3])
   })
 
-  it('resolve identifiers', () => {
+  test('identifiers', () => {
     const sourceFile = project.createSourceFile(
       'test.ts',
       'const test = 123; const anotherTest = test;',
@@ -100,7 +101,7 @@ describe('resolveLiteralExpression', () => {
     expect(resolveLiteralExpression(identifier)).toBe(123)
   })
 
-  it('resolves identifiers across files', () => {
+  test('identifiers across files', () => {
     project.createSourceFile('foo.ts', 'export const foo = 123;', {
       overwrite: true,
     })
@@ -116,7 +117,7 @@ describe('resolveLiteralExpression', () => {
     expect(resolveLiteralExpression(identifier)).toBe(123)
   })
 
-  it('resolve as const values', () => {
+  test('as const values', () => {
     const sourceFile = project.createSourceFile(
       'test.ts',
       'const test = 123 as const;',
@@ -130,12 +131,42 @@ describe('resolveLiteralExpression', () => {
   })
 })
 
-describe('resolveObjectLiteralExpression', () => {
-  it('should correctly resolve property assignments', () => {
-    const project = new Project()
+describe('resolveArrayLiteralExpression', () => {
+  test('array literal expressions', () => {
     const sourceFile = project.createSourceFile(
       'test.ts',
-      'const object = { property: "test" };'
+      'const array = [1, 2, 3];',
+      { overwrite: true }
+    )
+    const arrayLiteral = sourceFile.getFirstDescendantByKind(
+      SyntaxKind.ArrayLiteralExpression
+    )
+    const array = resolveArrayLiteralExpression(arrayLiteral!)
+
+    expect(array).toEqual([1, 2, 3])
+  })
+
+  test('nested array literal expressions', () => {
+    const sourceFile = project.createSourceFile(
+      'test.ts',
+      'const array = [[1], [2], [3]];',
+      { overwrite: true }
+    )
+    const arrayLiteral = sourceFile.getFirstDescendantByKind(
+      SyntaxKind.ArrayLiteralExpression
+    )
+    const array = resolveArrayLiteralExpression(arrayLiteral!)
+
+    expect(array).toEqual([[1], [2], [3]])
+  })
+})
+
+describe('resolveObjectLiteralExpression', () => {
+  test('property assignments', () => {
+    const sourceFile = project.createSourceFile(
+      'test.ts',
+      'const object = { property: "test" };',
+      { overwrite: true }
     )
     const objectLiteral = sourceFile.getFirstDescendantByKind(
       SyntaxKind.ObjectLiteralExpression
@@ -145,11 +176,25 @@ describe('resolveObjectLiteralExpression', () => {
     expect(object).toEqual({ property: 'test' })
   })
 
-  it('should correctly resolve spread assignments', () => {
-    const project = new Project()
+  test('nested property assignments', () => {
     const sourceFile = project.createSourceFile(
       'test.ts',
-      'const spread = { spread: "test" };\nconst object = { ...spread };'
+      'const object = { nested: { property: "test" } };',
+      { overwrite: true }
+    )
+    const objectLiteral = sourceFile.getFirstDescendantByKind(
+      SyntaxKind.ObjectLiteralExpression
+    )
+    const object = resolveObjectLiteralExpression(objectLiteral!)
+
+    expect(object).toEqual({ nested: { property: 'test' } })
+  })
+
+  test('spread assignments', () => {
+    const sourceFile = project.createSourceFile(
+      'test.ts',
+      'const spread = { spread: "test" };\nconst object = { ...spread };',
+      { overwrite: true }
     )
     const objectLiteral = sourceFile.getFirstDescendantByKind(
       SyntaxKind.ObjectLiteralExpression
@@ -159,11 +204,11 @@ describe('resolveObjectLiteralExpression', () => {
     expect(object).toEqual({ spread: 'test' })
   })
 
-  it('should correctly resolve spread assignments without identifier', () => {
-    const project = new Project()
+  test('spread assignments without identifier', () => {
     const sourceFile = project.createSourceFile(
       'test.ts',
-      'const object = { ...{ spread: "test" } };'
+      'const object = { ...{ spread: "test" } };',
+      { overwrite: true }
     )
     const objectLiteral = sourceFile.getFirstDescendantByKind(
       SyntaxKind.ObjectLiteralExpression
