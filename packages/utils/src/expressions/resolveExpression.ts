@@ -81,5 +81,9 @@ export function resolveExpression(
     return resolveExpression(expression.getExpression())
   }
 
+  if (Node.isAsExpression(expression)) {
+    return resolveExpression(expression.getExpression())
+  }
+
   throw new Error(`Unsupported expression: ${expression.getText()}`)
 }

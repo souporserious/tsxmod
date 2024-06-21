@@ -94,4 +94,17 @@ describe('resolveExpression', () => {
 
     expect(resolveExpression(identifier)).toBe(123)
   })
+
+  it('resolve as const values', () => {
+    const sourceFile = project.createSourceFile(
+      'test.ts',
+      'const test = 123 as const;',
+      { overwrite: true }
+    )
+    const identifier = sourceFile
+      .getVariableDeclaration('test')!
+      .getInitializer()!
+
+    expect(resolveExpression(identifier)).toBe(123)
+  })
 })
