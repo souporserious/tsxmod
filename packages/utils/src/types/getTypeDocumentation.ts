@@ -1020,24 +1020,19 @@ function processProperty(
         : false
 
     if (isLocalType || isUnion) {
-      const firstChild = declaration?.getFirstChild()
-
       if (propertyType.getCallSignatures().length > 0) {
         ;(propertyMetadata as PropertyMetadata).kind = 'FunctionValue'
         Object.assign(propertyMetadata, processFunctionType(propertyType))
       } else if (!isPrimitiveType(propertyType)) {
+        const firstChild = declaration?.getFirstChild()
+        const defaultValues = Node.isObjectBindingPattern(firstChild)
+          ? getDefaultValuesFromProperties(firstChild.getElements())
+          : {}
         ;(propertyMetadata as PropertyMetadata).kind = 'ObjectValue'
         if (propertyType.isUnion()) {
           Object.assign(
             propertyMetadata,
-            processUnionType(
-              propertyType,
-              enclosingNode,
-              filter,
-              Node.isObjectBindingPattern(firstChild)
-                ? getDefaultValuesFromProperties(firstChild.getElements())
-                : {}
-            )
+            processUnionType(propertyType, enclosingNode, filter, defaultValues)
           )
         } else {
           Object.assign(propertyMetadata, {
@@ -1045,9 +1040,7 @@ function processProperty(
               propertyType,
               enclosingNode,
               filter,
-              Node.isObjectBindingPattern(firstChild)
-                ? getDefaultValuesFromProperties(firstChild.getElements())
-                : {}
+              defaultValues
             ),
           })
         }
