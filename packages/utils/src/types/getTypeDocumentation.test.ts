@@ -2219,4 +2219,51 @@ describe('getTypeDocumentation', () => {
       }
     `)
   })
+
+  test('avoids printing primitives in computed-like generics', () => {
+    const project = new Project()
+
+    const sourceFile = project.createSourceFile(
+      'test.ts',
+      dedent`
+      type Compute<Type> = Type extends Function
+        ? Type
+        : {
+            [Key in keyof Type]: Type[Key] extends object
+              ? Compute<Type[Key]>
+              : Type[Key]
+          } & {}
+      
+      function getGitMetadata() {
+        return undefined as unknown as { authors: string }
+      }
+
+      export type Module = Compute<
+        { authors?: string[] } & ReturnType<typeof getGitMetadata>
+      >
+      `,
+      { overwrite: true }
+    )
+    const types = getTypeDocumentation(sourceFile.getTypeAliasOrThrow('Module'))
+
+    expect(types).toMatchInlineSnapshot(`
+      {
+        "kind": "TypeAlias",
+        "name": "Module",
+        "properties": [
+          {
+            "defaultValue": undefined,
+            "description": "
+      ",
+            "kind": "ObjectValue",
+            "name": "authors",
+            "properties": [],
+            "required": true,
+            "type": "string[]",
+          },
+        ],
+        "type": "{ authors: { [x: number]: string; length: number; toString: (() => string) & (() => string); toLocaleString: () => string; pop: () => string; push: (...items: string[]) => number; concat: { (...items: ConcatArray<string>[]): string[]; (...items: (string | ConcatArray<...>)[]): string[]; } & ((...strings: string[]) =...",
+      }
+    `)
+  })
 })

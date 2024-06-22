@@ -15,6 +15,7 @@ import type {
   GetAccessorDeclaration,
   VariableDeclaration,
   PropertySignature,
+  MethodSignature,
   Symbol,
   Type,
   ts,
@@ -74,7 +75,9 @@ export type PropertyMetadata =
   | FunctionValueMetadata
   | ObjectValueMetadata
 
-export type PropertyFilter = (property: PropertySignature) => boolean
+export type PropertyFilter = (
+  property: PropertySignature | MethodSignature
+) => boolean
 
 export interface PropertiesMetadata extends SharedMetadata {
   properties: PropertyMetadata[]
@@ -942,25 +945,23 @@ function getTypeArgumentsIncludingIntersections(type: Type): Type[] {
   return type.getTypeArguments().filter((type) => !isPrimitiveType(type))
 }
 
-function defaultPropertyFilter(property: PropertySignature) {
+function defaultPropertyFilter(property: PropertySignature | MethodSignature) {
   return !property.getSourceFile().isInNodeModules()
 }
 
 function processProperty(
   property: Symbol,
   enclosingNode?: Node,
-  propertyFilter: (
-    property: PropertySignature
+  filter: (
+    property: PropertySignature | MethodSignature
   ) => boolean = defaultPropertyFilter,
   defaultValues?: Record<string, any>
 ): PropertyMetadata | undefined {
-  let declaration = property.getValueDeclaration()
+  const declaration = getSymbolDeclaration(property)
+  const isPropertySignature = Node.isPropertySignature(declaration)
+  const isMethodSignature = Node.isMethodSignature(declaration)
 
-  if (!declaration) {
-    declaration = property.getDeclarations().at(0)
-  }
-
-  if (Node.isPropertySignature(declaration) && !propertyFilter(declaration)) {
+  if ((isPropertySignature || isMethodSignature) && !filter(declaration)) {
     return
   }
 
@@ -1032,7 +1033,7 @@ function processProperty(
             processUnionType(
               propertyType,
               enclosingNode,
-              propertyFilter,
+              filter,
               Node.isObjectBindingPattern(firstChild)
                 ? getDefaultValuesFromProperties(firstChild.getElements())
                 : {}
@@ -1043,7 +1044,7 @@ function processProperty(
             properties: processTypeProperties(
               propertyType,
               enclosingNode,
-              propertyFilter,
+              filter,
               Node.isObjectBindingPattern(firstChild)
                 ? getDefaultValuesFromProperties(firstChild.getElements())
                 : {}
