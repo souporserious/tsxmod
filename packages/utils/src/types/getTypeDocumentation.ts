@@ -479,7 +479,7 @@ function processFunctionType(
     if (parameterDeclaration) {
       const parameterType = processParameterType(
         parameterDeclaration as ParameterDeclaration,
-        declaration,
+        declaration || parameterDeclaration,
         propertyFilter
       )
       parameterTypes.push(parameterType)
@@ -690,7 +690,7 @@ function processClassPropertyDeclaration(
 /** Processes a signature parameter into a metadata object. */
 function processParameterType(
   parameterDeclaration: ParameterDeclaration,
-  enclosingNode?: Node,
+  enclosingNode: Node,
   propertyFilter?: PropertyFilter
 ): ParameterMetadata {
   if (parameterDeclaration === undefined) {
@@ -778,7 +778,7 @@ function processParameterType(
 /** Processes union types into an array of property arrays. */
 function processUnionType(
   unionType: Type<ts.UnionType>,
-  enclosingNode?: Node,
+  enclosingNode: Node,
   propertyFilter?: PropertyFilter,
   defaultValues?: Record<string, any>
 ) {
@@ -807,7 +807,7 @@ function processUnionType(
 /** Processes the properties of a type. */
 function processTypeProperties(
   type: Type,
-  enclosingNode?: Node,
+  enclosingNode: Node,
   propertyFilter?: PropertyFilter,
   defaultValues: Record<string, any> = {},
   isUsedLocally = false
@@ -902,7 +902,7 @@ function defaultPropertyFilter(property: PropertySignature | MethodSignature) {
 
 function processProperty(
   property: Symbol,
-  enclosingNode?: Node,
+  enclosingNode: Node,
   filter: (
     property: PropertySignature | MethodSignature
   ) => boolean = defaultPropertyFilter,
@@ -916,16 +916,7 @@ function processProperty(
     return
   }
 
-  const contextNode = enclosingNode || declaration
-  const propertyType = contextNode
-    ? property.getTypeAtLocation(contextNode)
-    : undefined
-  let typeText
-
-  if (propertyType) {
-    typeText = propertyType.getText(enclosingNode, TYPE_FORMAT_FLAGS)
-  }
-
+  const propertyType = property.getTypeAtLocation(enclosingNode || declaration)
   const propertyName = property.getName()
   const defaultValue = defaultValues?.[propertyName]
   const propertyMetadata: PropertyMetadata = {
@@ -933,7 +924,7 @@ function processProperty(
     kind: 'Value',
     name: propertyName,
     required: !property.isOptional() && defaultValue === undefined,
-    type: typeText ?? 'any',
+    type: propertyType.getText(enclosingNode, TYPE_FORMAT_FLAGS),
   }
   const jsDocMetadata = declaration ? getJsDocMetadata(declaration) : undefined
 
