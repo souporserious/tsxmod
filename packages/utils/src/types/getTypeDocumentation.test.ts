@@ -129,7 +129,7 @@ describe('getTypeDocumentation', () => {
                   },
                 ],
                 "required": false,
-                "type": "{ count: number }",
+                "type": "{ count: number; }",
               },
             ],
             "required": false,
@@ -303,7 +303,7 @@ describe('getTypeDocumentation', () => {
                 "kind": "Value",
                 "name": "counterState",
                 "required": true,
-                "type": "ReturnType<typeof useCounter>",
+                "type": "{ initialCount: number; }",
               },
             ],
             "required": true,
@@ -765,7 +765,7 @@ describe('getTypeDocumentation', () => {
             "name": "variant",
             "properties": [],
             "required": true,
-            "type": "'heading1' | 'heading2' | 'heading3' | 'body1' | 'body2'",
+            "type": ""heading1" | "heading2" | "heading3" | "body1" | "body2"",
             "unionProperties": [
               [
                 {
@@ -830,10 +830,7 @@ describe('getTypeDocumentation', () => {
             ],
           },
         ],
-        "type": "{
-        variant: 'heading1' | 'heading2' | 'heading3' | 'body1' | 'body2'
-        width?: string | number
-      }",
+        "type": "Props",
       }
     `)
   })
@@ -866,7 +863,7 @@ describe('getTypeDocumentation', () => {
             "name": "variant",
             "properties": [],
             "required": true,
-            "type": "'heading1' | 'heading2' | 'heading3' | 'body1' | 'body2'",
+            "type": ""heading1" | "heading2" | "heading3" | "body1" | "body2"",
             "unionProperties": [
               [
                 {
@@ -1255,7 +1252,7 @@ describe('getTypeDocumentation', () => {
             "type": "string",
           },
         ],
-        "type": "{ color:string } & ({ backgroundColor: string } | { borderColor: string })",
+        "type": "ButtonVariants",
         "unionProperties": [
           [
             {
@@ -1323,14 +1320,7 @@ describe('getTypeDocumentation', () => {
             "name": "settings",
             "properties": [],
             "required": true,
-            "type": "{
-          apiEndpoint: string;
-          apiKey: string;
-        } | {
-          dbHost: string;
-          dbPort: number;
-          dbName: string;
-        }",
+            "type": "{ apiEndpoint: string; apiKey: string; } | { dbHost: string; dbPort: number; dbName: string; }",
             "unionProperties": [
               [
                 {
@@ -1379,17 +1369,7 @@ describe('getTypeDocumentation', () => {
             ],
           },
         ],
-        "type": "{
-        siteName: string
-        settings: {
-          apiEndpoint: string;
-          apiKey: string;
-        } | {
-          dbHost: string;
-          dbPort: number;
-          dbName: string;
-        };
-      }",
+        "type": "Config",
       }
     `)
   })
@@ -1548,7 +1528,7 @@ describe('getTypeDocumentation', () => {
             "kind": "Value",
             "name": "onClick",
             "required": false,
-            "type": "MouseEventHandler<T> | undefined",
+            "type": "React.MouseEventHandler<HTMLButtonElement>",
           },
         ],
         "returnType": "boolean",
@@ -1794,12 +1774,7 @@ describe('getTypeDocumentation', () => {
               "type": "string",
             },
           ],
-          "type": "NonNullable<
-        ReturnType<typeof getTypeDocumentation>
-      > & {
-        slug: string
-        filePath: string
-      }",
+          "type": "ExportedType",
           "unionProperties": [
             [
               {
@@ -1866,7 +1841,7 @@ describe('getTypeDocumentation', () => {
               "name": "previous",
               "properties": [],
               "required": false,
-              "type": "{ label: string; pathname: string }",
+              "type": "{ label: string; pathname: string; } | undefined",
               "unionProperties": [
                 [
                   {
@@ -1902,7 +1877,7 @@ describe('getTypeDocumentation', () => {
               "name": "executionEnvironment",
               "properties": [],
               "required": false,
-              "type": "'server' | 'client' | 'isomorphic'",
+              "type": ""server" | "client" | "isomorphic" | undefined",
               "unionProperties": [
                 [
                   {
@@ -1941,7 +1916,7 @@ describe('getTypeDocumentation', () => {
               "name": "isMainExport",
               "properties": [],
               "required": false,
-              "type": "boolean",
+              "type": "boolean | undefined",
               "unionProperties": [
                 [
                   {
@@ -1972,14 +1947,7 @@ describe('getTypeDocumentation', () => {
               "kind": "Value",
               "name": "exportedTypes",
               "required": true,
-              "type": "DistributiveOmit<
-          ExportedType & {
-            pathname: string
-            sourcePath: string
-            isMainExport: boolean
-          },
-          'filePath'
-        >[]",
+              "type": "(Omit<InterfaceMetadata & { slug: string; filePath: string; } & { pathname: string; sourcePath: string; isMainExport: boolean; }, "filePath"> | Omit<TypeAliasMetadata & { slug: string; filePath: string; } & { pathname: string; sourcePath: string; isMainExport: boolean; }, "filePath"> | Omit<EnumMetadata & { slug: string; filePath: string; } & { pathname: string; sourcePath: string; isMainExport: boolean; }, "filePath"> | Omit<ClassMetadata & { slug: string; filePath: string; } & { pathname: string; sourcePath: string; isMainExport: boolean; }, "filePath"> | Omit<FunctionMetadata & { slug: string; filePath: string; } & { pathname: string; sourcePath: string; isMainExport: boolean; }, "filePath"> | Omit<ComponentMetadata & { slug: string; filePath: string; } & { pathname: string; sourcePath: string; isMainExport: boolean; }, "filePath">)[]",
             },
             {
               "defaultValue": undefined,
@@ -1987,7 +1955,7 @@ describe('getTypeDocumentation', () => {
               "kind": "Value",
               "name": "examples",
               "required": true,
-              "type": "ReturnType<typeof getExamplesFromSourceFile>",
+              "type": "{ name: string; id: string; }[]",
             },
             {
               "defaultValue": undefined,
@@ -2069,7 +2037,7 @@ describe('getTypeDocumentation', () => {
         "kind": "TypeAlias",
         "name": "AllMetadata",
         "properties": [],
-        "type": "InterfaceMetadata | TypeAliasMetadata",
+        "type": "AllMetadata",
         "unionProperties": [
           [
             {
@@ -2084,7 +2052,7 @@ describe('getTypeDocumentation', () => {
               "kind": "Value",
               "name": "kind",
               "required": true,
-              "type": "'TypeAlias'",
+              "type": ""TypeAlias"",
             },
             {
               "defaultValue": undefined,
@@ -2259,10 +2227,10 @@ describe('getTypeDocumentation', () => {
             "name": "authors",
             "properties": [],
             "required": true,
-            "type": "string[]",
+            "type": "{ [x: number]: string; length: number; toString: (() => string) & (() => string); toLocaleString: () => string; pop: () => string; push: (...items: string[]) => number; concat: { (...items: ConcatArray<string>[]): string[]; (...items: (string | ConcatArray<string>)[]): string[]; } & ((...strings: string[]) => string); join: (separator?: string) => string; reverse: () => string[]; shift: () => string; slice: ((start?: number, end?: number) => string[]) & ((start?: number, end?: number) => string); sort: (compareFn?: (a: string, b: string) => number) => string[] & string; splice: { (start: number, deleteCount?: number): string[]; (start: number, deleteCount: number, ...items: string[]): string[]; }; unshift: (...items: string[]) => number; indexOf: ((searchElement: string, fromIndex?: number) => number) & ((searchString: string, position?: number) => number); lastIndexOf: ((searchElement: string, fromIndex?: number) => number) & ((searchString: string, position?: number) => number); every: { <S extends string>(predicate: (value: string, index: number, array: string[]) => value is S, thisArg?: any): this is S[]; (predicate: (value: string, index: number, array: string[]) => unknown, thisArg?: any): boolean; }; some: (predicate: (value: string, index: number, array: string[]) => unknown, thisArg?: any) => boolean; forEach: (callbackfn: (value: string, index: number, array: string[]) => void, thisArg?: any) => void; map: <U>(callbackfn: (value: string, index: number, array: string[]) => U, thisArg?: any) => U[]; filter: { <S extends string>(predicate: (value: string, index: number, array: string[]) => value is S, thisArg?: any): S[]; (predicate: (value: string, index: number, array: string[]) => unknown, thisArg?: any): string[]; }; reduce: { (callbackfn: (previousValue: string, currentValue: string, currentIndex: number, array: string[]) => string): string; (callbackfn: (previousValue: string, currentValue: string, currentIndex: number, array: string[]) => string, initialValue: string): string; <U>(callbackfn: (previousValue: U, currentValue: string, currentIndex: number, array: string[]) => U, initialValue: U): U; }; reduceRight: { (callbackfn: (previousValue: string, currentValue: string, currentIndex: number, array: string[]) => string): string; (callbackfn: (previousValue: string, currentValue: string, currentIndex: number, array: string[]) => string, initialValue: string): string; <U>(callbackfn: (previousValue: U, currentValue: string, currentIndex: number, array: string[]) => U, initialValue: U): U; }; find: { <S extends string>(predicate: (value: string, index: number, obj: string[]) => value is S, thisArg?: any): S; (predicate: (value: string, index: number, obj: string[]) => unknown, thisArg?: any): string; }; findIndex: (predicate: (value: string, index: number, obj: string[]) => unknown, thisArg?: any) => number; fill: (value: string, start?: number, end?: number) => string[] & string; copyWithin: (target: number, start: number, end?: number) => string[] & string; entries: () => IterableIterator<[number, string]>; keys: () => IterableIterator<number>; values: () => IterableIterator<string>; includes: ((searchElement: string, fromIndex?: number) => boolean) & ((searchString: string, position?: number) => boolean); flatMap: <U, This = undefined>(callback: (this: This, value: string, index: number, array: string[]) => U | readonly U[], thisArg?: This) => U[]; flat: <A, D extends number = 1>(this: A, depth?: D) => FlatArray<A, D>[]; [Symbol.iterator]: (() => IterableIterator<string>) & (() => IterableIterator<string>); readonly [Symbol.unscopables]: { [x: number]: boolean; length?: boolean; toString?: boolean; toLocaleString?: boolean; pop?: boolean; push?: boolean; concat?: boolean; join?: boolean; reverse?: boolean; shift?: boolean; slice?: boolean; sort?: boolean; splice?: boolean; unshift?: boolean; indexOf?: boolean; lastIndexOf?: boolean; every?: boolean; some?: boolean; forEach?: boolean; map?: boolean; filter?: boolean; reduce?: boolean; reduceRight?: boolean; find?: boolean; findIndex?: boolean; fill?: boolean; copyWithin?: boolean; entries?: boolean; keys?: boolean; values?: boolean; includes?: boolean; flatMap?: boolean; flat?: boolean; [Symbol.iterator]?: boolean; readonly [Symbol.unscopables]?: boolean; at?: boolean; }; at: (index: number) => string; charAt: (pos: number) => string; charCodeAt: (index: number) => number; localeCompare: { (that: string): number; (that: string, locales?: string | string[], options?: Intl.CollatorOptions): number; }; match: { (regexp: string | RegExp): RegExpMatchArray; (matcher: { [Symbol.match](string: string): RegExpMatchArray; }): RegExpMatchArray; }; replace: { (searchValue: string | RegExp, replaceValue: string): string; (searchValue: string | RegExp, replacer: (substring: string, ...args: any[]) => string): string; (searchValue: { [Symbol.replace](string: string, replaceValue: string): string; }, replaceValue: string): string; (searchValue: { [Symbol.replace](string: string, replacer: (substring: string, ...args: any[]) => string): string; }, replacer: (substring: string, ...args: any[]) => string): string; }; search: { (regexp: string | RegExp): number; (searcher: { [Symbol.search](string: string): number; }): number; }; split: { (separator: string | RegExp, limit?: number): string[]; (splitter: { [Symbol.split](string: string, limit?: number): string[]; }, limit?: number): string[]; }; substring: (start: number, end?: number) => string; toLowerCase: () => string; toLocaleLowerCase: (locales?: string | string[]) => string; toUpperCase: () => string; toLocaleUpperCase: (locales?: string | string[]) => string; trim: () => string; substr: (from: number, length?: number) => string; valueOf: () => string; codePointAt: (pos: number) => number; endsWith: (searchString: string, endPosition?: number) => boolean; normalize: { (form: "NFC" | "NFD" | "NFKC" | "NFKD"): string; (form?: string): string; }; repeat: (count: number) => string; startsWith: (searchString: string, position?: number) => boolean; anchor: (name: string) => string; big: () => string; blink: () => string; bold: () => string; fixed: () => string; fontcolor: (color: string) => string; fontsize: { (size: number): string; (size: string): string; }; italics: () => string; link: (url: string) => string; small: () => string; strike: () => string; sub: () => string; sup: () => string; padStart: (maxLength: number, fillString?: string) => string; padEnd: (maxLength: number, fillString?: string) => string; trimEnd: () => string; trimStart: () => string; trimLeft: () => string; trimRight: () => string; matchAll: (regexp: RegExp) => IterableIterator<RegExpMatchArray>; }",
           },
         ],
-        "type": "{ authors: { [x: number]: string; length: number; toString: (() => string) & (() => string); toLocaleString: () => string; pop: () => string; push: (...items: string[]) => number; concat: { (...items: ConcatArray<string>[]): string[]; (...items: (string | ConcatArray<...>)[]): string[]; } & ((...strings: string[]) =...",
+        "type": "{ authors: { [x: number]: string; length: number; toString: (() => string) & (() => string); toLocaleString: () => string; pop: () => string; push: (...items: string[]) => number; concat: { (...items: ConcatArray<string>[]): string[]; (...items: (string | ConcatArray<string>)[]): string[]; } & ((...strings: string[]) => string); join: (separator?: string) => string; reverse: () => string[]; shift: () => string; slice: ((start?: number, end?: number) => string[]) & ((start?: number, end?: number) => string); sort: (compareFn?: (a: string, b: string) => number) => string[] & string; splice: { (start: number, deleteCount?: number): string[]; (start: number, deleteCount: number, ...items: string[]): string[]; }; unshift: (...items: string[]) => number; indexOf: ((searchElement: string, fromIndex?: number) => number) & ((searchString: string, position?: number) => number); lastIndexOf: ((searchElement: string, fromIndex?: number) => number) & ((searchString: string, position?: number) => number); every: { <S extends string>(predicate: (value: string, index: number, array: string[]) => value is S, thisArg?: any): this is S[]; (predicate: (value: string, index: number, array: string[]) => unknown, thisArg?: any): boolean; }; some: (predicate: (value: string, index: number, array: string[]) => unknown, thisArg?: any) => boolean; forEach: (callbackfn: (value: string, index: number, array: string[]) => void, thisArg?: any) => void; map: <U>(callbackfn: (value: string, index: number, array: string[]) => U, thisArg?: any) => U[]; filter: { <S extends string>(predicate: (value: string, index: number, array: string[]) => value is S, thisArg?: any): S[]; (predicate: (value: string, index: number, array: string[]) => unknown, thisArg?: any): string[]; }; reduce: { (callbackfn: (previousValue: string, currentValue: string, currentIndex: number, array: string[]) => string): string; (callbackfn: (previousValue: string, currentValue: string, currentIndex: number, array: string[]) => string, initialValue: string): string; <U>(callbackfn: (previousValue: U, currentValue: string, currentIndex: number, array: string[]) => U, initialValue: U): U; }; reduceRight: { (callbackfn: (previousValue: string, currentValue: string, currentIndex: number, array: string[]) => string): string; (callbackfn: (previousValue: string, currentValue: string, currentIndex: number, array: string[]) => string, initialValue: string): string; <U>(callbackfn: (previousValue: U, currentValue: string, currentIndex: number, array: string[]) => U, initialValue: U): U; }; find: { <S extends string>(predicate: (value: string, index: number, obj: string[]) => value is S, thisArg?: any): S; (predicate: (value: string, index: number, obj: string[]) => unknown, thisArg?: any): string; }; findIndex: (predicate: (value: string, index: number, obj: string[]) => unknown, thisArg?: any) => number; fill: (value: string, start?: number, end?: number) => string[] & string; copyWithin: (target: number, start: number, end?: number) => string[] & string; entries: () => IterableIterator<[number, string]>; keys: () => IterableIterator<number>; values: () => IterableIterator<string>; includes: ((searchElement: string, fromIndex?: number) => boolean) & ((searchString: string, position?: number) => boolean); flatMap: <U, This = undefined>(callback: (this: This, value: string, index: number, array: string[]) => U | readonly U[], thisArg?: This) => U[]; flat: <A, D extends number = 1>(this: A, depth?: D) => FlatArray<A, D>[]; [Symbol.iterator]: (() => IterableIterator<string>) & (() => IterableIterator<string>); readonly [Symbol.unscopables]: { [x: number]: boolean; length?: boolean; toString?: boolean; toLocaleString?: boolean; pop?: boolean; push?: boolean; concat?: boolean; join?: boolean; reverse?: boolean; shift?: boolean; slice?: boolean; sort?: boolean; splice?: boolean; unshift?: boolean; indexOf?: boolean; lastIndexOf?: boolean; every?: boolean; some?: boolean; forEach?: boolean; map?: boolean; filter?: boolean; reduce?: boolean; reduceRight?: boolean; find?: boolean; findIndex?: boolean; fill?: boolean; copyWithin?: boolean; entries?: boolean; keys?: boolean; values?: boolean; includes?: boolean; flatMap?: boolean; flat?: boolean; [Symbol.iterator]?: boolean; readonly [Symbol.unscopables]?: boolean; at?: boolean; }; at: (index: number) => string; charAt: (pos: number) => string; charCodeAt: (index: number) => number; localeCompare: { (that: string): number; (that: string, locales?: string | string[], options?: Intl.CollatorOptions): number; }; match: { (regexp: string | RegExp): RegExpMatchArray; (matcher: { [Symbol.match](string: string): RegExpMatchArray; }): RegExpMatchArray; }; replace: { (searchValue: string | RegExp, replaceValue: string): string; (searchValue: string | RegExp, replacer: (substring: string, ...args: any[]) => string): string; (searchValue: { [Symbol.replace](string: string, replaceValue: string): string; }, replaceValue: string): string; (searchValue: { [Symbol.replace](string: string, replacer: (substring: string, ...args: any[]) => string): string; }, replacer: (substring: string, ...args: any[]) => string): string; }; search: { (regexp: string | RegExp): number; (searcher: { [Symbol.search](string: string): number; }): number; }; split: { (separator: string | RegExp, limit?: number): string[]; (splitter: { [Symbol.split](string: string, limit?: number): string[]; }, limit?: number): string[]; }; substring: (start: number, end?: number) => string; toLowerCase: () => string; toLocaleLowerCase: (locales?: string | string[]) => string; toUpperCase: () => string; toLocaleUpperCase: (locales?: string | string[]) => string; trim: () => string; substr: (from: number, length?: number) => string; valueOf: () => string; codePointAt: (pos: number) => number; endsWith: (searchString: string, endPosition?: number) => boolean; normalize: { (form: "NFC" | "NFD" | "NFKC" | "NFKD"): string; (form?: string): string; }; repeat: (count: number) => string; startsWith: (searchString: string, position?: number) => boolean; anchor: (name: string) => string; big: () => string; blink: () => string; bold: () => string; fixed: () => string; fontcolor: (color: string) => string; fontsize: { (size: number): string; (size: string): string; }; italics: () => string; link: (url: string) => string; small: () => string; strike: () => string; sub: () => string; sup: () => string; padStart: (maxLength: number, fillString?: string) => string; padEnd: (maxLength: number, fillString?: string) => string; trimEnd: () => string; trimStart: () => string; trimLeft: () => string; trimRight: () => string; matchAll: (regexp: RegExp) => IterableIterator<RegExpMatchArray>; }; }",
       }
     `)
   })

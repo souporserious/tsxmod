@@ -210,6 +210,11 @@ export type DocumentationMetadata<Type> = Type extends InterfaceDeclaration
   ? FunctionMetadata | ComponentMetadata
   : never
 
+const TYPE_FORMAT_FLAGS =
+  TypeFormatFlags.AddUndefined |
+  TypeFormatFlags.NoTruncation |
+  TypeFormatFlags.UseAliasDefinedOutsideCurrentScope
+
 export function getTypeDocumentation<Type extends Declaration>(
   declaration: Type,
   propertyFilter?: PropertyFilter
@@ -281,9 +286,7 @@ export function getTypeDocumentation(
 function processDefaultDeclaration(declaration: Declaration): SharedMetadata {
   return {
     name: declaration.getName(),
-    type: declaration
-      .getType()
-      .getText(declaration, TypeFormatFlags.UseAliasDefinedOutsideCurrentScope),
+    type: declaration.getType().getText(declaration, TYPE_FORMAT_FLAGS),
     description: getJsDocMetadata(declaration)?.description || '',
     tags: getJsDocMetadata(declaration)?.tags || [],
   }
@@ -299,10 +302,7 @@ function processInterface(
     kind: 'Interface',
     name: interfaceDeclaration.getName(),
     properties: undefined as any,
-    type: interfaceType.getText(
-      interfaceDeclaration,
-      TypeFormatFlags.UseAliasDefinedOutsideCurrentScope
-    ),
+    type: interfaceType.getText(interfaceDeclaration, TYPE_FORMAT_FLAGS),
     ...getJsDocMetadata(interfaceDeclaration),
   }
 
@@ -342,10 +342,7 @@ function processTypeAlias(
     name,
     kind: 'TypeAlias',
     properties: undefined as any,
-    type: typeAliasType.getText(
-      typeAlias,
-      TypeFormatFlags.UseAliasDefinedOutsideCurrentScope
-    ),
+    type: typeAliasType.getText(typeAlias, TYPE_FORMAT_FLAGS),
     ...getJsDocMetadata(typeAlias),
   }
 
@@ -378,12 +375,7 @@ function processEnum(enumDeclaration: EnumDeclaration): EnumMetadata {
   return {
     kind: 'Enum',
     name: enumDeclaration.getName(),
-    type: enumDeclaration
-      .getType()
-      .getText(
-        enumDeclaration,
-        TypeFormatFlags.UseAliasDefinedOutsideCurrentScope
-      ),
+    type: enumDeclaration.getType().getText(enumDeclaration, TYPE_FORMAT_FLAGS),
     members,
     ...getJsDocMetadata(enumDeclaration),
   }
@@ -424,16 +416,10 @@ function processFunctionOrExpression(
       : (functionDeclarationOrExpression as FunctionDeclaration).getName(),
     type: functionDeclarationOrExpression
       .getType()
-      .getText(
-        functionDeclarationOrExpression,
-        TypeFormatFlags.UseAliasDefinedOutsideCurrentScope
-      ),
+      .getText(functionDeclarationOrExpression, TYPE_FORMAT_FLAGS),
     returnType: signature
       .getReturnType()
-      .getText(
-        functionDeclarationOrExpression,
-        TypeFormatFlags.UseAliasDefinedOutsideCurrentScope
-      ),
+      .getText(functionDeclarationOrExpression, TYPE_FORMAT_FLAGS),
     ...getJsDocMetadata(variableDeclaration || functionDeclarationOrExpression),
   } as const
   const parameterTypes = parameters.map((parameter) => {
@@ -482,10 +468,7 @@ function processFunctionType(
   const signature = signatures.at(0)!
   const symbol = type.getSymbol()
   const declaration = getSymbolDeclaration(symbol)
-  const typeText = type.getText(
-    declaration,
-    TypeFormatFlags.UseAliasDefinedOutsideCurrentScope
-  )
+  const typeText = type.getText(declaration, TYPE_FORMAT_FLAGS)
   const parameters = signature.getParameters()
   let parameterTypes: ReturnType<typeof processParameterType>[] = []
 
@@ -509,7 +492,7 @@ function processFunctionType(
     type: typeText,
     returnType: signature
       .getReturnType()
-      .getText(declaration, TypeFormatFlags.UseAliasDefinedOutsideCurrentScope),
+      .getText(declaration, TYPE_FORMAT_FLAGS),
   }
 }
 
@@ -569,10 +552,7 @@ function processClass(
     name: classDeclaration.getName(),
     type: classDeclaration
       .getType()
-      .getText(
-        classDeclaration,
-        TypeFormatFlags.UseAliasDefinedOutsideCurrentScope
-      ),
+      .getText(classDeclaration, TYPE_FORMAT_FLAGS),
     constructor: undefined,
     ...getJsDocMetadata(classDeclaration),
   }
@@ -588,12 +568,7 @@ function processClass(
         .map((parameter) =>
           processParameterType(parameter, constructor, propertyFilter)
         ),
-      type: constructor
-        .getType()
-        .getText(
-          constructor,
-          TypeFormatFlags.UseAliasDefinedOutsideCurrentScope
-        ),
+      type: constructor.getType().getText(constructor, TYPE_FORMAT_FLAGS),
       ...getJsDocMetadata(constructor),
     }
   }
@@ -640,9 +615,7 @@ function processClassAccessor(
     name: accessor.getName(),
     scope: getScope(accessor),
     visibility: getVisibility(accessor),
-    type: accessor
-      .getType()
-      .getText(accessor, TypeFormatFlags.UseAliasDefinedOutsideCurrentScope),
+    type: accessor.getType().getText(accessor, TYPE_FORMAT_FLAGS),
     ...getJsDocMetadata(accessor),
   }
 
@@ -652,9 +625,7 @@ function processClassAccessor(
       .map((parameter) =>
         processParameterType(parameter, accessor, propertyFilter)
       )
-    const returnType = accessor
-      .getType()
-      .getText(accessor, TypeFormatFlags.UseAliasDefinedOutsideCurrentScope)
+    const returnType = accessor.getType().getText(accessor, TYPE_FORMAT_FLAGS)
 
     return {
       kind: 'ClassSetAccessor',
@@ -695,12 +666,8 @@ function processClassMethod(
     modifier: getModifier(method),
     scope: getScope(method),
     visibility: getVisibility(method),
-    type: method
-      .getType()
-      .getText(method, TypeFormatFlags.UseAliasDefinedOutsideCurrentScope),
-    returnType: signature
-      .getReturnType()
-      .getText(method, TypeFormatFlags.UseAliasDefinedOutsideCurrentScope),
+    type: method.getType().getText(method, TYPE_FORMAT_FLAGS),
+    returnType: signature.getReturnType().getText(method, TYPE_FORMAT_FLAGS),
     ...getJsDocMetadata(method),
   }
 }
@@ -715,9 +682,7 @@ function processClassPropertyDeclaration(
     scope: getScope(property),
     visibility: getVisibility(property),
     isReadonly: property.isReadonly(),
-    type: property
-      .getType()
-      .getText(property, TypeFormatFlags.UseAliasDefinedOutsideCurrentScope),
+    type: property.getType().getText(property, TYPE_FORMAT_FLAGS),
     ...getJsDocMetadata(property),
   }
 }
@@ -741,10 +706,7 @@ function processParameterType(
     kind: 'Value',
     name: isObjectBindingPattern ? undefined : parameterDeclaration.getName(),
     required: !parameterDeclaration.hasQuestionToken() && !defaultValue,
-    type: parameterType.getText(
-      enclosingNode,
-      TypeFormatFlags.UseAliasDefinedOutsideCurrentScope
-    ),
+    type: parameterType.getText(enclosingNode, TYPE_FORMAT_FLAGS),
     ...getJsDocMetadata(parameterDeclaration),
   }
 
@@ -873,10 +835,7 @@ function processTypeProperties(
       return [
         {
           kind: 'Value',
-          type: type.getText(
-            enclosingNode,
-            TypeFormatFlags.UseAliasDefinedOutsideCurrentScope
-          ),
+          type: type.getText(enclosingNode, TYPE_FORMAT_FLAGS),
         },
       ]
     }
@@ -901,10 +860,7 @@ function processTypeProperties(
       {
         kind: 'Value',
         required: symbol ? !symbol.isOptional() : true,
-        type: type.getText(
-          enclosingNode,
-          TypeFormatFlags.UseAliasDefinedOutsideCurrentScope
-        ),
+        type: type.getText(enclosingNode, TYPE_FORMAT_FLAGS),
       },
     ]
   }
@@ -966,18 +922,8 @@ function processProperty(
     : undefined
   let typeText
 
-  if (
-    Node.isParameterDeclaration(declaration) ||
-    Node.isPropertySignature(declaration) ||
-    Node.isVariableDeclaration(declaration)
-  ) {
-    const typeNode = declaration.getTypeNodeOrThrow()
-    typeText = typeNode.getText()
-  } else if (propertyType) {
-    typeText = propertyType.getText(
-      enclosingNode,
-      TypeFormatFlags.UseAliasDefinedOutsideCurrentScope
-    )
+  if (propertyType) {
+    typeText = propertyType.getText(enclosingNode, TYPE_FORMAT_FLAGS)
   }
 
   const propertyName = property.getName()
