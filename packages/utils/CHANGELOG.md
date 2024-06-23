@@ -1,5 +1,38 @@
 # @tsxmod/utils
 
+## 0.7.0
+
+### Minor Changes
+
+- 28529e7: Attempts to resolve literal values from variable declarations when processing metadata in `getTypeDocumentation`.
+- 9aa0241: Renames `resolveExpression` to `resolveLiteralExpression`.
+- 5c49c7b: Adds `resolveArrayLiteralExpression` utility.
+- d97ebed: Removes `getPropTypes`. Use `getTypeDocumentation` instead.
+- c65fe82: Renames `resolveJsxAttributeValue` to `resolveJsxAttributeLiteralValue`.
+- a8ec2a1: Attempts to resolve literal default values.
+- dde0821: Attempts to resolve literal type value if no resolved value found in `getDefaultValuesFromProperties`.
+- 36d117f: Renames `resolveObject` to `resolveObjectLiteralExpression`.
+- 2ea94a3: Adds `isLiteralExpressionValue` utility to help determine if a literal expression value was resolved or not since `undefined` is a valid value.
+
+  ```ts
+
+  ```
+
+### Patch Changes
+
+- 610ef28: Fixes `getTypeDocumentation` type narrowing by adding a `kind` property.
+- ebec765: Adds `kind` field to all metadata returned from `getTypeDocumentation`.
+- 8c749fe: Uses the type alias node text if the name is the same as the type text to provide a more accurate type in `getTypeDocumentation`.
+- b914789: Adds support for `as const` expressions in `resolveLiteralExpression`.
+- 0e7ae25: Normalizes type text across all kinds in `getTypeDocumentation`.
+- 72f1da8: Prints types for locally defined union members that come from `node_modules` in `getTypeDocumentation`.
+- 118b156: Fixes parsing duplicate union types in `getTypeDocumentation` by generating an id based on the entire metadata.
+- 7a31ee4: Adds support for passing enums to `getTypeDocumentation`.
+- 287094e: Adds `Component` kind for `getTypeDocumentation`.
+- d60c091: Adds support for function type documentation in `getTypeDocumentation`.
+- 1da06a5: Filters out `MethodSignature` in node modules by default.
+- 12f1ad5: Fixes union types for interfaces, type aliases, arguments, and properties in `getTypeDocumentation`.
+
 ## 0.6.1
 
 ### Patch Changes
