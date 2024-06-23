@@ -1,5 +1,32 @@
 # tsxmod
 
+## 0.2.11
+
+### Patch Changes
+
+- Updated dependencies [28529e7]
+- Updated dependencies [9aa0241]
+- Updated dependencies [5c49c7b]
+- Updated dependencies [610ef28]
+- Updated dependencies [d97ebed]
+- Updated dependencies [ebec765]
+- Updated dependencies [c65fe82]
+- Updated dependencies [8c749fe]
+- Updated dependencies [b914789]
+- Updated dependencies [0e7ae25]
+- Updated dependencies [72f1da8]
+- Updated dependencies [a8ec2a1]
+- Updated dependencies [118b156]
+- Updated dependencies [7a31ee4]
+- Updated dependencies [287094e]
+- Updated dependencies [dde0821]
+- Updated dependencies [d60c091]
+- Updated dependencies [36d117f]
+- Updated dependencies [2ea94a3]
+- Updated dependencies [1da06a5]
+- Updated dependencies [12f1ad5]
+  - @tsxmod/utils@0.7.0
+
 ## 0.2.10
 
 ### Patch Changes
