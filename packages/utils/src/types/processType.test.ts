@@ -1,5 +1,6 @@
 import { Project } from 'ts-morph'
 import { processTypeProperties, processType } from './processType'
+import dedent from 'dedent'
 
 describe('processProperties', () => {
   const project = new Project()
@@ -73,7 +74,7 @@ describe('processProperties', () => {
                 "type": "(parameterValue: { objectValue: number; }) => Promise<number>",
               },
             ],
-            "type": "(parameterValue: { objectValue: number; }) => Promise<number>",
+            "type": "(parameterValue: {    objectValue: number;}) => Promise<number>",
           },
           {
             "kind": "Array",
@@ -110,75 +111,84 @@ describe('processProperties', () => {
     expect(processedProperties).toMatchInlineSnapshot(`
       [
         {
-          "kind": "Promise",
+          "arguments": [
+            {
+              "kind": "Object",
+              "name": "ExportedType",
+              "properties": [
+                {
+                  "kind": "String",
+                  "name": "slug",
+                  "type": "string",
+                },
+                {
+                  "kind": "String",
+                  "name": "filePath",
+                  "type": "string",
+                },
+              ],
+              "type": "ExportedType",
+            },
+          ],
+          "kind": "Generic",
           "name": "promiseObject",
-          "type": {
-            "kind": "Object",
-            "name": "ExportedType",
-            "properties": [
-              {
-                "kind": "String",
-                "name": "slug",
-                "type": "string",
-              },
-              {
-                "kind": "String",
-                "name": "filePath",
-                "type": "string",
-              },
-            ],
-            "type": "ExportedType",
-          },
+          "type": "Promise<ExportedType>",
         },
         {
-          "kind": "Promise",
+          "arguments": [
+            {
+              "kind": "Function",
+              "name": undefined,
+              "signatures": [
+                {
+                  "parameters": [
+                    {
+                      "description": undefined,
+                      "kind": "Number",
+                      "name": "a",
+                      "type": "number",
+                    },
+                    {
+                      "description": undefined,
+                      "kind": "String",
+                      "name": "b",
+                      "type": "string",
+                    },
+                  ],
+                  "returnType": "void",
+                  "type": "(a: number, b: string) => void",
+                },
+              ],
+              "type": "(a: number, b: string) => void",
+            },
+          ],
+          "kind": "Generic",
           "name": "promiseFunction",
-          "type": {
-            "kind": "Function",
-            "name": undefined,
-            "signatures": [
-              {
-                "parameters": [
-                  {
-                    "description": undefined,
-                    "kind": "Number",
-                    "name": "a",
-                    "type": "number",
-                  },
-                  {
-                    "description": undefined,
-                    "kind": "String",
-                    "name": "b",
-                    "type": "string",
-                  },
-                ],
-                "returnType": "void",
-                "type": "(a: number, b: string) => void",
-              },
-            ],
-            "type": "(a: number, b: string) => void",
-          },
+          "type": "Promise<(a: number, b: string) => void>",
         },
         {
-          "kind": "Promise",
+          "arguments": [
+            {
+              "kind": "Object",
+              "name": undefined,
+              "properties": [
+                {
+                  "kind": "String",
+                  "name": "slug",
+                  "type": "string",
+                },
+                {
+                  "kind": "String",
+                  "name": "filePath",
+                  "type": "string",
+                },
+              ],
+              "type": "{ slug: string; filePath: string; }",
+            },
+          ],
+          "kind": "Generic",
           "name": "promiseVariable",
-          "type": {
-            "kind": "Object",
-            "name": undefined,
-            "properties": [
-              {
-                "kind": "String",
-                "name": "slug",
-                "type": "string",
-              },
-              {
-                "kind": "String",
-                "name": "filePath",
-                "type": "string",
-              },
-            ],
-            "type": "{ slug: string; filePath: string; }",
-          },
+          "type": "Promise<{ slug: string; filePath: string; }>",
         },
         {
           "kind": "Union",
@@ -304,24 +314,28 @@ describe('processProperties', () => {
           "name": "complexIntersection",
           "properties": [
             {
-              "kind": "Promise",
-              "type": {
-                "kind": "Object",
-                "name": "ExportedType",
-                "properties": [
-                  {
-                    "kind": "String",
-                    "name": "slug",
-                    "type": "string",
-                  },
-                  {
-                    "kind": "String",
-                    "name": "filePath",
-                    "type": "string",
-                  },
-                ],
-                "type": "ExportedType",
-              },
+              "arguments": [
+                {
+                  "kind": "Object",
+                  "name": "ExportedType",
+                  "properties": [
+                    {
+                      "kind": "String",
+                      "name": "slug",
+                      "type": "string",
+                    },
+                    {
+                      "kind": "String",
+                      "name": "filePath",
+                      "type": "string",
+                    },
+                  ],
+                  "type": "ExportedType",
+                },
+              ],
+              "kind": "Generic",
+              "name": "Promise",
+              "type": "Promise<ExportedType>",
             },
             {
               "kind": "Object",
@@ -457,15 +471,7 @@ describe('processProperties', () => {
                 "type": "{ backgroundColor: string; }",
               },
               {
-                "kind": "Object",
-                "name": "BaseVariant",
-                "properties": [
-                  {
-                    "kind": "String",
-                    "name": "color",
-                    "type": "string",
-                  },
-                ],
+                "kind": "Reference",
                 "type": "BaseVariant",
               },
             ],
@@ -488,15 +494,7 @@ describe('processProperties', () => {
                 "type": "{ borderColor: string; }",
               },
               {
-                "kind": "Object",
-                "name": "BaseVariant",
-                "properties": [
-                  {
-                    "kind": "String",
-                    "name": "color",
-                    "type": "string",
-                  },
-                ],
+                "kind": "Reference",
                 "type": "BaseVariant",
               },
             ],
@@ -516,20 +514,25 @@ describe('processProperties', () => {
       type Primitives = {
         /** a string */
         str: string;
+        
         /**
          * a number
          * @internal
          */
         num: number;
-        /* no js doc */
+        
         bool: boolean;
+        
+        arr: string[];
+        
+        /* non js doc */
+        obj: Record<string, any>;
+        
         /** Accepts a string */
         func: (
           /** a string parameter */
           a: string,
         ) => void;
-        arr: string[];
-        obj: Record<string, any>;
       }
     `
     )
@@ -567,6 +570,20 @@ describe('processProperties', () => {
             "type": "boolean",
           },
           {
+            "kind": "Array",
+            "name": "arr",
+            "type": {
+              "kind": "String",
+              "type": "string",
+            },
+          },
+          {
+            "kind": "Object",
+            "name": "obj",
+            "properties": [],
+            "type": "Record<string, any>",
+          },
+          {
             "description": "Accepts a string",
             "kind": "Function",
             "name": "func",
@@ -586,20 +603,6 @@ describe('processProperties', () => {
             ],
             "tags": undefined,
             "type": "(a: string) => void",
-          },
-          {
-            "kind": "Array",
-            "name": "arr",
-            "type": {
-              "kind": "String",
-              "type": "string",
-            },
-          },
-          {
-            "kind": "Object",
-            "name": "obj",
-            "properties": [],
-            "type": "Record<string, any>",
           },
         ],
         "type": "Primitives",
@@ -652,12 +655,12 @@ describe('processProperties', () => {
             "type": "string",
           },
           {
-            "kind": "Literal",
+            "kind": "Number",
             "name": "b",
             "type": "1",
           },
           {
-            "kind": "Literal",
+            "kind": "String",
             "name": "c",
             "type": ""string"",
           },
@@ -701,6 +704,216 @@ describe('processProperties', () => {
           },
         ],
         "type": "SelfReferencedType",
+      }
+    `)
+  })
+
+  test('references property signature types located in node_modules', () => {
+    const project = new Project()
+
+    project.createSourceFile(
+      'node_modules/@types/library/index.d.ts',
+      dedent`
+      export function readFile(path: string, callback: (err: Error | null, data: Buffer) => void): void;
+      `
+    )
+
+    const sourceFile = project.createSourceFile(
+      'test.ts',
+      `
+      import { readFile } from 'library';
+
+      type FileSystem = { readFile: typeof readFile };
+      `
+    )
+
+    const typeAlias = sourceFile.getTypeAliasOrThrow('FileSystem')
+    const processedProperties = processType(typeAlias.getType(), typeAlias)
+
+    expect(processedProperties).toMatchInlineSnapshot(`
+      {
+        "kind": "Object",
+        "name": "FileSystem",
+        "properties": [
+          {
+            "kind": "Function",
+            "name": "readFile",
+            "signatures": [
+              {
+                "parameters": [
+                  {
+                    "description": undefined,
+                    "kind": "String",
+                    "name": "path",
+                    "type": "string",
+                  },
+                  {
+                    "description": undefined,
+                    "kind": "Function",
+                    "name": "callback",
+                    "signatures": [
+                      {
+                        "parameters": [
+                          {
+                            "description": undefined,
+                            "kind": "Interface",
+                            "name": "err",
+                            "properties": [],
+                            "type": "Error",
+                          },
+                          {
+                            "description": undefined,
+                            "kind": "Interface",
+                            "name": "data",
+                            "properties": [],
+                            "type": "Buffer",
+                          },
+                        ],
+                        "returnType": "void",
+                        "type": "(err: Error, data: Buffer) => void",
+                      },
+                    ],
+                    "type": "(err: Error, data: Buffer) => void",
+                  },
+                ],
+                "returnType": "void",
+                "type": "(path: string, callback: (err: Error, data: Buffer) => void) => void",
+              },
+            ],
+            "type": "(path: string, callback: (err: Error, data: Buffer) => void) => void",
+          },
+        ],
+        "type": "FileSystem",
+      }
+    `)
+  })
+
+  test('avoids analyzing prototype properties and methods', () => {
+    const project = new Project()
+
+    const sourceFile = project.createSourceFile(
+      'test.ts',
+      dedent`
+      type Foo = {
+        bar: 'baz'
+      }
+      
+      type AsyncString = {
+        value: Promise<Foo>
+      }
+      `
+    )
+
+    const typeAlias = sourceFile.getTypeAliasOrThrow('AsyncString')
+    const processedProperties = processType(typeAlias.getType())
+
+    expect(processedProperties).toMatchInlineSnapshot(`
+      {
+        "kind": "Object",
+        "name": "AsyncString",
+        "properties": [
+          {
+            "arguments": [
+              {
+                "kind": "Object",
+                "name": "Foo",
+                "properties": [
+                  {
+                    "kind": "String",
+                    "name": "bar",
+                    "type": ""baz"",
+                  },
+                ],
+                "type": "Foo",
+              },
+            ],
+            "kind": "Generic",
+            "name": "value",
+            "type": "Promise<Foo>",
+          },
+        ],
+        "type": "AsyncString",
+      }
+    `)
+  })
+
+  test('unwraps generic types', () => {
+    const project = new Project()
+
+    const sourceFile = project.createSourceFile(
+      'test.ts',
+      dedent`
+      type DistributiveOmit<T, K extends PropertyKey> = T extends any
+        ? Omit<T, K>
+        : never
+
+      type BaseType = {
+        url: string
+        title: string
+      }
+
+      type A = {
+        a: Promise<number>
+      } & BaseType
+
+      type B = {
+        b: number
+      } & BaseType
+
+      type UnionType = A | B
+
+      type UnwrapPromisesInMap<T> = {
+        [K in keyof T]: T[K] extends Promise<infer U> ? U : T[K]
+      }
+
+      type ExportedType = UnwrapPromisesInMap<DistributiveOmit<UnionType, 'title'>>
+      `
+    )
+
+    const typeAlias = sourceFile.getTypeAliasOrThrow('ExportedType')
+    const processedProperties = processType(typeAlias.getType())
+
+    expect(processedProperties).toMatchInlineSnapshot(`
+      {
+        "kind": "Union",
+        "name": "ExportedType",
+        "properties": [
+          {
+            "kind": "Object",
+            "name": "UnwrapPromisesInMap",
+            "properties": [
+              {
+                "kind": "Number",
+                "name": "a",
+                "type": "number",
+              },
+              {
+                "kind": "String",
+                "name": "url",
+                "type": "string",
+              },
+            ],
+            "type": "UnwrapPromisesInMap<Omit<A, "title">>",
+          },
+          {
+            "kind": "Object",
+            "name": "UnwrapPromisesInMap",
+            "properties": [
+              {
+                "kind": "String",
+                "name": "url",
+                "type": "string",
+              },
+              {
+                "kind": "Number",
+                "name": "b",
+                "type": "number",
+              },
+            ],
+            "type": "UnwrapPromisesInMap<Omit<B, "title">>",
+          },
+        ],
+        "type": "ExportedType",
       }
     `)
   })
