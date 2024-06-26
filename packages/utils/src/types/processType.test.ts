@@ -895,22 +895,8 @@ describe('processProperties', () => {
         "name": "TextProps",
         "properties": [
           {
-            "kind": "Union",
+            "kind": "Reference",
             "name": "color",
-            "properties": [
-              {
-                "kind": "String",
-                "type": ""red"",
-              },
-              {
-                "kind": "String",
-                "type": ""blue"",
-              },
-              {
-                "kind": "String",
-                "type": ""green"",
-              },
-            ],
             "type": "Color",
           },
         ],

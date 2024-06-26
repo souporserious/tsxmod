@@ -156,12 +156,6 @@ export function processType(
   const symbolDeclaration = symbol?.getDeclarations().at(0)
   const declaration = symbolDeclaration || enclosingNode
   const isPrimitive = isPrimitiveType(type)
-  // const filterResult = filter(symbolMetadata)
-
-  //  if (filterResult === false) {
-  //   return
-  // }
-
   let processedProperty: ProcessedProperty = {
     kind: 'Unknown',
     type: typeText,
@@ -207,6 +201,17 @@ export function processType(
         }
       }
     }
+  }
+
+  /**
+   * If the current symbol is located outside of this source file it is treated as a reference.
+   * TODO: this should account for what's actually exported from package.json exports
+   */
+  if (symbolMetadata.isExternal && !symbolMetadata.isInNodeModules) {
+    return {
+      kind: 'Reference',
+      type: typeText,
+    } satisfies ReferenceProperty
   }
 
   if (type.isArray()) {
@@ -257,42 +262,16 @@ export function processType(
       elements: processTypeTupleElements(type, declaration, filter, references),
     } satisfies TupleProperty
   } else {
-    /** External types are treated as references. */
-    if (!isRootType) {
-      // if (enclosingNode) {
-      //   const enclosingSymbolMetadata = enclosingNodeMetadata.get(enclosingNode)
-
-      //   if (
-      //     enclosingSymbolMetadata &&
-      //     !enclosingSymbolMetadata.isInNodeModules &&
-      //     enclosingSymbolMetadata.isExternal
-      //   ) {
-      //     return {
-      //       kind: 'Reference',
-      //       type: typeText,
-      //     } satisfies ReferenceProperty
-      //   }
-      // }
-
-      /**
-       * If the current symbol is located outside of this source file it is treated as a reference.
-       * TODO: this should account for what's actually exported from package.json exports
-       */
-      if (!symbolMetadata.isInNodeModules && symbolMetadata.isExternal) {
-        console.log(type.getText(), symbolMetadata)
-        return {
-          kind: 'Reference',
-          type: typeText,
-        } satisfies ReferenceProperty
-      }
-
-      /** Locally exported symbols are also processed so they are treated as a reference. */
-      if (!symbolMetadata.isExternal && symbolMetadata.isExported) {
-        return {
-          kind: 'Reference',
-          type: typeText,
-        } satisfies ReferenceProperty
-      }
+    /** Locally exported symbols are also processed so they are treated as a reference. */
+    if (
+      !isRootType &&
+      !symbolMetadata.isExternal &&
+      symbolMetadata.isExported
+    ) {
+      return {
+        kind: 'Reference',
+        type: typeText,
+      } satisfies ReferenceProperty
     }
 
     /** Detect self-references to avoid infinite recursion */
