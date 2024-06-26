@@ -203,11 +203,18 @@ export function processType(
     }
   }
 
-  /**
-   * If the current symbol is located outside of this source file it is treated as a reference.
-   * TODO: this should account for what's actually exported from package.json exports
-   */
-  if (symbolMetadata.isExternal && !symbolMetadata.isInNodeModules) {
+  /** TODO: this should account for what's actually exported from package.json exports to determine what's processed. */
+  if (
+    /** If the current symbol is located outside of this source file it is treated as a reference. */
+    (symbolMetadata.isExternal && !symbolMetadata.isInNodeModules) ||
+    /** If the symbol is located in node_modules and not global it is also treated as a reference. */
+    (!symbolMetadata.isGlobal && symbolMetadata.isInNodeModules) ||
+    /** Finally, locally exported symbols are treated as a reference since they will be processed. */
+    (!isRootType &&
+      !symbolMetadata.isInNodeModules &&
+      !symbolMetadata.isExternal &&
+      symbolMetadata.isExported)
+  ) {
     return {
       kind: 'Reference',
       type: typeText,
@@ -262,18 +269,6 @@ export function processType(
       elements: processTypeTupleElements(type, declaration, filter, references),
     } satisfies TupleProperty
   } else {
-    /** Locally exported symbols are also processed so they are treated as a reference. */
-    if (
-      !isRootType &&
-      !symbolMetadata.isExternal &&
-      symbolMetadata.isExported
-    ) {
-      return {
-        kind: 'Reference',
-        type: typeText,
-      } satisfies ReferenceProperty
-    }
-
     /** Detect self-references to avoid infinite recursion */
     if (references.has(typeText)) {
       return {

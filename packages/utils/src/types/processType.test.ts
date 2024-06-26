@@ -983,131 +983,114 @@ describe('processProperties', () => {
     `)
   })
 
-  // test('simplifies complex generic types', () => {
-  //   const project = new Project()
+  test('simplifies complex generic types', () => {
+    const project = new Project()
 
-  //   project.createSourceFile(
-  //     'node_modules/@types/library/index.d.ts',
-  //     dedent`
-  //     interface SharedMetadata {
-  //       name: string;
-  //     }
+    project.createSourceFile(
+      'node_modules/@types/library/index.d.ts',
+      dedent`
+      interface SharedMetadata {
+        name: string;
+      }
 
-  //     export interface FunctionMetadata extends SharedMetadata {
-  //       parameters: Array<PropertyMetadata>;
-  //     }
+      export interface FunctionMetadata extends SharedMetadata {
+        parameters: Array<PropertyMetadata>;
+      }
 
-  //     export interface TypeMetadata extends SharedMetadata {
-  //       properties: Array<PropertyMetadata>;
-  //     }
+      export interface TypeMetadata extends SharedMetadata {
+        properties: Array<PropertyMetadata>;
+      }
 
-  //     export interface PropertyMetadata extends SharedMetadata {
-  //       type: string;
-  //     }
+      export interface PropertyMetadata extends SharedMetadata {
+        type: string;
+      }
 
-  //     export type Metadata = FunctionMetadata | TypeMetadata;
-  //     `
-  //   )
+      export type Metadata = FunctionMetadata | TypeMetadata;
+      `
+    )
 
-  //   const sourceFile = project.createSourceFile(
-  //     'test.ts',
-  //     dedent`
-  //     import type { Metadata } from 'library';
+    const sourceFile = project.createSourceFile(
+      'test.ts',
+      dedent`
+      import type { Metadata } from 'library';
 
-  //     type ExportedType = Metadata & {
-  //       slug: string
-  //       filePath: string
-  //     }
+      type ExportedType = Metadata & { slug: string }
 
-  //     type ModuleData<Type extends { frontMatter: Record<string, any> }> = {
-  //       exportedTypes: Array<ExportedType>
-  //     }
-  //     `,
-  //     { overwrite: true }
-  //   )
-  //   const types = processType(
-  //     sourceFile.getTypeAliasOrThrow('ModuleData').getType()
-  //   )
+      type ModuleData<Type extends { frontMatter: Record<string, any> }> = {
+        exportedTypes: Array<ExportedType>
+      }
+      `,
+      { overwrite: true }
+    )
+    const types = processType(
+      sourceFile.getTypeAliasOrThrow('ModuleData').getType()
+    )
 
-  //   expect(types).toMatchInlineSnapshot(`
-  //     {
-  //       "kind": "Object",
-  //       "name": "ModuleData",
-  //       "properties": [
-  //         {
-  //           "kind": "Array",
-  //           "name": "exportedTypes",
-  //           "type": {
-  //             "kind": "Union",
-  //             "name": "ExportedType",
-  //             "properties": [
-  //               {
-  //                 "kind": "Intersection",
-  //                 "name": undefined,
-  //                 "properties": [
-  //                   {
-  //                     "kind": "Interface",
-  //                     "name": "FunctionMetadata",
-  //                     "properties": [],
-  //                     "type": "FunctionMetadata",
-  //                   },
-  //                   {
-  //                     "kind": "Object",
-  //                     "name": undefined,
-  //                     "properties": [
-  //                       {
-  //                         "kind": "String",
-  //                         "name": "slug",
-  //                         "type": "string",
-  //                       },
-  //                       {
-  //                         "kind": "String",
-  //                         "name": "filePath",
-  //                         "type": "string",
-  //                       },
-  //                     ],
-  //                     "type": "{ slug: string; filePath: string; }",
-  //                   },
-  //                 ],
-  //                 "type": "FunctionMetadata & { slug: string; filePath: string; }",
-  //               },
-  //               {
-  //                 "kind": "Intersection",
-  //                 "name": undefined,
-  //                 "properties": [
-  //                   {
-  //                     "kind": "Interface",
-  //                     "name": "TypeMetadata",
-  //                     "properties": [],
-  //                     "type": "TypeMetadata",
-  //                   },
-  //                   {
-  //                     "kind": "Object",
-  //                     "name": undefined,
-  //                     "properties": [
-  //                       {
-  //                         "kind": "String",
-  //                         "name": "slug",
-  //                         "type": "string",
-  //                       },
-  //                       {
-  //                         "kind": "String",
-  //                         "name": "filePath",
-  //                         "type": "string",
-  //                       },
-  //                     ],
-  //                     "type": "{ slug: string; filePath: string; }",
-  //                   },
-  //                 ],
-  //                 "type": "TypeMetadata & { slug: string; filePath: string; }",
-  //               },
-  //             ],
-  //             "type": "ExportedType",
-  //           },
-  //         },
-  //       ],
-  //       "type": "ModuleData<Type>",
-  //     }
-  //   `)
-  // })
+    expect(types).toMatchInlineSnapshot(`
+      {
+        "kind": "Object",
+        "name": "ModuleData",
+        "properties": [
+          {
+            "kind": "Array",
+            "name": "exportedTypes",
+            "type": {
+              "kind": "Union",
+              "name": "ExportedType",
+              "properties": [
+                {
+                  "kind": "Intersection",
+                  "name": undefined,
+                  "properties": [
+                    {
+                      "kind": "Reference",
+                      "type": "FunctionMetadata",
+                    },
+                    {
+                      "kind": "Object",
+                      "name": undefined,
+                      "properties": [
+                        {
+                          "kind": "String",
+                          "name": "slug",
+                          "type": "string",
+                        },
+                      ],
+                      "type": "{ slug: string; }",
+                    },
+                  ],
+                  "type": "FunctionMetadata & { slug: string; }",
+                },
+                {
+                  "kind": "Intersection",
+                  "name": undefined,
+                  "properties": [
+                    {
+                      "kind": "Reference",
+                      "type": "TypeMetadata",
+                    },
+                    {
+                      "kind": "Object",
+                      "name": undefined,
+                      "properties": [
+                        {
+                          "kind": "String",
+                          "name": "slug",
+                          "type": "string",
+                        },
+                      ],
+                      "type": "{ slug: string; }",
+                    },
+                  ],
+                  "type": "TypeMetadata & { slug: string; }",
+                },
+              ],
+              "type": "ExportedType",
+            },
+          },
+        ],
+        "type": "ModuleData<Type>",
+      }
+    `)
+  })
 })
