@@ -526,7 +526,7 @@ describe('processProperties', () => {
         arr: string[];
         
         /* non js doc */
-        obj: Record<string, any>;
+        obj: Record<string, { value: number }>;
         
         /** Accepts a string */
         func: (
@@ -565,8 +565,18 @@ describe('processProperties', () => {
             "type": "number",
           },
           {
-            "kind": "Boolean",
+            "kind": "Union",
             "name": "bool",
+            "properties": [
+              {
+                "kind": "Boolean",
+                "type": "false",
+              },
+              {
+                "kind": "Boolean",
+                "type": "true",
+              },
+            ],
             "type": "boolean",
           },
           {
@@ -578,10 +588,27 @@ describe('processProperties', () => {
             },
           },
           {
-            "kind": "Object",
+            "arguments": [
+              {
+                "kind": "String",
+                "type": "string",
+              },
+              {
+                "kind": "Object",
+                "name": undefined,
+                "properties": [
+                  {
+                    "kind": "Number",
+                    "name": "value",
+                    "type": "number",
+                  },
+                ],
+                "type": "{ value: number; }",
+              },
+            ],
+            "kind": "Utility",
             "name": "obj",
-            "properties": [],
-            "type": "Record<string, any>",
+            "type": "Record<string, { value: number; }>",
           },
           {
             "description": "Accepts a string",
@@ -736,50 +763,8 @@ describe('processProperties', () => {
         "name": "FileSystem",
         "properties": [
           {
-            "kind": "Function",
+            "kind": "Reference",
             "name": "readFile",
-            "signatures": [
-              {
-                "parameters": [
-                  {
-                    "description": undefined,
-                    "kind": "String",
-                    "name": "path",
-                    "type": "string",
-                  },
-                  {
-                    "description": undefined,
-                    "kind": "Function",
-                    "name": "callback",
-                    "signatures": [
-                      {
-                        "parameters": [
-                          {
-                            "description": undefined,
-                            "kind": "Interface",
-                            "name": "err",
-                            "properties": [],
-                            "type": "Error",
-                          },
-                          {
-                            "description": undefined,
-                            "kind": "Interface",
-                            "name": "data",
-                            "properties": [],
-                            "type": "Buffer",
-                          },
-                        ],
-                        "returnType": "void",
-                        "type": "(err: Error, data: Buffer) => void",
-                      },
-                    ],
-                    "type": "(err: Error, data: Buffer) => void",
-                  },
-                ],
-                "returnType": "void",
-                "type": "(path: string, callback: (err: Error, data: Buffer) => void) => void",
-              },
-            ],
             "type": "(path: string, callback: (err: Error, data: Buffer) => void) => void",
           },
         ],
@@ -917,4 +902,240 @@ describe('processProperties', () => {
       }
     `)
   })
+
+  test('creates reference for virtual types pointing to node modules', () => {
+    const project = new Project()
+
+    project.createSourceFile(
+      'node_modules/@types/library/index.d.ts',
+      dedent`
+      export type Color = 'red' | 'blue' | 'green';
+      `
+    )
+
+    const sourceFile = project.createSourceFile(
+      'test.ts',
+      dedent`
+      import type { Color } from 'library';
+
+      type DropDollarPrefix<T> = {
+        [K in keyof T as K extends \`$\${infer I}\` ? I : K]: T[K]
+      }
+      
+      type StyledTextProps = {
+        $color?: Color
+      }
+      
+      export type TextProps = {
+        fontWeight?: string | number
+      } & DropDollarPrefix<StyledTextProps>
+      `,
+      { overwrite: true }
+    )
+    const types = processType(
+      sourceFile.getTypeAliasOrThrow('TextProps').getType()
+    )
+
+    expect(types).toMatchInlineSnapshot(`
+      {
+        "kind": "Intersection",
+        "name": "TextProps",
+        "properties": [
+          {
+            "kind": "Object",
+            "name": undefined,
+            "properties": [
+              {
+                "kind": "Union",
+                "name": "fontWeight",
+                "properties": [
+                  {
+                    "kind": "String",
+                    "type": "string",
+                  },
+                  {
+                    "kind": "Number",
+                    "type": "number",
+                  },
+                ],
+                "type": "string | number",
+              },
+            ],
+            "type": "{ fontWeight?: string | number; }",
+          },
+          {
+            "kind": "Object",
+            "name": "DropDollarPrefix",
+            "properties": [
+              {
+                "kind": "Reference",
+                "name": "color",
+                "type": "Color",
+              },
+            ],
+            "type": "DropDollarPrefix<StyledTextProps>",
+          },
+        ],
+        "type": "TextProps",
+      }
+    `)
+  })
+
+  // test.only('simplifies complex generic types', () => {
+  //   const project = new Project()
+
+  //   project.createSourceFile(
+  //     'node_modules/@types/library/index.d.ts',
+  //     dedent`
+  //     interface SharedMetadata {
+  //       name: string;
+  //     }
+
+  //     export interface FunctionMetadata extends SharedMetadata {
+  //       parameters: Array<PropertyMetadata>;
+  //     }
+
+  //     export interface TypeMetadata extends SharedMetadata {
+  //       properties: Array<PropertyMetadata>;
+  //     }
+
+  //     export interface PropertyMetadata extends SharedMetadata {
+  //       type: string;
+  //     }
+
+  //     export type Metadata = FunctionMetadata | TypeMetadata;
+  //     `
+  //   )
+
+  //   const sourceFile = project.createSourceFile(
+  //     'test.ts',
+  //     dedent`
+  //     import type { Metadata } from 'library';
+
+  //     type ExportedType = Metadata & {
+  //       slug: string
+  //       filePath: string
+  //     }
+
+  //     type ModuleData<Type extends { frontMatter: Record<string, any> }> = {
+  //       exportedTypes: Array<ExportedType>
+  //     }
+  //     `,
+  //     { overwrite: true }
+  //   )
+  //   const types = processType(
+  //     sourceFile.getTypeAliasOrThrow('ModuleData').getType()
+  //   )
+
+  //   expect(types).toMatchInlineSnapshot(`
+  //     {
+  //       "kind": "Object",
+  //       "name": "ModuleData",
+  //       "properties": [
+  //         {
+  //           "kind": "Array",
+  //           "name": "exportedTypes",
+  //           "type": {
+  //             "kind": "Union",
+  //             "name": "ExportedType",
+  //             "properties": [
+  //               {
+  //                 "kind": "Intersection",
+  //                 "name": undefined,
+  //                 "properties": [
+  //                   {
+  //                     "kind": "Interface",
+  //                     "name": "FunctionMetadata",
+  //                     "properties": [],
+  //                     "type": "FunctionMetadata",
+  //                   },
+  //                   {
+  //                     "kind": "Object",
+  //                     "name": undefined,
+  //                     "properties": [
+  //                       {
+  //                         "kind": "String",
+  //                         "name": "slug",
+  //                         "type": "string",
+  //                       },
+  //                       {
+  //                         "kind": "String",
+  //                         "name": "filePath",
+  //                         "type": "string",
+  //                       },
+  //                     ],
+  //                     "type": "{ slug: string; filePath: string; }",
+  //                   },
+  //                 ],
+  //                 "type": "FunctionMetadata & { slug: string; filePath: string; }",
+  //               },
+  //               {
+  //                 "kind": "Intersection",
+  //                 "name": undefined,
+  //                 "properties": [
+  //                   {
+  //                     "kind": "Interface",
+  //                     "name": "TypeMetadata",
+  //                     "properties": [],
+  //                     "type": "TypeMetadata",
+  //                   },
+  //                   {
+  //                     "kind": "Object",
+  //                     "name": undefined,
+  //                     "properties": [
+  //                       {
+  //                         "kind": "String",
+  //                         "name": "slug",
+  //                         "type": "string",
+  //                       },
+  //                       {
+  //                         "kind": "String",
+  //                         "name": "filePath",
+  //                         "type": "string",
+  //                       },
+  //                     ],
+  //                     "type": "{ slug: string; filePath: string; }",
+  //                   },
+  //                 ],
+  //                 "type": "TypeMetadata & { slug: string; filePath: string; }",
+  //               },
+  //               {
+  //                 "kind": "Intersection",
+  //                 "name": undefined,
+  //                 "properties": [
+  //                   {
+  //                     "kind": "Interface",
+  //                     "name": "PropertyMetadata",
+  //                     "properties": [],
+  //                     "type": "PropertyMetadata",
+  //                   },
+  //                   {
+  //                     "kind": "Object",
+  //                     "name": undefined,
+  //                     "properties": [
+  //                       {
+  //                         "kind": "String",
+  //                         "name": "slug",
+  //                         "type": "string",
+  //                       },
+  //                       {
+  //                         "kind": "String",
+  //                         "name": "filePath",
+  //                         "type": "string",
+  //                       },
+  //                     ],
+  //                     "type": "{ slug: string; filePath: string; }",
+  //                   },
+  //                 ],
+  //                 "type": "PropertyMetadata & { slug: string; filePath: string; }",
+  //               },
+  //             ],
+  //             "type": "ExportedType",
+  //           },
+  //         },
+  //       ],
+  //       "type": "ModuleData<Type>",
+  //     }
+  //   `)
+  // })
 })

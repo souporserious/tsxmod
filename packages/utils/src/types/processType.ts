@@ -93,6 +93,11 @@ export interface InterfaceProperty extends SharedProperty {
   properties: ProcessedProperty[]
 }
 
+export interface PrimitiveProperty extends SharedProperty {
+  kind: 'Primitive'
+  type: string
+}
+
 export interface UnknownProperty extends SharedProperty {
   kind: 'Unknown'
   type: string
@@ -102,8 +107,12 @@ export interface ReferenceProperty extends SharedProperty {
   kind: 'Reference'
   type: string
   // path?: string // TODO: add import specifier for external references and identifier for internal references
-  isExternal?: boolean
-  isInNodeModules?: boolean
+}
+
+export interface UtilityProperty extends SharedProperty {
+  kind: 'Utility'
+  type: string
+  arguments: ProcessedProperty[]
 }
 
 export type ProcessedProperty =
@@ -121,6 +130,8 @@ export type ProcessedProperty =
   | ObjectProperty
   | UnknownProperty
   | ReferenceProperty
+  | PrimitiveProperty
+  | UtilityProperty
 
 export type SymbolMetadata = ReturnType<typeof getSymbolMetadata>
 
@@ -145,6 +156,7 @@ export function processType(
   const symbolMetadata = getSymbolMetadata(symbol, enclosingNode)
   const symbolDeclaration = symbol?.getDeclarations().at(0)
   const declaration = symbolDeclaration || enclosingNode
+  const isPrimitive = isPrimitiveType(type)
   // const filterResult = filter(symbolMetadata)
 
   //  if (filterResult === false) {
@@ -156,15 +168,48 @@ export function processType(
     type: typeText,
   } satisfies UnknownProperty
 
-  // if (symbolMetadata.isExternal && !symbolMetadata.isInNodeModules) {
-  //   processedProperty = {
-  //     kind: 'Reference',
-  //     name: symbolMetadata.name,
-  //     type: typeText,
-  //     isExternal: true,
-  //     isInNodeModules: false,
-  //   } satisfies ReferenceProperty
-  // } else
+  /** Determine if the enclosing type is referencing a type in node modules. */
+  if (symbol && enclosingNode && !isPrimitive) {
+    const enclosingSymbolMetadata = enclosingNodeMetadata.get(enclosingNode)!
+    const inSeparateProjects =
+      enclosingSymbolMetadata?.isInNodeModules === false &&
+      symbolMetadata.isInNodeModules
+
+    if (inSeparateProjects) {
+      /**
+       * Additionally, we check if type arguments exist and are all located in node_modules before
+       * treating the entire expression as a reference.
+       */
+      const typeArguments = type.getTypeArguments()
+      if (
+        typeArguments.length === 0 ||
+        isEveryTypeInNodeModules(typeArguments)
+      ) {
+        const isUtilityType = symbolMetadata.name
+          ? UTILITY_TYPES.has(symbolMetadata.name)
+          : false
+
+        if (isUtilityType) {
+          const aliasTypeArguments = type.getAliasTypeArguments()
+          return {
+            kind: 'Utility',
+            type: typeText,
+            arguments: aliasTypeArguments
+              .map((type) =>
+                processType(type, declaration, filter, references, false)
+              )
+              .filter(Boolean) as ProcessedProperty[],
+          } satisfies UtilityProperty
+        } else {
+          return {
+            kind: 'Reference',
+            type: typeText,
+          } satisfies ReferenceProperty
+        }
+      }
+    }
+  }
+
   if (type.isArray()) {
     const elementType = type.getArrayElementTypeOrThrow()
     const processedElementType = processType(
@@ -182,25 +227,37 @@ export function processType(
     } else {
       return
     }
+  } else if (type.isUnion()) {
+    processedProperty = {
+      name: symbolMetadata.name,
+      kind: 'Union',
+      type: typeText,
+      properties: type
+        .getUnionTypes()
+        .map((unionType) =>
+          processType(unionType, declaration, filter, references, false)
+        )
+        .filter(Boolean) as ProcessedProperty[],
+    } satisfies UnionProperty
+  } else if (type.isIntersection()) {
+    processedProperty = {
+      name: symbolMetadata.name,
+      kind: 'Intersection',
+      type: typeText,
+      properties: type
+        .getIntersectionTypes()
+        .map((intersectionType) =>
+          processType(intersectionType, declaration, filter, references, false)
+        )
+        .filter(Boolean) as ProcessedProperty[],
+    } satisfies IntersectionProperty
+  } else if (type.isTuple()) {
+    processedProperty = {
+      kind: 'Tuple',
+      type: typeText,
+      elements: processTypeTupleElements(type, declaration, filter, references),
+    } satisfies TupleProperty
   } else {
-    /**
-     * Compare the declaration location with the type symbol declaration location
-     * to determine if the property type is a reference to a type in node modules.
-     */
-    // if (enclosingNode && !isPrimitiveType(type)) {
-    //   const enclosingSymbolMetadata = enclosingNodeMetadata.get(enclosingNode)!
-    //   const inSeparateProjects =
-    //     enclosingSymbolMetadata?.isInNodeModules === false &&
-    //     symbolMetadata.isInNodeModules
-
-    //   if (inSeparateProjects) {
-    //     return {
-    //       kind: 'Reference',
-    //       type: typeText,
-    //     } satisfies ReferenceProperty
-    //   }
-    // }
-
     /** Local exported symbol types are also processed so they are treated as a reference. */
     if (
       !isRootType &&
@@ -243,59 +300,6 @@ export function processType(
         kind: 'Symbol',
         type: typeText,
       } satisfies SymbolProperty
-    } else if (type.isUnion()) {
-      processedProperty = {
-        name: symbolMetadata.name,
-        kind: 'Union',
-        type: typeText,
-        properties: type
-          .getUnionTypes()
-          .map((unionType) =>
-            processType(unionType, declaration, filter, references, false)
-          )
-          .filter(Boolean) as ProcessedProperty[],
-      } satisfies UnionProperty
-    } else if (type.isIntersection()) {
-      processedProperty = {
-        name: symbolMetadata.name,
-        kind: 'Intersection',
-        type: typeText,
-        properties: type
-          .getIntersectionTypes()
-          .map((intersectionType) =>
-            processType(
-              intersectionType,
-              declaration,
-              filter,
-              references,
-              false
-            )
-          )
-          .filter(Boolean) as ProcessedProperty[],
-      } satisfies IntersectionProperty
-      // } else if (
-      //   // Skip external types in node_modules unless they are explicitly included
-      //   // in which case we treat them as normal and continue processing
-      //   filterResult ? false : symbolMetadata.isInNodeModules
-      // ) {
-      //   processedProperty = {
-      //     kind: 'Reference',
-      //     name: symbolMetadata.name,
-      //     type: typeText,
-      //     isExternal: true,
-      //     isInNodeModules: true,
-      //   } satisfies ReferenceProperty
-    } else if (type.isTuple()) {
-      processedProperty = {
-        kind: 'Tuple',
-        type: typeText,
-        elements: processTypeTupleElements(
-          type,
-          declaration,
-          filter,
-          references
-        ),
-      } satisfies TupleProperty
     } else {
       const callSignatures = type.getCallSignatures()
       if (callSignatures.length > 0) {
@@ -317,11 +321,11 @@ export function processType(
             references
           ),
         } satisfies InterfaceProperty
-      } else if (isPrimitiveType(type)) {
+      } else if (isPrimitive) {
         processedProperty = {
-          kind: 'Unknown',
+          kind: 'Primitive',
           type: typeText,
-        } satisfies UnknownProperty
+        } satisfies PrimitiveProperty
       } else if (type.isObject()) {
         const properties = processTypeProperties(
           type,
@@ -331,6 +335,9 @@ export function processType(
         )
         const typeArguments = type.getTypeArguments()
 
+        // TODO: use appropriate kind based on declaration (isNode) rather than isObject
+        // TODO: collapse nested generics and unions if possible while preserving important generics like Promise
+
         // If the type has no properties but has type arguments, we assume it is a generic type and process the type arguments
         if (properties.length === 0 && typeArguments.length > 0) {
           const processedTypeArguments = typeArguments
@@ -339,6 +346,7 @@ export function processType(
             )
             .filter(Boolean) as ProcessedProperty[]
 
+          // TODO: generics don't need to have arguments to be considered a generic type
           if (processedTypeArguments.length > 0) {
             processedProperty = {
               name: symbolMetadata.name,
@@ -498,6 +506,13 @@ function processTypeTupleElements(
     .filter(Boolean) as ProcessedProperty[]
 }
 
+/** Check if every type argument is in node_modules. */
+function isEveryTypeInNodeModules(types: Type[]) {
+  return types.every((type) =>
+    type.getSymbol()?.getDeclarations().at(0)?.getSourceFile().isInNodeModules()
+  )
+}
+
 /** Checks if a type is a primitive type. */
 function isPrimitiveType(type: Type) {
   return (
@@ -544,27 +559,27 @@ function getSymbolMetadata(
   symbol?: Symbol,
   enclosingNode?: Node
 ): {
-  /** The name of the symbol. */
+  /** The name of the symbol if it exists. */
   name?: string
 
-  /** Whether the symbol is exported. */
+  /** Whether or not the symbol is exported. */
   isExported: boolean
 
-  /** Whether the symbol is external to the current source file. */
+  /** Whether or not the symbol is external to the current source file. */
   isExternal: boolean
 
-  /** Whether the symbol is virtual and does not have a declaration. */
-  isVirtual: boolean
-
-  /** Whether the symbol is located in node_modules. */
+  /** Whether or not the symbol is located in node_modules. */
   isInNodeModules: boolean
+
+  /** Whether or not the symbol is global. */
+  isGlobal: boolean
 } {
   if (!symbol) {
     return {
       isExported: false,
       isExternal: false,
-      isInNodeModules: true,
-      isVirtual: true,
+      isInNodeModules: false,
+      isGlobal: false,
     }
   }
 
@@ -575,7 +590,7 @@ function getSymbolMetadata(
       isExported: false,
       isExternal: false,
       isInNodeModules: false,
-      isVirtual: true,
+      isGlobal: false,
     }
   }
 
@@ -591,7 +606,7 @@ function getSymbolMetadata(
     name = declaration.getName()
   }
 
-  // Ignore private symbol names like __type, __call, __0, etc.
+  // Ignore private symbol names e.g. __type, __call, __0, etc.
   if (name?.startsWith('__')) {
     name = undefined
   }
@@ -611,11 +626,38 @@ function getSymbolMetadata(
     isExternal = enclosingSourceFile !== declarationSourceFile
   }
 
+  const isInNodeModules = declarationSourceFile.isInNodeModules()
+
   return {
     name,
-    isVirtual: false,
     isExported,
     isExternal,
-    isInNodeModules: declarationSourceFile.isInNodeModules(),
+    isInNodeModules,
+    isGlobal: isInNodeModules && !isExported,
   }
 }
+
+const UTILITY_TYPES = new Set([
+  'Awaited',
+  'Partial',
+  'Required',
+  'Readonly',
+  'Record',
+  'Pick',
+  'Omit',
+  'Exclude',
+  'Extract',
+  'NonNullable',
+  'Parameters',
+  'ConstructorParameters',
+  'ReturnType',
+  'InstanceType',
+  'NoInfer',
+  'ThisParameterType',
+  'OmitThisParameter',
+  'ThisType',
+  'Uppercase',
+  'Lowercase',
+  'Capitalize',
+  'Uncapitalize',
+])
