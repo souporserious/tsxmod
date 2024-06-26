@@ -156,6 +156,9 @@ export function processType(
   const symbolDeclaration = symbol?.getDeclarations().at(0)
   const declaration = symbolDeclaration || enclosingNode
   const isPrimitive = isPrimitiveType(type)
+  const typeArguments = type.getTypeArguments()
+  const aliasTypeArguments = type.getAliasTypeArguments()
+
   let processedProperty: ProcessedProperty = {
     kind: 'Unknown',
     type: typeText,
@@ -173,7 +176,6 @@ export function processType(
        * Additionally, we check if type arguments exist and are all located in node_modules before
        * treating the entire expression as a reference.
        */
-      const typeArguments = type.getTypeArguments()
       if (
         typeArguments.length === 0 ||
         isEveryTypeInNodeModules(typeArguments)
@@ -183,7 +185,6 @@ export function processType(
           : false
 
         if (isUtilityType) {
-          const aliasTypeArguments = type.getAliasTypeArguments()
           return {
             kind: 'Utility',
             type: typeText,
@@ -213,7 +214,10 @@ export function processType(
     (!isRootType &&
       !symbolMetadata.isInNodeModules &&
       !symbolMetadata.isExternal &&
-      symbolMetadata.isExported)
+      symbolMetadata.isExported &&
+      /** Don't treat generics as references since they operate on type arguments that need to be processed. */
+      typeArguments.length === 0 &&
+      aliasTypeArguments.length === 0)
   ) {
     return {
       kind: 'Reference',
@@ -332,7 +336,6 @@ export function processType(
           filter,
           references
         )
-        const typeArguments = type.getTypeArguments()
 
         // TODO: use appropriate kind based on declaration (isNode) rather than isObject
         // TODO: collapse nested generics and unions if possible while preserving important generics like Promise

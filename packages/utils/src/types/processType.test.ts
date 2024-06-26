@@ -920,7 +920,7 @@ describe('processProperties', () => {
       dedent`
       import type { Color } from 'library';
 
-      type DropDollarPrefix<T> = {
+      export type DropDollarPrefix<T> = {
         [K in keyof T as K extends \`$\${infer I}\` ? I : K]: T[K]
       }
       
