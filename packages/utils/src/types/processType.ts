@@ -403,9 +403,15 @@ export function processCallSignatures(
           )
 
           if (processedType) {
+            let name: string | undefined = parameter.getName()
+
+            if (name.startsWith('_')) {
+              name = undefined
+            }
+
             return {
               ...processedType,
-              name: parameter.getName(),
+              name,
               description: getSymbolDescription(parameter),
             } satisfies ProcessedProperty
           }
