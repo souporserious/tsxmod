@@ -80,20 +80,7 @@ describe('processProperties', () => {
             "kind": "Array",
             "name": "exportedTypes",
             "type": {
-              "kind": "Object",
-              "name": "ExportedType",
-              "properties": [
-                {
-                  "kind": "String",
-                  "name": "slug",
-                  "type": "string",
-                },
-                {
-                  "kind": "String",
-                  "name": "filePath",
-                  "type": "string",
-                },
-              ],
+              "kind": "Reference",
               "type": "ExportedType",
             },
           },
@@ -113,20 +100,7 @@ describe('processProperties', () => {
         {
           "arguments": [
             {
-              "kind": "Object",
-              "name": "ExportedType",
-              "properties": [
-                {
-                  "kind": "String",
-                  "name": "slug",
-                  "type": "string",
-                },
-                {
-                  "kind": "String",
-                  "name": "filePath",
-                  "type": "string",
-                },
-              ],
+              "kind": "Reference",
               "type": "ExportedType",
             },
           ],
@@ -316,20 +290,7 @@ describe('processProperties', () => {
             {
               "arguments": [
                 {
-                  "kind": "Object",
-                  "name": "ExportedType",
-                  "properties": [
-                    {
-                      "kind": "String",
-                      "name": "slug",
-                      "type": "string",
-                    },
-                    {
-                      "kind": "String",
-                      "name": "filePath",
-                      "type": "string",
-                    },
-                  ],
+                  "kind": "Reference",
                   "type": "ExportedType",
                 },
               ],
@@ -903,6 +864,61 @@ describe('processProperties', () => {
     `)
   })
 
+  test('creates reference for external types', () => {
+    const project = new Project()
+
+    project.createSourceFile(
+      './library/index.d.ts',
+      dedent`
+      export type Color = 'red' | 'blue' | 'green';
+      `
+    )
+
+    const sourceFile = project.createSourceFile(
+      'test.ts',
+      dedent`
+      import { Color } from './library';
+
+      export type TextProps = {
+        color: Color
+      }
+      `,
+      { overwrite: true }
+    )
+    const types = processType(
+      sourceFile.getTypeAliasOrThrow('TextProps').getType()
+    )
+
+    expect(types).toMatchInlineSnapshot(`
+      {
+        "kind": "Object",
+        "name": "TextProps",
+        "properties": [
+          {
+            "kind": "Union",
+            "name": "color",
+            "properties": [
+              {
+                "kind": "String",
+                "type": ""red"",
+              },
+              {
+                "kind": "String",
+                "type": ""blue"",
+              },
+              {
+                "kind": "String",
+                "type": ""green"",
+              },
+            ],
+            "type": "Color",
+          },
+        ],
+        "type": "TextProps",
+      }
+    `)
+  })
+
   test('creates reference for virtual types pointing to node modules', () => {
     const project = new Project()
 
@@ -981,7 +997,7 @@ describe('processProperties', () => {
     `)
   })
 
-  // test.only('simplifies complex generic types', () => {
+  // test('simplifies complex generic types', () => {
   //   const project = new Project()
 
   //   project.createSourceFile(
@@ -1098,36 +1114,6 @@ describe('processProperties', () => {
   //                   },
   //                 ],
   //                 "type": "TypeMetadata & { slug: string; filePath: string; }",
-  //               },
-  //               {
-  //                 "kind": "Intersection",
-  //                 "name": undefined,
-  //                 "properties": [
-  //                   {
-  //                     "kind": "Interface",
-  //                     "name": "PropertyMetadata",
-  //                     "properties": [],
-  //                     "type": "PropertyMetadata",
-  //                   },
-  //                   {
-  //                     "kind": "Object",
-  //                     "name": undefined,
-  //                     "properties": [
-  //                       {
-  //                         "kind": "String",
-  //                         "name": "slug",
-  //                         "type": "string",
-  //                       },
-  //                       {
-  //                         "kind": "String",
-  //                         "name": "filePath",
-  //                         "type": "string",
-  //                       },
-  //                     ],
-  //                     "type": "{ slug: string; filePath: string; }",
-  //                   },
-  //                 ],
-  //                 "type": "PropertyMetadata & { slug: string; filePath: string; }",
   //               },
   //             ],
   //             "type": "ExportedType",

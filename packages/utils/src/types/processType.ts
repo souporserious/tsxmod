@@ -2,7 +2,6 @@ import {
   Node,
   Type,
   TypeFormatFlags,
-  ts,
   type Signature,
   type Symbol,
 } from 'ts-morph'
@@ -170,7 +169,7 @@ export function processType(
 
   /** Determine if the enclosing type is referencing a type in node modules. */
   if (symbol && enclosingNode && !isPrimitive) {
-    const enclosingSymbolMetadata = enclosingNodeMetadata.get(enclosingNode)!
+    const enclosingSymbolMetadata = enclosingNodeMetadata.get(enclosingNode)
     const inSeparateProjects =
       enclosingSymbolMetadata?.isInNodeModules === false &&
       symbolMetadata.isInNodeModules
@@ -258,16 +257,42 @@ export function processType(
       elements: processTypeTupleElements(type, declaration, filter, references),
     } satisfies TupleProperty
   } else {
-    /** Local exported symbol types are also processed so they are treated as a reference. */
-    if (
-      !isRootType &&
-      !symbolMetadata.isExternal &&
-      symbolMetadata.isExported
-    ) {
-      return {
-        kind: 'Reference',
-        type: typeText,
-      } satisfies ReferenceProperty
+    /** External types are treated as references. */
+    if (!isRootType) {
+      // if (enclosingNode) {
+      //   const enclosingSymbolMetadata = enclosingNodeMetadata.get(enclosingNode)
+
+      //   if (
+      //     enclosingSymbolMetadata &&
+      //     !enclosingSymbolMetadata.isInNodeModules &&
+      //     enclosingSymbolMetadata.isExternal
+      //   ) {
+      //     return {
+      //       kind: 'Reference',
+      //       type: typeText,
+      //     } satisfies ReferenceProperty
+      //   }
+      // }
+
+      /**
+       * If the current symbol is located outside of this source file it is treated as a reference.
+       * TODO: this should account for what's actually exported from package.json exports
+       */
+      if (!symbolMetadata.isInNodeModules && symbolMetadata.isExternal) {
+        console.log(type.getText(), symbolMetadata)
+        return {
+          kind: 'Reference',
+          type: typeText,
+        } satisfies ReferenceProperty
+      }
+
+      /** Locally exported symbols are also processed so they are treated as a reference. */
+      if (!symbolMetadata.isExternal && symbolMetadata.isExported) {
+        return {
+          kind: 'Reference',
+          type: typeText,
+        } satisfies ReferenceProperty
+      }
     }
 
     /** Detect self-references to avoid infinite recursion */
@@ -389,6 +414,8 @@ export function processCallSignatures(
       .map((parameter) => {
         const parameterDeclaration = parameter.getDeclarations().at(0)
         const declaration = parameterDeclaration || enclosingNode
+
+        // TODO: handle argument references e.g. (props: ButtonProps) => React.ReactNode
 
         if (declaration) {
           const parameterType = parameter.getTypeAtLocation(declaration)
@@ -622,7 +649,9 @@ function getSymbolMetadata(
   /** Check if a type is external to the enclosing source file. */
   let isExternal = false
 
-  if (enclosingSourceFile) {
+  // TODO: this is not sufficient because the enclosing node can be from node modules e.g. Promise
+  // this should use a root source file to determine if the symbol is external
+  if (enclosingSourceFile && !enclosingSourceFile.isInNodeModules()) {
     isExternal = enclosingSourceFile !== declarationSourceFile
   }
 
