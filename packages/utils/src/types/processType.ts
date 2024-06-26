@@ -469,7 +469,7 @@ export function processTypeProperties(
         }
       } else {
         throw new Error(
-          `processTypeProperties: No parameter declaration found for: ${property.getName()}`
+          `[processTypeProperties]: No property declaration found for "${property.getName()}". You must pass the enclosing node as the second argument to "processTypeProperties".`
         )
       }
     })
