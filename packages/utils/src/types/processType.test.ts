@@ -271,7 +271,7 @@ describe('processProperties', () => {
         },
         {
           "isOptional": false,
-          "kind": "Intersection",
+          "kind": "Object",
           "name": "intersection",
           "properties": [
             {
@@ -305,7 +305,7 @@ describe('processProperties', () => {
         },
         {
           "isOptional": false,
-          "kind": "Intersection",
+          "kind": "Object",
           "name": "complexIntersection",
           "properties": [
             {
@@ -443,7 +443,7 @@ describe('processProperties', () => {
             "type": "string",
           },
           {
-            "kind": "Intersection",
+            "kind": "Object",
             "name": "FillVariant",
             "properties": [
               {
@@ -467,7 +467,7 @@ describe('processProperties', () => {
             "type": "FillVariant",
           },
           {
-            "kind": "Intersection",
+            "kind": "Object",
             "name": "OutlineVariant",
             "properties": [
               {
@@ -982,7 +982,7 @@ describe('processProperties', () => {
 
     expect(types).toMatchInlineSnapshot(`
       {
-        "kind": "Intersection",
+        "kind": "Object",
         "name": "TextProps",
         "properties": [
           {
@@ -1084,7 +1084,7 @@ describe('processProperties', () => {
               "name": "ExportedType",
               "properties": [
                 {
-                  "kind": "Intersection",
+                  "kind": "Object",
                   "name": undefined,
                   "properties": [
                     {
@@ -1108,7 +1108,7 @@ describe('processProperties', () => {
                   "type": "FunctionMetadata & { slug: string; }",
                 },
                 {
-                  "kind": "Intersection",
+                  "kind": "Object",
                   "name": undefined,
                   "properties": [
                     {
@@ -1223,7 +1223,7 @@ describe('processProperties', () => {
               {
                 "description": undefined,
                 "isOptional": true,
-                "kind": "Interface",
+                "kind": "Object",
                 "name": "props",
                 "properties": [
                   {

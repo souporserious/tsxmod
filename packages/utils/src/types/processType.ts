@@ -45,12 +45,6 @@ export interface UnionProperty extends SharedProperty {
 // TODO: add UnionLiteral to handle union literals like 'foo' | 'bar' that can just print the type instead of each property
 // this should also be the case for a UnionPrimitive type like string | number | boolean
 
-export interface IntersectionProperty extends SharedProperty {
-  kind: 'Intersection'
-  type: string
-  properties: ProcessedProperty[]
-}
-
 export interface TupleProperty extends SharedProperty {
   kind: 'Tuple'
   type: string
@@ -89,12 +83,6 @@ export interface FunctionSignature {
   returnType: string
 }
 
-export interface InterfaceProperty extends SharedProperty {
-  kind: 'Interface'
-  type: string
-  properties: ProcessedProperty[]
-}
-
 export interface PrimitiveProperty extends SharedProperty {
   kind: 'Primitive'
   type: string
@@ -125,10 +113,8 @@ export type ProcessedProperty =
   | GenericProperty
   | ArrayProperty
   | UnionProperty
-  | IntersectionProperty
   | TupleProperty
   | FunctionProperty
-  | InterfaceProperty
   | ObjectProperty
   | UnknownProperty
   | ReferenceProperty
@@ -310,7 +296,7 @@ export function processType(
   } else if (type.isIntersection()) {
     processedProperty = {
       name: symbolMetadata.name,
-      kind: 'Intersection',
+      kind: 'Object',
       type: typeText,
       properties: type
         .getIntersectionTypes()
@@ -318,7 +304,7 @@ export function processType(
           processType(intersectionType, declaration, filter, references, false)
         )
         .filter(Boolean) as ProcessedProperty[],
-    } satisfies IntersectionProperty
+    } satisfies ObjectProperty
   } else if (type.isTuple()) {
     processedProperty = {
       kind: 'Tuple',
@@ -348,7 +334,7 @@ export function processType(
       } satisfies FunctionProperty
     } else if (type.isInterface()) {
       processedProperty = {
-        kind: 'Interface',
+        kind: 'Object',
         name: symbol ? symbol.getName() : undefined,
         type: typeText,
         properties: processTypeProperties(
@@ -358,7 +344,7 @@ export function processType(
           references,
           false
         ),
-      } satisfies InterfaceProperty
+      } satisfies ObjectProperty
     } else if (isPrimitive) {
       processedProperty = {
         kind: 'Primitive',
