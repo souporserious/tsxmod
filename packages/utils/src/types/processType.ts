@@ -4,19 +4,33 @@ import {
   TypeFormatFlags,
   type ParameterDeclaration,
   type PropertyDeclaration,
+  type PropertySignature,
   type Signature,
   type Symbol,
 } from 'ts-morph'
 
 import { getJsDocMetadata } from '../js-docs'
-import { getDefaultValuesFromProperties } from '../properties'
+import {
+  getDefaultValueKey,
+  getDefaultValuesFromProperties,
+} from '../properties'
 import { getSymbolDescription } from '../symbols'
 
 export interface SharedProperty {
+  /** The name of the symbol or declaration if it exists. */
   name?: string
+
+  /** The description of the declaration if provided. */
   description?: string
+
+  /** The tags of the declaration if provided. */
   tags?: { tagName: string; text?: string }[]
+
+  /** Whether or not the property is optional. */
   isOptional?: boolean
+
+  /** The default value of the property. */
+  defaultValue?: unknown
 }
 
 export interface ArrayProperty extends SharedProperty {
@@ -404,20 +418,24 @@ export function processCallSignatures(
   isRootType: boolean = true
 ): FunctionSignature[] {
   return signatures.map((signature) => {
+    const signatureParameters = signature.getParameters()
+    const signatureDeclarations = signatureParameters.map((parameter) =>
+      parameter.getDeclarations().at(0)
+    ) as (ParameterDeclaration | undefined)[]
     const generics = signature
       .getTypeParameters()
       .map((parameter) => parameter.getText())
       .join(', ')
     const genericsText = generics ? `<${generics}>` : ''
-    const parameters = signature
-      .getParameters()
-      .map((parameter) => {
-        const parameterDeclaration = parameter.getDeclarations().at(0) as
-          | ParameterDeclaration
-          | undefined
+    const defaultValues = getDefaultValuesFromProperties(
+      signatureDeclarations.filter(Boolean) as ParameterDeclaration[]
+    )
+    const parameters = signatureParameters
+      .map((parameter, index) => {
+        const parameterDeclaration = signatureDeclarations[index]
         const isOptional = parameterDeclaration
           ? parameterDeclaration.hasQuestionToken()
-          : false
+          : undefined
         const declaration = parameterDeclaration || enclosingNode
 
         if (declaration) {
@@ -432,6 +450,9 @@ export function processCallSignatures(
 
           if (processedType) {
             let name: string | undefined = parameter.getName()
+            const defaultValue = parameterDeclaration
+              ? defaultValues[getDefaultValueKey(parameterDeclaration)]
+              : undefined
 
             if (name.startsWith('_')) {
               name = undefined
@@ -440,7 +461,8 @@ export function processCallSignatures(
             return {
               ...processedType,
               name,
-              isOptional,
+              defaultValue,
+              isOptional: isOptional ?? Boolean(defaultValue),
               description: getSymbolDescription(parameter),
             } satisfies ProcessedProperty
           }
@@ -487,13 +509,18 @@ export function processTypeProperties(
   references: Set<string> = new Set(),
   isRootType: boolean = true
 ): ProcessedProperty[] {
-  return type
-    .getApparentProperties()
-    .map((property) => {
+  const typeProperties = type.getApparentProperties()
+  const propertyDeclarations = typeProperties.map((property) =>
+    property.getDeclarations().at(0)
+  ) as (PropertySignature | undefined)[]
+  const defaultValues = getDefaultValuesFromProperties(
+    propertyDeclarations.filter(Boolean) as PropertySignature[]
+  )
+
+  return typeProperties
+    .map((property, index) => {
       const symbolMetadata = getSymbolMetadata(property, enclosingNode)
-      const propertyDeclaration = property.getDeclarations().at(0) as
-        | PropertyDeclaration
-        | undefined
+      const propertyDeclaration = propertyDeclarations[index]
       const isOptional = propertyDeclaration
         ? propertyDeclaration.hasQuestionToken()
         : false
@@ -505,6 +532,13 @@ export function processTypeProperties(
       }
 
       if (declaration) {
+        const name = property.getName()
+        // TODO: this isn't accurate since not all properties have a default value or are optional e.g. analyzing a constant object
+        // TODO: default values should be tracked for a scope to determine if a property is optional
+        const defaultValue = propertyDeclaration
+          ? defaultValues[getDefaultValueKey(propertyDeclaration)]
+          : undefined
+
         // Store the metadata of the enclosing node for file location comparison used in processType
         enclosingNodeMetadata.set(declaration, symbolMetadata)
 
@@ -521,8 +555,9 @@ export function processTypeProperties(
           return {
             ...processedProperty,
             ...getJsDocMetadata(declaration),
-            name: property.getName(),
-            isOptional,
+            name,
+            defaultValue,
+            isOptional: isOptional || Boolean(defaultValue),
           } satisfies ProcessedProperty
         }
       } else {
