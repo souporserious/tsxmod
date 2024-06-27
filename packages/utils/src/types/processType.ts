@@ -532,16 +532,12 @@ export function processTypeProperties(
   filter: SymbolFilter = defaultFilter,
   references: Set<string> = new Set(),
   isRootType: boolean = true,
-  defaultValuesOption?: Record<string, unknown> | unknown
+  defaultValues?: Record<string, unknown> | unknown
 ): ProcessedProperty[] {
   const typeProperties = type.getApparentProperties()
   const propertyDeclarations = typeProperties.map((property) =>
     property.getDeclarations().at(0)
   ) as (PropertySignature | undefined)[]
-  const defaultValues = (defaultValuesOption ||
-    getDefaultValuesFromProperties(
-      propertyDeclarations.filter(Boolean) as PropertySignature[]
-    )) as Record<string, unknown>
 
   return typeProperties
     .map((property, index) => {
@@ -559,9 +555,12 @@ export function processTypeProperties(
 
       if (declaration) {
         const name = property.getName()
-        const defaultValue = propertyDeclaration
-          ? defaultValues[getDefaultValueKey(propertyDeclaration)]
-          : undefined
+        const defaultValue =
+          defaultValues && propertyDeclaration
+            ? (defaultValues as Record<string, unknown>)[
+                getDefaultValueKey(propertyDeclaration)
+              ]
+            : undefined
 
         // Store the metadata of the enclosing node for file location comparison used in processType
         enclosingNodeMetadata.set(declaration, symbolMetadata)

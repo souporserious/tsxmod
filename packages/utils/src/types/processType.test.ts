@@ -163,15 +163,15 @@ describe('processProperties', () => {
               "name": undefined,
               "properties": [
                 {
-                  "defaultValue": "foo",
-                  "isOptional": true,
+                  "defaultValue": undefined,
+                  "isOptional": false,
                   "kind": "String",
                   "name": "slug",
                   "type": "string",
                 },
                 {
-                  "defaultValue": "bar",
-                  "isOptional": true,
+                  "defaultValue": undefined,
+                  "isOptional": false,
                   "kind": "String",
                   "name": "filePath",
                   "type": "string",
@@ -690,16 +690,14 @@ describe('processProperties', () => {
         "name": undefined,
         "properties": [
           {
-            "defaultValue": {
-              "f": 1,
-            },
-            "isOptional": true,
+            "defaultValue": undefined,
+            "isOptional": false,
             "kind": "Object",
             "name": "e",
             "properties": [
               {
-                "defaultValue": 1,
-                "isOptional": true,
+                "defaultValue": undefined,
+                "isOptional": false,
                 "kind": "Number",
                 "name": "f",
                 "type": "number",
@@ -708,22 +706,22 @@ describe('processProperties', () => {
             "type": "{ f: number; }",
           },
           {
-            "defaultValue": "string",
-            "isOptional": true,
+            "defaultValue": undefined,
+            "isOptional": false,
             "kind": "String",
             "name": "g",
             "type": "string",
           },
           {
-            "defaultValue": 1,
-            "isOptional": true,
+            "defaultValue": undefined,
+            "isOptional": false,
             "kind": "Number",
             "name": "b",
             "type": "1",
           },
           {
-            "defaultValue": "string",
-            "isOptional": true,
+            "defaultValue": undefined,
+            "isOptional": false,
             "kind": "String",
             "name": "c",
             "type": ""string"",
