@@ -18,7 +18,7 @@ describe('processProperties', () => {
     exportedTypes: Array<ExportedType>;
   };
 
-  export type FunctionType = (param1: string, param2: number) => Promise<ExportedType>;
+  export type FunctionType = (param1: string, param2?: number) => Promise<ExportedType>;
 
   const foo = async () => {
     return {
@@ -28,7 +28,7 @@ describe('processProperties', () => {
   }
 
   export type ComplexType = {
-    promiseObject: Promise<ExportedType>;
+    promiseObject?: Promise<ExportedType>;
     promiseFunction: Promise<(a: number, b: string) => void>;
     promiseVariable: ReturnType<typeof foo>;
     union: string | number;
@@ -51,6 +51,7 @@ describe('processProperties', () => {
         "name": "ModuleData",
         "properties": [
           {
+            "isOptional": false,
             "kind": "Function",
             "name": "method",
             "signatures": [
@@ -58,10 +59,12 @@ describe('processProperties', () => {
                 "parameters": [
                   {
                     "description": undefined,
+                    "isOptional": false,
                     "kind": "Object",
                     "name": "parameterValue",
                     "properties": [
                       {
+                        "isOptional": false,
                         "kind": "Number",
                         "name": "objectValue",
                         "type": "number",
@@ -77,6 +80,7 @@ describe('processProperties', () => {
             "type": "(parameterValue: {    objectValue: number;}) => Promise<number>",
           },
           {
+            "isOptional": false,
             "kind": "Array",
             "name": "exportedTypes",
             "type": {
@@ -104,6 +108,7 @@ describe('processProperties', () => {
               "type": "ExportedType",
             },
           ],
+          "isOptional": true,
           "kind": "Generic",
           "name": "promiseObject",
           "type": "Promise<ExportedType>",
@@ -118,12 +123,14 @@ describe('processProperties', () => {
                   "parameters": [
                     {
                       "description": undefined,
+                      "isOptional": false,
                       "kind": "Number",
                       "name": "a",
                       "type": "number",
                     },
                     {
                       "description": undefined,
+                      "isOptional": false,
                       "kind": "String",
                       "name": "b",
                       "type": "string",
@@ -136,6 +143,7 @@ describe('processProperties', () => {
               "type": "(a: number, b: string) => void",
             },
           ],
+          "isOptional": false,
           "kind": "Generic",
           "name": "promiseFunction",
           "type": "Promise<(a: number, b: string) => void>",
@@ -147,11 +155,13 @@ describe('processProperties', () => {
               "name": undefined,
               "properties": [
                 {
+                  "isOptional": false,
                   "kind": "String",
                   "name": "slug",
                   "type": "string",
                 },
                 {
+                  "isOptional": false,
                   "kind": "String",
                   "name": "filePath",
                   "type": "string",
@@ -160,11 +170,13 @@ describe('processProperties', () => {
               "type": "{ slug: string; filePath: string; }",
             },
           ],
+          "isOptional": false,
           "kind": "Generic",
           "name": "promiseVariable",
           "type": "Promise<{ slug: string; filePath: string; }>",
         },
         {
+          "isOptional": false,
           "kind": "Union",
           "name": "union",
           "properties": [
@@ -180,6 +192,7 @@ describe('processProperties', () => {
           "type": "string | number",
         },
         {
+          "isOptional": false,
           "kind": "Union",
           "name": "complexUnion",
           "properties": [
@@ -195,6 +208,7 @@ describe('processProperties', () => {
                   "parameters": [
                     {
                       "description": undefined,
+                      "isOptional": false,
                       "kind": "String",
                       "name": "a",
                       "type": "string",
@@ -211,6 +225,7 @@ describe('processProperties', () => {
               "name": undefined,
               "properties": [
                 {
+                  "isOptional": false,
                   "kind": "String",
                   "name": "a",
                   "type": "string",
@@ -223,11 +238,13 @@ describe('processProperties', () => {
               "name": undefined,
               "properties": [
                 {
+                  "isOptional": false,
                   "kind": "Number",
                   "name": "b",
                   "type": "number",
                 },
                 {
+                  "isOptional": false,
                   "kind": "Array",
                   "name": "c",
                   "type": {
@@ -253,6 +270,7 @@ describe('processProperties', () => {
           "type": "string | ((a: string) => string | number) | { a: string; } | { b: number; c: (string | number)[]; }",
         },
         {
+          "isOptional": false,
           "kind": "Intersection",
           "name": "intersection",
           "properties": [
@@ -261,6 +279,7 @@ describe('processProperties', () => {
               "name": undefined,
               "properties": [
                 {
+                  "isOptional": false,
                   "kind": "String",
                   "name": "a",
                   "type": "string",
@@ -273,6 +292,7 @@ describe('processProperties', () => {
               "name": undefined,
               "properties": [
                 {
+                  "isOptional": false,
                   "kind": "Number",
                   "name": "b",
                   "type": "number",
@@ -284,6 +304,7 @@ describe('processProperties', () => {
           "type": "{ a: string; } & { b: number; }",
         },
         {
+          "isOptional": false,
           "kind": "Intersection",
           "name": "complexIntersection",
           "properties": [
@@ -303,6 +324,7 @@ describe('processProperties', () => {
               "name": undefined,
               "properties": [
                 {
+                  "isOptional": false,
                   "kind": "String",
                   "name": "a",
                   "type": "string",
@@ -315,6 +337,7 @@ describe('processProperties', () => {
               "name": undefined,
               "properties": [
                 {
+                  "isOptional": false,
                   "kind": "Function",
                   "name": "b",
                   "signatures": [
@@ -350,11 +373,13 @@ describe('processProperties', () => {
               "type": "string",
             },
           ],
+          "isOptional": false,
           "kind": "Tuple",
           "name": "tuple",
           "type": "[a: string, b: number, string]",
         },
         {
+          "isOptional": false,
           "kind": "Function",
           "name": "function",
           "signatures": [
@@ -362,19 +387,21 @@ describe('processProperties', () => {
               "parameters": [
                 {
                   "description": undefined,
+                  "isOptional": false,
                   "kind": "String",
                   "name": "param1",
                   "type": "string",
                 },
                 {
                   "description": undefined,
+                  "isOptional": true,
                   "kind": "Number",
                   "name": "param2",
                   "type": "number",
                 },
               ],
               "returnType": "Promise<ExportedType>",
-              "type": "(param1: string, param2: number) => Promise<ExportedType>",
+              "type": "(param1: string, param2?: number) => Promise<ExportedType>",
             },
           ],
           "type": "FunctionType",
@@ -424,6 +451,7 @@ describe('processProperties', () => {
                 "name": undefined,
                 "properties": [
                   {
+                    "isOptional": false,
                     "kind": "String",
                     "name": "backgroundColor",
                     "type": "string",
@@ -447,6 +475,7 @@ describe('processProperties', () => {
                 "name": undefined,
                 "properties": [
                   {
+                    "isOptional": false,
                     "kind": "String",
                     "name": "borderColor",
                     "type": "string",
@@ -507,6 +536,7 @@ describe('processProperties', () => {
         "properties": [
           {
             "description": "a string",
+            "isOptional": false,
             "kind": "String",
             "name": "str",
             "tags": undefined,
@@ -515,6 +545,7 @@ describe('processProperties', () => {
           {
             "description": "
       a number",
+            "isOptional": false,
             "kind": "Number",
             "name": "num",
             "tags": [
@@ -526,6 +557,7 @@ describe('processProperties', () => {
             "type": "number",
           },
           {
+            "isOptional": false,
             "kind": "Union",
             "name": "bool",
             "properties": [
@@ -541,6 +573,7 @@ describe('processProperties', () => {
             "type": "boolean",
           },
           {
+            "isOptional": false,
             "kind": "Array",
             "name": "arr",
             "type": {
@@ -559,6 +592,7 @@ describe('processProperties', () => {
                 "name": undefined,
                 "properties": [
                   {
+                    "isOptional": false,
                     "kind": "Number",
                     "name": "value",
                     "type": "number",
@@ -567,12 +601,14 @@ describe('processProperties', () => {
                 "type": "{ value: number; }",
               },
             ],
+            "isOptional": false,
             "kind": "Utility",
             "name": "obj",
             "type": "Record<string, { value: number; }>",
           },
           {
             "description": "Accepts a string",
+            "isOptional": false,
             "kind": "Function",
             "name": "func",
             "signatures": [
@@ -580,6 +616,7 @@ describe('processProperties', () => {
                 "parameters": [
                   {
                     "description": "a string parameter",
+                    "isOptional": false,
                     "kind": "String",
                     "name": "a",
                     "type": "string",
@@ -626,10 +663,12 @@ describe('processProperties', () => {
         "name": undefined,
         "properties": [
           {
+            "isOptional": false,
             "kind": "Object",
             "name": "e",
             "properties": [
               {
+                "isOptional": false,
                 "kind": "Number",
                 "name": "f",
                 "type": "number",
@@ -638,16 +677,19 @@ describe('processProperties', () => {
             "type": "{ f: number; }",
           },
           {
+            "isOptional": false,
             "kind": "String",
             "name": "g",
             "type": "string",
           },
           {
+            "isOptional": false,
             "kind": "Number",
             "name": "b",
             "type": "1",
           },
           {
+            "isOptional": false,
             "kind": "String",
             "name": "c",
             "type": ""string"",
@@ -678,11 +720,13 @@ describe('processProperties', () => {
         "name": "SelfReferencedType",
         "properties": [
           {
+            "isOptional": false,
             "kind": "String",
             "name": "id",
             "type": "string",
           },
           {
+            "isOptional": false,
             "kind": "Array",
             "name": "children",
             "type": {
@@ -724,6 +768,7 @@ describe('processProperties', () => {
         "name": "FileSystem",
         "properties": [
           {
+            "isOptional": false,
             "kind": "Reference",
             "name": "readFile",
             "type": "(path: string, callback: (err: Error, data: Buffer) => void) => void",
@@ -765,6 +810,7 @@ describe('processProperties', () => {
                 "name": "Foo",
                 "properties": [
                   {
+                    "isOptional": false,
                     "kind": "String",
                     "name": "bar",
                     "type": ""baz"",
@@ -773,6 +819,7 @@ describe('processProperties', () => {
                 "type": "Foo",
               },
             ],
+            "isOptional": false,
             "kind": "Generic",
             "name": "value",
             "type": "Promise<Foo>",
@@ -829,11 +876,13 @@ describe('processProperties', () => {
             "name": "UnwrapPromisesInMap",
             "properties": [
               {
+                "isOptional": false,
                 "kind": "Number",
                 "name": "a",
                 "type": "number",
               },
               {
+                "isOptional": false,
                 "kind": "String",
                 "name": "url",
                 "type": "string",
@@ -846,11 +895,13 @@ describe('processProperties', () => {
             "name": "UnwrapPromisesInMap",
             "properties": [
               {
+                "isOptional": false,
                 "kind": "String",
                 "name": "url",
                 "type": "string",
               },
               {
+                "isOptional": false,
                 "kind": "Number",
                 "name": "b",
                 "type": "number",
@@ -895,6 +946,7 @@ describe('processProperties', () => {
         "name": "TextProps",
         "properties": [
           {
+            "isOptional": false,
             "kind": "Reference",
             "name": "color",
             "type": "Color",
@@ -948,6 +1000,7 @@ describe('processProperties', () => {
             "name": undefined,
             "properties": [
               {
+                "isOptional": true,
                 "kind": "Union",
                 "name": "fontWeight",
                 "properties": [
@@ -970,6 +1023,7 @@ describe('processProperties', () => {
             "name": "DropDollarPrefix",
             "properties": [
               {
+                "isOptional": false,
                 "kind": "Reference",
                 "name": "color",
                 "type": "Color",
@@ -1032,6 +1086,7 @@ describe('processProperties', () => {
         "name": "ModuleData",
         "properties": [
           {
+            "isOptional": false,
             "kind": "Array",
             "name": "exportedTypes",
             "type": {
@@ -1051,6 +1106,7 @@ describe('processProperties', () => {
                       "name": undefined,
                       "properties": [
                         {
+                          "isOptional": false,
                           "kind": "String",
                           "name": "slug",
                           "type": "string",
@@ -1074,6 +1130,7 @@ describe('processProperties', () => {
                       "name": undefined,
                       "properties": [
                         {
+                          "isOptional": false,
                           "kind": "String",
                           "name": "slug",
                           "type": "string",
@@ -1125,6 +1182,7 @@ describe('processProperties', () => {
             "parameters": [
               {
                 "description": undefined,
+                "isOptional": false,
                 "kind": "Reference",
                 "name": "color",
                 "type": "Color",
@@ -1158,11 +1216,11 @@ describe('processProperties', () => {
         color: Color;
       }
       
-      export type Text = (props: TextProps) => void
+      export function Text(props?: TextProps) {}
       `,
       { overwrite: true }
     )
-    const typeAlias = sourceFile.getTypeAliasOrThrow('Text')
+    const typeAlias = sourceFile.getFunctionOrThrow('Text')
     const processedProperties = processType(typeAlias.getType())
 
     expect(processedProperties).toMatchInlineSnapshot(`
@@ -1174,10 +1232,12 @@ describe('processProperties', () => {
             "parameters": [
               {
                 "description": undefined,
+                "isOptional": true,
                 "kind": "Interface",
                 "name": "props",
                 "properties": [
                   {
+                    "isOptional": false,
                     "kind": "Reference",
                     "name": "color",
                     "type": "Color",
@@ -1187,10 +1247,10 @@ describe('processProperties', () => {
               },
             ],
             "returnType": "void",
-            "type": "(props: TextProps) => void",
+            "type": "(props?: TextProps) => void",
           },
         ],
-        "type": "Text",
+        "type": "(props?: TextProps) => void",
       }
     `)
   })
@@ -1231,6 +1291,7 @@ describe('processProperties', () => {
             "parameters": [
               {
                 "description": undefined,
+                "isOptional": false,
                 "kind": "Reference",
                 "name": "props",
                 "type": "TextProps",

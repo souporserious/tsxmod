@@ -2,6 +2,8 @@ import {
   Node,
   Type,
   TypeFormatFlags,
+  type ParameterDeclaration,
+  type PropertyDeclaration,
   type Signature,
   type Symbol,
 } from 'ts-morph'
@@ -14,6 +16,7 @@ export interface SharedProperty {
   name?: string
   description?: string
   tags?: { tagName: string; text?: string }[]
+  isOptional?: boolean
 }
 
 export interface ArrayProperty extends SharedProperty {
@@ -405,7 +408,12 @@ export function processCallSignatures(
     const parameters = signature
       .getParameters()
       .map((parameter) => {
-        const parameterDeclaration = parameter.getDeclarations().at(0)
+        const parameterDeclaration = parameter.getDeclarations().at(0) as
+          | ParameterDeclaration
+          | undefined
+        const isOptional = parameterDeclaration
+          ? parameterDeclaration.hasQuestionToken()
+          : false
         const declaration = parameterDeclaration || enclosingNode
 
         // TODO: handle argument references e.g. (props: ButtonProps) => React.ReactNode
@@ -430,18 +438,26 @@ export function processCallSignatures(
             return {
               ...processedType,
               name,
+              isOptional,
               description: getSymbolDescription(parameter),
             } satisfies ProcessedProperty
           }
+        } else {
+          throw new Error(
+            `[processCallSignatures]: No parameter declaration found for "${parameter.getName()}". You must pass the enclosing node as the second argument to "processCallSignatures".`
+          )
         }
       })
       .filter(Boolean) as ProcessedProperty[]
     const returnType = signature
       .getReturnType()
       .getText(undefined, TypeFormatFlags.UseAliasDefinedOutsideCurrentScope)
-    // TODO: account for method, function declaration, etc.
+    // TODO: account for method, function declaration, optional flag etc.
     const simplifiedTypeText = `${genericsText}(${parameters
-      .map((parameter) => `${parameter.name}: ${parameter.type}`)
+      .map((parameter) => {
+        const questionMark = parameter.isOptional ? '?' : ''
+        return `${parameter.name}${questionMark}: ${parameter.type}`
+      })
       .join(', ')}) => ${returnType}`
 
     return {
@@ -465,7 +481,12 @@ export function processTypeProperties(
     .getProperties()
     .map((property) => {
       const symbolMetadata = getSymbolMetadata(property, enclosingNode)
-      const propertyDeclaration = property.getDeclarations().at(0)
+      const propertyDeclaration = property.getDeclarations().at(0) as
+        | PropertyDeclaration
+        | undefined
+      const isOptional = propertyDeclaration
+        ? propertyDeclaration.hasQuestionToken()
+        : false
       const declaration = propertyDeclaration || enclosingNode
       const filterResult = filter(symbolMetadata)
 
@@ -491,6 +512,7 @@ export function processTypeProperties(
             ...processedProperty,
             ...getJsDocMetadata(declaration),
             name: property.getName(),
+            isOptional,
           } satisfies ProcessedProperty
         }
       } else {
