@@ -456,7 +456,9 @@ export function processCallSignatures(
     const simplifiedTypeText = `${genericsText}(${parameters
       .map((parameter) => {
         const questionMark = parameter.isOptional ? '?' : ''
-        return `${parameter.name}${questionMark}: ${parameter.type}`
+        return parameter.name
+          ? `${parameter.name}${questionMark}: ${parameter.type}`
+          : parameter.type
       })
       .join(', ')}) => ${returnType}`
 
