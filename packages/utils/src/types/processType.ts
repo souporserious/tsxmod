@@ -416,8 +416,6 @@ export function processCallSignatures(
           : false
         const declaration = parameterDeclaration || enclosingNode
 
-        // TODO: handle argument references e.g. (props: ButtonProps) => React.ReactNode
-
         if (declaration) {
           const parameterType = parameter.getTypeAtLocation(declaration)
           const processedType = processType(
@@ -452,15 +450,22 @@ export function processCallSignatures(
     const returnType = signature
       .getReturnType()
       .getText(undefined, TypeFormatFlags.UseAliasDefinedOutsideCurrentScope)
-    // TODO: account for method, function declaration, optional flag etc.
-    const simplifiedTypeText = `${genericsText}(${parameters
+    const parametersText = parameters
       .map((parameter) => {
         const questionMark = parameter.isOptional ? '?' : ''
         return parameter.name
           ? `${parameter.name}${questionMark}: ${parameter.type}`
           : parameter.type
       })
-      .join(', ')}) => ${returnType}`
+      .join(', ')
+    const signatureDeclaration = signature.getDeclaration()
+    let simplifiedTypeText: string
+
+    if (Node.isFunctionDeclaration(signatureDeclaration)) {
+      simplifiedTypeText = `function ${signatureDeclaration.getName()}${genericsText}(${parametersText}): ${returnType}`
+    } else {
+      simplifiedTypeText = `${genericsText}(${parametersText}) => ${returnType}`
+    }
 
     return {
       type: simplifiedTypeText,
