@@ -228,7 +228,37 @@ export function processType(
     } satisfies ReferenceProperty
   }
 
-  if (type.isArray()) {
+  /** Detect self-references to avoid infinite recursion */
+  if (references.has(typeText)) {
+    return {
+      kind: 'Reference',
+      type: typeText,
+    } satisfies ReferenceProperty
+  }
+
+  references.add(typeText)
+
+  if (type.isBoolean() || type.isBooleanLiteral()) {
+    processedProperty = {
+      kind: 'Boolean',
+      type: typeText,
+    } satisfies BooleanProperty
+  } else if (type.isNumber() || type.isNumberLiteral()) {
+    processedProperty = {
+      kind: 'Number',
+      type: typeText,
+    } satisfies NumberProperty
+  } else if (type.isString() || type.isStringLiteral()) {
+    processedProperty = {
+      kind: 'String',
+      type: typeText,
+    } satisfies StringProperty
+  } else if (isSymbol(type)) {
+    return {
+      kind: 'Symbol',
+      type: typeText,
+    } satisfies SymbolProperty
+  } else if (type.isArray()) {
     const elementType = type.getArrayElementTypeOrThrow()
     const processedElementType = processType(
       elementType,
@@ -246,16 +276,36 @@ export function processType(
       return
     }
   } else if (type.isUnion()) {
+    const processedUnionTypes = type
+      .getUnionTypes()
+      .map((unionType) =>
+        processType(unionType, declaration, filter, references, false)
+      )
+      .filter(Boolean) as ProcessedProperty[]
+
     processedProperty = {
       name: symbolMetadata.name,
       kind: 'Union',
       type: typeText,
-      properties: type
-        .getUnionTypes()
-        .map((unionType) =>
-          processType(unionType, declaration, filter, references, false)
-        )
-        .filter(Boolean) as ProcessedProperty[],
+      properties: processedUnionTypes
+        // Flatten boolean literals to just 'boolean' if both values are present
+        // TODO: optimize and only loop once
+        .reduce((allProperties, property, index) => {
+          const previousProperty = processedUnionTypes.at(index - 1)
+
+          // Remove previous boolean literal if the current property is a boolean as well
+          if (
+            property.kind === 'Boolean' &&
+            previousProperty?.kind === 'Boolean'
+          ) {
+            allProperties.pop()
+            property.type = 'boolean'
+          }
+
+          allProperties.push(property)
+
+          return allProperties
+        }, [] as ProcessedProperty[]),
     } satisfies UnionProperty
   } else if (type.isIntersection()) {
     processedProperty = {
@@ -282,106 +332,74 @@ export function processType(
       ),
     } satisfies TupleProperty
   } else {
-    /** Detect self-references to avoid infinite recursion */
-    if (references.has(typeText)) {
-      return {
-        kind: 'Reference',
-        type: typeText,
-      } satisfies ReferenceProperty
-    }
-
-    references.add(typeText)
-
-    if (type.isBoolean() || type.isBooleanLiteral()) {
+    const callSignatures = type.getCallSignatures()
+    if (callSignatures.length > 0) {
       processedProperty = {
-        kind: 'Boolean',
+        name: symbolMetadata.name,
+        kind: 'Function',
         type: typeText,
-      } satisfies BooleanProperty
-    } else if (type.isNumber() || type.isNumberLiteral()) {
+        signatures: processCallSignatures(
+          callSignatures,
+          declaration,
+          filter,
+          references,
+          false
+        ),
+      } satisfies FunctionProperty
+    } else if (type.isInterface()) {
       processedProperty = {
-        kind: 'Number',
+        kind: 'Interface',
+        name: symbol ? symbol.getName() : undefined,
         type: typeText,
-      } satisfies NumberProperty
-    } else if (type.isString() || type.isStringLiteral()) {
-      processedProperty = {
-        kind: 'String',
-        type: typeText,
-      } satisfies StringProperty
-    } else if (isSymbol(type)) {
-      return {
-        kind: 'Symbol',
-        type: typeText,
-      } satisfies SymbolProperty
-    } else {
-      const callSignatures = type.getCallSignatures()
-      if (callSignatures.length > 0) {
-        processedProperty = {
-          name: symbolMetadata.name,
-          kind: 'Function',
-          type: typeText,
-          signatures: processCallSignatures(
-            callSignatures,
-            declaration,
-            filter,
-            references,
-            false
-          ),
-        } satisfies FunctionProperty
-      } else if (type.isInterface()) {
-        processedProperty = {
-          kind: 'Interface',
-          name: symbol ? symbol.getName() : undefined,
-          type: typeText,
-          properties: processTypeProperties(
-            type,
-            declaration,
-            filter,
-            references,
-            false
-          ),
-        } satisfies InterfaceProperty
-      } else if (isPrimitive) {
-        processedProperty = {
-          kind: 'Primitive',
-          type: typeText,
-        } satisfies PrimitiveProperty
-      } else if (type.isObject()) {
-        const properties = processTypeProperties(
+        properties: processTypeProperties(
           type,
           declaration,
           filter,
           references,
           false
-        )
+        ),
+      } satisfies InterfaceProperty
+    } else if (isPrimitive) {
+      processedProperty = {
+        kind: 'Primitive',
+        type: typeText,
+      } satisfies PrimitiveProperty
+    } else if (type.isObject()) {
+      const properties = processTypeProperties(
+        type,
+        declaration,
+        filter,
+        references,
+        false
+      )
 
-        // TODO: use appropriate kind based on declaration (isNode) rather than isObject
-        // TODO: collapse nested generics and unions if possible while preserving important generics like Promise
+      // TODO: use appropriate kind based on declaration (isNode) rather than isObject
+      // TODO: collapse nested generics and unions if possible while preserving important generics like Promise
 
-        // If the type has no properties but has type arguments, we assume it is a generic type and process the type arguments
-        if (properties.length === 0 && typeArguments.length > 0) {
-          const processedTypeArguments = typeArguments
-            .map((type) =>
-              processType(type, declaration, filter, references, false)
-            )
-            .filter(Boolean) as ProcessedProperty[]
+      // If the type has no properties but has type arguments, we assume it is a generic type and process the type arguments
+      if (properties.length === 0 && typeArguments.length > 0) {
+        const processedTypeArguments = typeArguments
+          .map((type) =>
+            processType(type, declaration, filter, references, false)
+          )
+          .filter(Boolean) as ProcessedProperty[]
 
-          // TODO: generics don't need to have arguments to be considered a generic type
-          if (processedTypeArguments.length > 0) {
-            processedProperty = {
-              name: symbolMetadata.name,
-              kind: 'Generic',
-              type: typeText,
-              arguments: processedTypeArguments,
-            } satisfies GenericProperty
-          }
-        } else {
+        // TODO: generics don't need to have arguments to be considered a generic type
+        if (processedTypeArguments.length > 0) {
           processedProperty = {
             name: symbolMetadata.name,
-            kind: 'Object',
+            kind: 'Generic',
             type: typeText,
-            properties,
-          } satisfies ObjectProperty
+            arguments: processedTypeArguments,
+          } satisfies GenericProperty
         }
+      } else {
+        processedProperty = {
+          name: symbolMetadata.name,
+          kind: 'Object',
+          type: typeText,
+          properties,
+        } satisfies ObjectProperty
       }
     }
   }
@@ -475,7 +493,7 @@ export function processCallSignatures(
   })
 }
 
-/** Process all properties of a given type */
+/** Process all apparent properties of a given type. */
 export function processTypeProperties(
   type: Type,
   enclosingNode?: Node,
@@ -483,9 +501,8 @@ export function processTypeProperties(
   references: Set<string> = new Set(),
   isRootType: boolean = true
 ): ProcessedProperty[] {
-  // TODO: to determine if a property signature is filtered both the
   return type
-    .getProperties()
+    .getApparentProperties()
     .map((property) => {
       const symbolMetadata = getSymbolMetadata(property, enclosingNode)
       const propertyDeclaration = property.getDeclarations().at(0) as

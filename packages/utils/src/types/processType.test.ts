@@ -558,18 +558,8 @@ describe('processProperties', () => {
           },
           {
             "isOptional": false,
-            "kind": "Union",
+            "kind": "Boolean",
             "name": "bool",
-            "properties": [
-              {
-                "kind": "Boolean",
-                "type": "false",
-              },
-              {
-                "kind": "Boolean",
-                "type": "true",
-              },
-            ],
             "type": "boolean",
           },
           {
@@ -1247,7 +1237,7 @@ describe('processProperties', () => {
               },
             ],
             "returnType": "void",
-            "type": "(props?: TextProps) => void",
+            "type": "function Text(props?: TextProps): void",
           },
         ],
         "type": "(props?: TextProps) => void",
