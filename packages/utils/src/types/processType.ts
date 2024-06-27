@@ -424,6 +424,20 @@ export function processType(
           properties,
         } satisfies ObjectProperty
       }
+    } else {
+      /** Finally, try to process the apparent type if it is different from the current type. */
+      const apparentType = type.getApparentType()
+
+      if (type !== apparentType) {
+        return processType(
+          apparentType,
+          declaration,
+          filter,
+          references,
+          false,
+          defaultValues
+        )
+      }
     }
   }
 

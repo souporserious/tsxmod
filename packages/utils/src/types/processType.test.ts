@@ -1483,4 +1483,77 @@ describe('processProperties', () => {
       }
     `)
   })
+
+  test('conditional generic', () => {
+    const project = new Project()
+    const sourceFile = project.createSourceFile(
+      'test.ts',
+      dedent`
+      type ModuleData<Type extends { frontMatter: Record<string, any> }> = 'frontMatter' extends keyof Type
+          ? Type
+          : { frontMatter: Record<string, any> }
+      `,
+      { overwrite: true }
+    )
+    const typeAlias = sourceFile.getTypeAliasOrThrow('ModuleData')
+    const types = processType(typeAlias.getType(), typeAlias)
+
+    expect(types).toMatchInlineSnapshot(`
+      {
+        "kind": "Union",
+        "name": undefined,
+        "properties": [
+          {
+            "kind": "Object",
+            "name": undefined,
+            "properties": [
+              {
+                "arguments": [
+                  {
+                    "kind": "String",
+                    "type": "string",
+                  },
+                  {
+                    "kind": "Primitive",
+                    "type": "any",
+                  },
+                ],
+                "defaultValue": undefined,
+                "isOptional": false,
+                "kind": "Utility",
+                "name": "frontMatter",
+                "type": "Record<string, any>",
+              },
+            ],
+            "type": "{ frontMatter: Record<string, any>; }",
+          },
+          {
+            "kind": "Object",
+            "name": undefined,
+            "properties": [
+              {
+                "arguments": [
+                  {
+                    "kind": "String",
+                    "type": "string",
+                  },
+                  {
+                    "kind": "Primitive",
+                    "type": "any",
+                  },
+                ],
+                "defaultValue": undefined,
+                "isOptional": false,
+                "kind": "Utility",
+                "name": "frontMatter",
+                "type": "Record<string, any>",
+              },
+            ],
+            "type": "{ frontMatter: Record<string, any>; }",
+          },
+        ],
+        "type": "{ frontMatter: Record<string, any>; } | { frontMatter: Record<string, any>; }",
+      }
+    `)
+  })
 })
