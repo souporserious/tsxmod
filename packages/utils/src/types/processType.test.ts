@@ -1093,4 +1093,155 @@ describe('processProperties', () => {
       }
     `)
   })
+
+  test('function arguments that reference exported types', () => {
+    const project = new Project()
+
+    project.createSourceFile(
+      'node_modules/@types/library/index.d.ts',
+      dedent`
+      export type Color = 'red' | 'blue' | 'green';
+      `
+    )
+
+    const sourceFile = project.createSourceFile(
+      'test.ts',
+      dedent`
+      import type { Color } from 'library';
+
+      export type Text = (color: Color) => void
+      `,
+      { overwrite: true }
+    )
+    const typeAlias = sourceFile.getTypeAliasOrThrow('Text')
+    const processedProperties = processType(typeAlias.getType())
+
+    expect(processedProperties).toMatchInlineSnapshot(`
+      {
+        "kind": "Function",
+        "name": "Text",
+        "signatures": [
+          {
+            "parameters": [
+              {
+                "description": undefined,
+                "kind": "Reference",
+                "name": "color",
+                "type": "Color",
+              },
+            ],
+            "returnType": "void",
+            "type": "(color: Color) => void",
+          },
+        ],
+        "type": "Text",
+      }
+    `)
+  })
+
+  test('function arguments that reference interfaces', () => {
+    const project = new Project()
+
+    project.createSourceFile(
+      'node_modules/@types/library/index.d.ts',
+      dedent`
+      export type Color = 'red' | 'blue' | 'green';
+      `
+    )
+
+    const sourceFile = project.createSourceFile(
+      'test.ts',
+      dedent`
+      import type { Color } from 'library';
+
+      interface TextProps {
+        color: Color;
+      }
+      
+      export type Text = (props: TextProps) => void
+      `,
+      { overwrite: true }
+    )
+    const typeAlias = sourceFile.getTypeAliasOrThrow('Text')
+    const processedProperties = processType(typeAlias.getType())
+
+    expect(processedProperties).toMatchInlineSnapshot(`
+      {
+        "kind": "Function",
+        "name": "Text",
+        "signatures": [
+          {
+            "parameters": [
+              {
+                "description": undefined,
+                "kind": "Interface",
+                "name": "props",
+                "properties": [
+                  {
+                    "kind": "Reference",
+                    "name": "color",
+                    "type": "Color",
+                  },
+                ],
+                "type": "TextProps",
+              },
+            ],
+            "returnType": "void",
+            "type": "(props: TextProps) => void",
+          },
+        ],
+        "type": "Text",
+      }
+    `)
+  })
+
+  test('function arguments create reference to exported type aliases', () => {
+    const project = new Project()
+
+    project.createSourceFile(
+      'node_modules/@types/library/index.d.ts',
+      dedent`
+      export type Color = 'red' | 'blue' | 'green';
+      `
+    )
+
+    const sourceFile = project.createSourceFile(
+      'test.ts',
+      dedent`
+      import type { Color } from 'library';
+
+      export type TextProps = {
+        fontWeight: number;
+        color: Color;
+      }
+      
+      export type Text = (props: TextProps) => void
+      `,
+      { overwrite: true }
+    )
+    const typeAlias = sourceFile.getTypeAliasOrThrow('Text')
+    const processedProperties = processType(typeAlias.getType())
+
+    expect(processedProperties).toMatchInlineSnapshot(`
+      {
+        "kind": "Function",
+        "name": "Text",
+        "signatures": [
+          {
+            "parameters": [
+              {
+                "description": undefined,
+                "kind": "Reference",
+                "name": "props",
+                "type": "TextProps",
+              },
+            ],
+            "returnType": "void",
+            "type": "(props: TextProps) => void",
+          },
+        ],
+        "type": "Text",
+      }
+    `)
+  })
 })

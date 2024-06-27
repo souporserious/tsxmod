@@ -270,7 +270,13 @@ export function processType(
     processedProperty = {
       kind: 'Tuple',
       type: typeText,
-      elements: processTypeTupleElements(type, declaration, filter, references),
+      elements: processTypeTupleElements(
+        type,
+        declaration,
+        filter,
+        references,
+        false
+      ),
     } satisfies TupleProperty
   } else {
     /** Detect self-references to avoid infinite recursion */
@@ -310,7 +316,13 @@ export function processType(
           name: symbolMetadata.name,
           kind: 'Function',
           type: typeText,
-          signatures: processCallSignatures(callSignatures),
+          signatures: processCallSignatures(
+            callSignatures,
+            declaration,
+            filter,
+            references,
+            false
+          ),
         } satisfies FunctionProperty
       } else if (type.isInterface()) {
         processedProperty = {
@@ -321,7 +333,8 @@ export function processType(
             type,
             declaration,
             filter,
-            references
+            references,
+            false
           ),
         } satisfies InterfaceProperty
       } else if (isPrimitive) {
@@ -334,7 +347,8 @@ export function processType(
           type,
           declaration,
           filter,
-          references
+          references,
+          false
         )
 
         // TODO: use appropriate kind based on declaration (isNode) rather than isObject
@@ -378,7 +392,9 @@ export function processType(
 export function processCallSignatures(
   signatures: Signature[],
   enclosingNode?: Node,
-  filter: SymbolFilter = defaultFilter
+  filter: SymbolFilter = defaultFilter,
+  references: Set<string> = new Set(),
+  isRootType: boolean = true
 ): FunctionSignature[] {
   return signatures.map((signature) => {
     const generics = signature
@@ -399,7 +415,9 @@ export function processCallSignatures(
           const processedType = processType(
             parameterType,
             enclosingNode,
-            filter
+            filter,
+            references,
+            isRootType
           )
 
           if (processedType) {
@@ -439,7 +457,8 @@ export function processTypeProperties(
   type: Type,
   enclosingNode?: Node,
   filter: SymbolFilter = defaultFilter,
-  references: Set<string> = new Set()
+  references: Set<string> = new Set(),
+  isRootType: boolean = true
 ): ProcessedProperty[] {
   // TODO: to determine if a property signature is filtered both the
   return type
@@ -463,7 +482,8 @@ export function processTypeProperties(
           propertyType,
           declaration,
           filter,
-          references
+          references,
+          isRootType
         )
 
         if (processedProperty) {
@@ -487,7 +507,8 @@ function processTypeTupleElements(
   type: Type,
   enclosingNode?: Node,
   filter?: SymbolFilter,
-  references?: Set<string>
+  references: Set<string> = new Set(),
+  isRootType: boolean = true
 ) {
   const tupleNames = type
     .getText()
@@ -504,7 +525,8 @@ function processTypeTupleElements(
         tupleElementType,
         enclosingNode,
         filter,
-        references
+        references,
+        isRootType
       )
       if (processedType) {
         return {
