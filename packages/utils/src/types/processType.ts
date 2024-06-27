@@ -151,7 +151,8 @@ export function processType(
   enclosingNode?: Node,
   filter: SymbolFilter = defaultFilter,
   references: Set<string> = new Set(),
-  isRootType: boolean = true
+  isRootType: boolean = true,
+  defaultValues?: Record<string, unknown> | unknown
 ): ProcessedProperty | undefined {
   const typeText = type.getText(enclosingNode, TYPE_FORMAT_FLAGS)
   const symbol = getTypeSymbol(type)
@@ -279,7 +280,14 @@ export function processType(
     const processedUnionTypes = type
       .getUnionTypes()
       .map((unionType) =>
-        processType(unionType, declaration, filter, references, false)
+        processType(
+          unionType,
+          declaration,
+          filter,
+          references,
+          false,
+          defaultValues
+        )
       )
       .filter(Boolean) as ProcessedProperty[]
 
@@ -315,7 +323,14 @@ export function processType(
       properties: type
         .getIntersectionTypes()
         .map((intersectionType) =>
-          processType(intersectionType, declaration, filter, references, false)
+          processType(
+            intersectionType,
+            declaration,
+            filter,
+            references,
+            false,
+            defaultValues
+          )
         )
         .filter(Boolean) as ProcessedProperty[],
     } satisfies ObjectProperty
@@ -370,7 +385,8 @@ export function processType(
         declaration,
         filter,
         references,
-        false
+        false,
+        defaultValues
       )
 
       // TODO: use appropriate kind based on declaration (isNode) rather than isObject
@@ -380,7 +396,14 @@ export function processType(
       if (properties.length === 0 && typeArguments.length > 0) {
         const processedTypeArguments = typeArguments
           .map((type) =>
-            processType(type, declaration, filter, references, false)
+            processType(
+              type,
+              declaration,
+              filter,
+              references,
+              false,
+              defaultValues
+            )
           )
           .filter(Boolean) as ProcessedProperty[]
 
@@ -439,20 +462,21 @@ export function processCallSignatures(
         const declaration = parameterDeclaration || enclosingNode
 
         if (declaration) {
+          const defaultValue = parameterDeclaration
+            ? defaultValues[getDefaultValueKey(parameterDeclaration)]
+            : undefined
           const parameterType = parameter.getTypeAtLocation(declaration)
           const processedType = processType(
             parameterType,
             enclosingNode,
             filter,
             references,
-            isRootType
+            isRootType,
+            defaultValue
           )
 
           if (processedType) {
             let name: string | undefined = parameter.getName()
-            const defaultValue = parameterDeclaration
-              ? defaultValues[getDefaultValueKey(parameterDeclaration)]
-              : undefined
 
             if (name.startsWith('_')) {
               name = undefined
@@ -507,15 +531,17 @@ export function processTypeProperties(
   enclosingNode?: Node,
   filter: SymbolFilter = defaultFilter,
   references: Set<string> = new Set(),
-  isRootType: boolean = true
+  isRootType: boolean = true,
+  defaultValuesOption?: Record<string, unknown> | unknown
 ): ProcessedProperty[] {
   const typeProperties = type.getApparentProperties()
   const propertyDeclarations = typeProperties.map((property) =>
     property.getDeclarations().at(0)
   ) as (PropertySignature | undefined)[]
-  const defaultValues = getDefaultValuesFromProperties(
-    propertyDeclarations.filter(Boolean) as PropertySignature[]
-  )
+  const defaultValues = (defaultValuesOption ||
+    getDefaultValuesFromProperties(
+      propertyDeclarations.filter(Boolean) as PropertySignature[]
+    )) as Record<string, unknown>
 
   return typeProperties
     .map((property, index) => {
@@ -533,8 +559,6 @@ export function processTypeProperties(
 
       if (declaration) {
         const name = property.getName()
-        // TODO: this isn't accurate since not all properties have a default value or are optional e.g. analyzing a constant object
-        // TODO: default values should be tracked for a scope to determine if a property is optional
         const defaultValue = propertyDeclaration
           ? defaultValues[getDefaultValueKey(propertyDeclaration)]
           : undefined
@@ -548,7 +572,8 @@ export function processTypeProperties(
           declaration,
           filter,
           references,
-          isRootType
+          isRootType,
+          defaultValue
         )
 
         if (processedProperty) {

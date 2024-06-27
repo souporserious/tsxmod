@@ -1410,11 +1410,12 @@ describe('processProperties', () => {
       type TextProps = {
         style: {
           fontSize: number;
+          fontWeight: number;
           color?: string;
         };
       }
 
-      export function Text({ style: { fontSize, color } }: TextProps = { style: { fontSize: '1rem', color: 'blue' } }) {}
+      export function Text({ style: { fontSize, color } }: TextProps = { style: { fontWeight: 400, color: 'blue' } }) {}
       `
     )
     const typeAlias = sourceFile.getFunctionOrThrow('Text')
@@ -1431,7 +1432,7 @@ describe('processProperties', () => {
                 "defaultValue": {
                   "style": {
                     "color": "blue",
-                    "fontSize": "1rem",
+                    "fontWeight": 400,
                   },
                 },
                 "description": undefined,
@@ -1440,8 +1441,11 @@ describe('processProperties', () => {
                 "name": undefined,
                 "properties": [
                   {
-                    "defaultValue": undefined,
-                    "isOptional": false,
+                    "defaultValue": {
+                      "color": "blue",
+                      "fontWeight": 400,
+                    },
+                    "isOptional": true,
                     "kind": "Object",
                     "name": "style",
                     "properties": [
@@ -1453,14 +1457,21 @@ describe('processProperties', () => {
                         "type": "number",
                       },
                       {
-                        "defaultValue": undefined,
+                        "defaultValue": 400,
+                        "isOptional": true,
+                        "kind": "Number",
+                        "name": "fontWeight",
+                        "type": "number",
+                      },
+                      {
+                        "defaultValue": "blue",
                         "isOptional": true,
                         "kind": "String",
                         "name": "color",
                         "type": "string",
                       },
                     ],
-                    "type": "{ fontSize: number; color?: string; }",
+                    "type": "{ fontSize: number; fontWeight: number; color?: string; }",
                   },
                 ],
                 "type": "TextProps",
