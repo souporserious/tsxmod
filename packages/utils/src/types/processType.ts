@@ -458,8 +458,9 @@ export function processCallSignatures(
   isRootType: boolean = true
 ): FunctionSignature[] {
   return signatures.map((signature) => {
+    const signatureDeclaration = signature.getDeclaration()
     const signatureParameters = signature.getParameters()
-    const signatureDeclarations = signatureParameters.map((parameter) =>
+    const parameterDeclarations = signatureParameters.map((parameter) =>
       parameter.getDeclarations().at(0)
     ) as (ParameterDeclaration | undefined)[]
     const generics = signature
@@ -468,11 +469,11 @@ export function processCallSignatures(
       .join(', ')
     const genericsText = generics ? `<${generics}>` : ''
     const defaultValues = getDefaultValuesFromProperties(
-      signatureDeclarations.filter(Boolean) as ParameterDeclaration[]
+      parameterDeclarations.filter(Boolean) as ParameterDeclaration[]
     )
     const parameters = signatureParameters
       .map((parameter, index) => {
-        const parameterDeclaration = signatureDeclarations[index]
+        const parameterDeclaration = parameterDeclarations[index]
         const isOptional = parameterDeclaration
           ? parameterDeclaration.hasQuestionToken()
           : undefined
@@ -482,9 +483,8 @@ export function processCallSignatures(
           const defaultValue = parameterDeclaration
             ? defaultValues[getDefaultValueKey(parameterDeclaration)]
             : undefined
-          const parameterType = parameter.getTypeAtLocation(declaration)
           const processedType = processType(
-            parameterType,
+            parameter.getTypeAtLocation(signatureDeclaration),
             enclosingNode,
             filter,
             references,
@@ -525,7 +525,6 @@ export function processCallSignatures(
           : parameter.type
       })
       .join(', ')
-    const signatureDeclaration = signature.getDeclaration()
     let simplifiedTypeText: string
 
     if (Node.isFunctionDeclaration(signatureDeclaration)) {
