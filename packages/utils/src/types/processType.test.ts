@@ -1516,4 +1516,64 @@ describe('processProperties', () => {
       }
     `)
   })
+
+  test('generic function parameters', () => {
+    const project = new Project()
+    const sourceFile = project.createSourceFile(
+      'test.ts',
+      dedent`
+      const createComponent = (
+        <Props extends Record<string, any>>(tagName: string) => (props: Props) => {}
+      )
+      
+      type GridProps = { columns: number, rows: number }
+      
+      const Grid = createComponent<GridProps>('div')
+      `,
+      { overwrite: true }
+    )
+    const functionDeclaration = sourceFile.getVariableDeclarationOrThrow('Grid')
+    const processedProperties = processType(functionDeclaration.getType())
+
+    expect(processedProperties).toMatchInlineSnapshot(`
+      {
+        "kind": "Function",
+        "name": undefined,
+        "signatures": [
+          {
+            "modifier": undefined,
+            "parameters": [
+              {
+                "defaultValue": undefined,
+                "description": undefined,
+                "isOptional": false,
+                "kind": "Object",
+                "name": "props",
+                "properties": [
+                  {
+                    "defaultValue": undefined,
+                    "isOptional": false,
+                    "kind": "Number",
+                    "name": "columns",
+                    "type": "number",
+                  },
+                  {
+                    "defaultValue": undefined,
+                    "isOptional": false,
+                    "kind": "Number",
+                    "name": "rows",
+                    "type": "number",
+                  },
+                ],
+                "type": "GridProps",
+              },
+            ],
+            "returnType": "void",
+            "type": "(props: GridProps) => void",
+          },
+        ],
+        "type": "(props: GridProps) => void",
+      }
+    `)
+  })
 })
