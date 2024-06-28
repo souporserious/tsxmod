@@ -57,6 +57,7 @@ describe('processProperties', () => {
             "name": "method",
             "signatures": [
               {
+                "modifier": undefined,
                 "parameters": [
                   {
                     "defaultValue": undefined,
@@ -125,6 +126,7 @@ describe('processProperties', () => {
               "name": undefined,
               "signatures": [
                 {
+                  "modifier": undefined,
                   "parameters": [
                     {
                       "defaultValue": undefined,
@@ -218,6 +220,7 @@ describe('processProperties', () => {
               "name": undefined,
               "signatures": [
                 {
+                  "modifier": undefined,
                   "parameters": [
                     {
                       "defaultValue": undefined,
@@ -340,6 +343,7 @@ describe('processProperties', () => {
               "name": "b",
               "signatures": [
                 {
+                  "modifier": undefined,
                   "parameters": [],
                   "returnType": "void",
                   "type": "() => void",
@@ -381,6 +385,7 @@ describe('processProperties', () => {
           "name": "function",
           "signatures": [
             {
+              "modifier": undefined,
               "parameters": [
                 {
                   "defaultValue": undefined,
@@ -510,7 +515,11 @@ describe('processProperties', () => {
           /** a string parameter */
           a: string,
         ) => void;
+
+        asyncFunc: typeof foo;
       }
+
+      async function foo() {}
     `
     )
     const typeAlias = sourceFile.getTypeAliasOrThrow('Primitives')
@@ -597,6 +606,7 @@ describe('processProperties', () => {
             "name": "func",
             "signatures": [
               {
+                "modifier": undefined,
                 "parameters": [
                   {
                     "defaultValue": undefined,
@@ -613,6 +623,21 @@ describe('processProperties', () => {
             ],
             "tags": undefined,
             "type": "(a: string) => void",
+          },
+          {
+            "defaultValue": undefined,
+            "isOptional": false,
+            "kind": "Function",
+            "name": "asyncFunc",
+            "signatures": [
+              {
+                "modifier": "async",
+                "parameters": [],
+                "returnType": "Promise<void>",
+                "type": "function foo(): Promise<void>",
+              },
+            ],
+            "type": "() => Promise<void>",
           },
         ],
         "type": "Primitives",
@@ -1156,6 +1181,7 @@ describe('processProperties', () => {
         "name": "Text",
         "signatures": [
           {
+            "modifier": undefined,
             "parameters": [
               {
                 "defaultValue": undefined,
@@ -1207,6 +1233,7 @@ describe('processProperties', () => {
         "name": "Text",
         "signatures": [
           {
+            "modifier": undefined,
             "parameters": [
               {
                 "defaultValue": undefined,
@@ -1268,6 +1295,7 @@ describe('processProperties', () => {
         "name": "Text",
         "signatures": [
           {
+            "modifier": undefined,
             "parameters": [
               {
                 "defaultValue": undefined,
@@ -1309,6 +1337,7 @@ describe('processProperties', () => {
         "name": "Text",
         "signatures": [
           {
+            "modifier": undefined,
             "parameters": [
               {
                 "defaultValue": {
@@ -1355,6 +1384,7 @@ describe('processProperties', () => {
         "name": "Text",
         "signatures": [
           {
+            "modifier": undefined,
             "parameters": [
               {
                 "defaultValue": {

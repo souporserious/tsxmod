@@ -2,6 +2,8 @@ import {
   Node,
   Type,
   TypeFormatFlags,
+  type FunctionDeclaration,
+  type MethodDeclaration,
   type ParameterDeclaration,
   type PropertySignature,
   type Signature,
@@ -91,6 +93,7 @@ export interface FunctionProperty extends SharedProperty {
 }
 
 export interface FunctionSignature {
+  modifier?: 'async' | 'generator'
   parameters: ProcessedProperty[]
   type: string
   returnType: string
@@ -531,8 +534,18 @@ export function processCallSignatures(
       simplifiedTypeText = `${genericsText}(${parametersText}) => ${returnType}`
     }
 
+    let modifier = undefined
+
+    if (
+      Node.isFunctionDeclaration(signatureDeclaration) ||
+      Node.isMethodDeclaration(signatureDeclaration)
+    ) {
+      modifier = getModifier(signatureDeclaration)
+    }
+
     return {
       type: simplifiedTypeText,
+      modifier,
       parameters,
       returnType,
     }
@@ -773,6 +786,17 @@ function getSymbolMetadata(
     isExternal,
     isInNodeModules,
     isGlobal: isInNodeModules && !isExported,
+  }
+}
+
+/** Get the modifier of a function or method declaration. */
+function getModifier(node: FunctionDeclaration | MethodDeclaration) {
+  if (node.isAsync()) {
+    return 'async'
+  }
+
+  if (node.isGenerator()) {
+    return 'generator'
   }
 }
 
