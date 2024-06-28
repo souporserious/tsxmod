@@ -3,7 +3,6 @@ import {
   Type,
   TypeFormatFlags,
   type ParameterDeclaration,
-  type PropertyDeclaration,
   type PropertySignature,
   type Signature,
   type Symbol,
@@ -316,23 +315,36 @@ export function processType(
         }, [] as ProcessedProperty[]),
     } satisfies UnionProperty
   } else if (type.isIntersection()) {
+    const processedIntersectionTypes = type
+      .getIntersectionTypes()
+      .map((intersectionType) =>
+        processType(
+          intersectionType,
+          declaration,
+          filter,
+          references,
+          false,
+          defaultValues
+        )
+      )
+      .filter(Boolean) as ProcessedProperty[]
+
+    // Intersection types can safely merge the immediate object properties to reduce nesting
+    const properties: ProcessedProperty[] = []
+
+    for (const processedType of processedIntersectionTypes) {
+      if (processedType.kind === 'Object') {
+        properties.push(...processedType.properties)
+      } else {
+        properties.push(processedType)
+      }
+    }
+
     processedProperty = {
       name: symbolMetadata.name,
       kind: 'Object',
       type: typeText,
-      properties: type
-        .getIntersectionTypes()
-        .map((intersectionType) =>
-          processType(
-            intersectionType,
-            declaration,
-            filter,
-            references,
-            false,
-            defaultValues
-          )
-        )
-        .filter(Boolean) as ProcessedProperty[],
+      properties,
     } satisfies ObjectProperty
   } else if (type.isTuple()) {
     processedProperty = {
@@ -348,6 +360,7 @@ export function processType(
     } satisfies TupleProperty
   } else {
     const callSignatures = type.getCallSignatures()
+
     if (callSignatures.length > 0) {
       processedProperty = {
         name: symbolMetadata.name,

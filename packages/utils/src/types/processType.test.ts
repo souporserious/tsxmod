@@ -293,32 +293,18 @@ describe('processProperties', () => {
           "name": "intersection",
           "properties": [
             {
-              "kind": "Object",
-              "name": undefined,
-              "properties": [
-                {
-                  "defaultValue": undefined,
-                  "isOptional": false,
-                  "kind": "String",
-                  "name": "a",
-                  "type": "string",
-                },
-              ],
-              "type": "{ a: string; }",
+              "defaultValue": undefined,
+              "isOptional": false,
+              "kind": "String",
+              "name": "a",
+              "type": "string",
             },
             {
-              "kind": "Object",
-              "name": undefined,
-              "properties": [
-                {
-                  "defaultValue": undefined,
-                  "isOptional": false,
-                  "kind": "Number",
-                  "name": "b",
-                  "type": "number",
-                },
-              ],
-              "type": "{ b: number; }",
+              "defaultValue": undefined,
+              "isOptional": false,
+              "kind": "Number",
+              "name": "b",
+              "type": "number",
             },
           ],
           "type": "{ a: string; } & { b: number; }",
@@ -341,39 +327,25 @@ describe('processProperties', () => {
               "type": "Promise<ExportedType>",
             },
             {
-              "kind": "Object",
-              "name": undefined,
-              "properties": [
-                {
-                  "defaultValue": undefined,
-                  "isOptional": false,
-                  "kind": "String",
-                  "name": "a",
-                  "type": "string",
-                },
-              ],
-              "type": "{ a: string; }",
+              "defaultValue": undefined,
+              "isOptional": false,
+              "kind": "String",
+              "name": "a",
+              "type": "string",
             },
             {
-              "kind": "Object",
-              "name": undefined,
-              "properties": [
+              "defaultValue": undefined,
+              "isOptional": false,
+              "kind": "Function",
+              "name": "b",
+              "signatures": [
                 {
-                  "defaultValue": undefined,
-                  "isOptional": false,
-                  "kind": "Function",
-                  "name": "b",
-                  "signatures": [
-                    {
-                      "parameters": [],
-                      "returnType": "void",
-                      "type": "() => void",
-                    },
-                  ],
+                  "parameters": [],
+                  "returnType": "void",
                   "type": "() => void",
                 },
               ],
-              "type": "{ b(): void; }",
+              "type": "() => void",
             },
           ],
           "type": "Promise<ExportedType> & { a: string; } & { b(): void; }",
@@ -474,18 +446,11 @@ describe('processProperties', () => {
             "name": "FillVariant",
             "properties": [
               {
-                "kind": "Object",
-                "name": undefined,
-                "properties": [
-                  {
-                    "defaultValue": undefined,
-                    "isOptional": false,
-                    "kind": "String",
-                    "name": "backgroundColor",
-                    "type": "string",
-                  },
-                ],
-                "type": "{ backgroundColor: string; }",
+                "defaultValue": undefined,
+                "isOptional": false,
+                "kind": "String",
+                "name": "backgroundColor",
+                "type": "string",
               },
               {
                 "kind": "Reference",
@@ -499,18 +464,11 @@ describe('processProperties', () => {
             "name": "OutlineVariant",
             "properties": [
               {
-                "kind": "Object",
-                "name": undefined,
-                "properties": [
-                  {
-                    "defaultValue": undefined,
-                    "isOptional": false,
-                    "kind": "String",
-                    "name": "borderColor",
-                    "type": "string",
-                  },
-                ],
-                "type": "{ borderColor: string; }",
+                "defaultValue": undefined,
+                "isOptional": false,
+                "kind": "String",
+                "name": "borderColor",
+                "type": "string",
               },
               {
                 "kind": "Reference",
@@ -1038,42 +996,28 @@ describe('processProperties', () => {
         "name": "TextProps",
         "properties": [
           {
-            "kind": "Object",
-            "name": undefined,
+            "defaultValue": undefined,
+            "isOptional": true,
+            "kind": "Union",
+            "name": "fontWeight",
             "properties": [
               {
-                "defaultValue": undefined,
-                "isOptional": true,
-                "kind": "Union",
-                "name": "fontWeight",
-                "properties": [
-                  {
-                    "kind": "String",
-                    "type": "string",
-                  },
-                  {
-                    "kind": "Number",
-                    "type": "number",
-                  },
-                ],
-                "type": "string | number",
+                "kind": "String",
+                "type": "string",
+              },
+              {
+                "kind": "Number",
+                "type": "number",
               },
             ],
-            "type": "{ fontWeight?: string | number; }",
+            "type": "string | number",
           },
           {
-            "kind": "Object",
-            "name": "DropDollarPrefix",
-            "properties": [
-              {
-                "defaultValue": undefined,
-                "isOptional": false,
-                "kind": "Reference",
-                "name": "color",
-                "type": "Color",
-              },
-            ],
-            "type": "DropDollarPrefix<StyledTextProps>",
+            "defaultValue": undefined,
+            "isOptional": false,
+            "kind": "Reference",
+            "name": "color",
+            "type": "Color",
           },
         ],
         "type": "TextProps",
@@ -1147,18 +1091,11 @@ describe('processProperties', () => {
                       "type": "FunctionMetadata",
                     },
                     {
-                      "kind": "Object",
-                      "name": undefined,
-                      "properties": [
-                        {
-                          "defaultValue": undefined,
-                          "isOptional": false,
-                          "kind": "String",
-                          "name": "slug",
-                          "type": "string",
-                        },
-                      ],
-                      "type": "{ slug: string; }",
+                      "defaultValue": undefined,
+                      "isOptional": false,
+                      "kind": "String",
+                      "name": "slug",
+                      "type": "string",
                     },
                   ],
                   "type": "FunctionMetadata & { slug: string; }",
@@ -1172,18 +1109,11 @@ describe('processProperties', () => {
                       "type": "TypeMetadata",
                     },
                     {
-                      "kind": "Object",
-                      "name": undefined,
-                      "properties": [
-                        {
-                          "defaultValue": undefined,
-                          "isOptional": false,
-                          "kind": "String",
-                          "name": "slug",
-                          "type": "string",
-                        },
-                      ],
-                      "type": "{ slug: string; }",
+                      "defaultValue": undefined,
+                      "isOptional": false,
+                      "kind": "String",
+                      "name": "slug",
+                      "type": "string",
                     },
                   ],
                   "type": "TypeMetadata & { slug: string; }",
