@@ -361,19 +361,6 @@ export function processType(
           false
         ),
       } satisfies FunctionProperty
-    } else if (type.isInterface()) {
-      processedProperty = {
-        kind: 'Object',
-        name: symbol ? symbol.getName() : undefined,
-        type: typeText,
-        properties: processTypeProperties(
-          type,
-          declaration,
-          filter,
-          references,
-          false
-        ),
-      } satisfies ObjectProperty
     } else if (isPrimitive) {
       processedProperty = {
         kind: 'Primitive',
