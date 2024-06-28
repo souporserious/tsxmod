@@ -534,7 +534,7 @@ export function processCallSignatures(
       simplifiedTypeText = `${genericsText}(${parametersText}) => ${returnType}`
     }
 
-    let modifier = undefined
+    let modifier: ReturnType<typeof getModifier> = undefined
 
     if (
       Node.isFunctionDeclaration(signatureDeclaration) ||
