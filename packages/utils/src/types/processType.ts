@@ -2,6 +2,7 @@ import {
   Node,
   Type,
   TypeFormatFlags,
+  ObjectFlags,
   type FunctionDeclaration,
   type MethodDeclaration,
   type ParameterDeclaration,
@@ -191,14 +192,20 @@ export function processType(
           : false
 
         if (isUtilityType) {
+          const processedTypeArguments = aliasTypeArguments
+            .map((type) =>
+              processType(type, declaration, filter, references, false)
+            )
+            .filter(Boolean) as ProcessedProperty[]
+
+          if (processedTypeArguments.length === 0) {
+            return undefined
+          }
+
           return {
             kind: 'Utility',
             type: typeText,
-            arguments: aliasTypeArguments
-              .map((type) =>
-                processType(type, declaration, filter, references, false)
-              )
-              .filter(Boolean) as ProcessedProperty[],
+            arguments: processedTypeArguments,
           } satisfies UtilityProperty
         } else {
           return {
@@ -213,17 +220,17 @@ export function processType(
   /** TODO: this should account for what's actually exported from package.json exports to determine what's processed. */
   if (
     /** If the current symbol is located outside of this source file it is treated as a reference. */
-    (symbolMetadata.isExternal && !symbolMetadata.isInNodeModules) ||
-    /** If the symbol is located in node_modules and not global it is also treated as a reference. */
-    (!symbolMetadata.isGlobal && symbolMetadata.isInNodeModules) ||
-    /** Finally, locally exported symbols are treated as a reference since they will be processed. */
-    (!isRootType &&
-      !symbolMetadata.isInNodeModules &&
-      !symbolMetadata.isExternal &&
-      symbolMetadata.isExported &&
-      /** Don't treat generics as references since they operate on type arguments that need to be processed. */
-      typeArguments.length === 0 &&
-      aliasTypeArguments.length === 0)
+    ((symbolMetadata.isExternal && !symbolMetadata.isInNodeModules) ||
+      /** If the symbol is located in node_modules and not global it is also treated as a reference. */
+      (!symbolMetadata.isGlobal && symbolMetadata.isInNodeModules) ||
+      /** Finally, locally exported symbols are treated as a reference since they will be processed. */
+      (!isRootType &&
+        !symbolMetadata.isInNodeModules &&
+        !symbolMetadata.isExternal &&
+        symbolMetadata.isExported)) &&
+    /** Don't treat generics as references since they operate on type arguments that need to be processed. */
+    typeArguments.length === 0 &&
+    aliasTypeArguments.length === 0
   ) {
     return {
       kind: 'Reference',
@@ -293,6 +300,10 @@ export function processType(
       )
       .filter(Boolean) as ProcessedProperty[]
 
+    if (processedUnionTypes.length === 0) {
+      return undefined
+    }
+
     processedProperty = {
       name: symbolMetadata.name,
       kind: 'Union',
@@ -343,6 +354,10 @@ export function processType(
       }
     }
 
+    if (properties.length === 0) {
+      return undefined
+    }
+
     processedProperty = {
       name: symbolMetadata.name,
       kind: 'Object',
@@ -350,16 +365,22 @@ export function processType(
       properties,
     } satisfies ObjectProperty
   } else if (type.isTuple()) {
+    const elements = processTypeTupleElements(
+      type,
+      declaration,
+      filter,
+      references,
+      false
+    )
+
+    if (elements.length === 0) {
+      return undefined
+    }
+
     processedProperty = {
       kind: 'Tuple',
       type: typeText,
-      elements: processTypeTupleElements(
-        type,
-        declaration,
-        filter,
-        references,
-        false
-      ),
+      elements,
     } satisfies TupleProperty
   } else {
     const callSignatures = type.getCallSignatures()
@@ -382,6 +403,30 @@ export function processType(
         kind: 'Primitive',
         type: typeText,
       } satisfies PrimitiveProperty
+    } else if (typeArguments.length > 0) {
+      const processedTypeArguments = typeArguments
+        .map((type) =>
+          processType(
+            type,
+            declaration,
+            filter,
+            references,
+            false,
+            defaultValues
+          )
+        )
+        .filter(Boolean) as ProcessedProperty[]
+
+      if (processedTypeArguments.length === 0) {
+        return
+      }
+
+      processedProperty = {
+        name: symbolMetadata.name,
+        kind: 'Generic',
+        type: typeText,
+        arguments: processedTypeArguments,
+      } satisfies GenericProperty
     } else if (type.isObject()) {
       const properties = processTypeProperties(
         type,
@@ -392,41 +437,16 @@ export function processType(
         defaultValues
       )
 
-      // TODO: use appropriate kind based on declaration (isNode) rather than isObject
-      // TODO: collapse nested generics and unions if possible while preserving important generics like Promise
-
-      // If the type has no properties but has type arguments, we assume it is a generic type and process the type arguments
-      if (properties.length === 0 && typeArguments.length > 0) {
-        const processedTypeArguments = typeArguments
-          .map((type) =>
-            processType(
-              type,
-              declaration,
-              filter,
-              references,
-              false,
-              defaultValues
-            )
-          )
-          .filter(Boolean) as ProcessedProperty[]
-
-        // TODO: generics don't need to have arguments to be considered a generic type
-        if (processedTypeArguments.length > 0) {
-          processedProperty = {
-            name: symbolMetadata.name,
-            kind: 'Generic',
-            type: typeText,
-            arguments: processedTypeArguments,
-          } satisfies GenericProperty
-        }
-      } else {
-        processedProperty = {
-          name: symbolMetadata.name,
-          kind: 'Object',
-          type: typeText,
-          properties,
-        } satisfies ObjectProperty
+      if (properties.length === 0) {
+        return undefined
       }
+
+      processedProperty = {
+        name: symbolMetadata.name,
+        kind: 'Object',
+        type: typeText,
+        properties,
+      } satisfies ObjectProperty
     } else {
       /** Finally, try to process the apparent type if it is different from the current type. */
       const apparentType = type.getApparentType()
@@ -740,7 +760,7 @@ function getSymbolMetadata(
     }
   }
 
-  const declaration = symbol.getDeclarations().at(0)!
+  const declaration = declarations.at(0)!
   const declarationSourceFile = declaration?.getSourceFile()
   const enclosingSourceFile = enclosingNode?.getSourceFile()
 
