@@ -2,7 +2,6 @@ import {
   Node,
   Type,
   TypeFormatFlags,
-  ObjectFlags,
   type FunctionDeclaration,
   type MethodDeclaration,
   type ParameterDeclaration,
@@ -477,95 +476,106 @@ export function processCallSignatures(
   references: Set<string> = new Set(),
   isRootType: boolean = true
 ): FunctionSignature[] {
-  return signatures.map((signature) => {
-    const signatureDeclaration = signature.getDeclaration()
-    const signatureParameters = signature.getParameters()
-    const parameterDeclarations = signatureParameters.map((parameter) =>
-      parameter.getDeclarations().at(0)
-    ) as (ParameterDeclaration | undefined)[]
-    const generics = signature
-      .getTypeParameters()
-      .map((parameter) => parameter.getText())
-      .join(', ')
-    const genericsText = generics ? `<${generics}>` : ''
-    const defaultValues = getDefaultValuesFromProperties(
-      parameterDeclarations.filter(Boolean) as ParameterDeclaration[]
-    )
-    const parameters = signatureParameters
-      .map((parameter, index) => {
-        const parameterDeclaration = parameterDeclarations[index]
-        const isOptional = parameterDeclaration
-          ? parameterDeclaration.hasQuestionToken()
-          : undefined
-        const declaration = parameterDeclaration || enclosingNode
+  return signatures.map((signature) =>
+    processSignature(signature, enclosingNode, filter, references, isRootType)
+  )
+}
 
-        if (declaration) {
-          const defaultValue = parameterDeclaration
-            ? defaultValues[getDefaultValueKey(parameterDeclaration)]
-            : undefined
-          const processedType = processType(
-            parameter.getTypeAtLocation(signatureDeclaration),
-            enclosingNode,
-            filter,
-            references,
-            isRootType,
-            defaultValue
-          )
-
-          if (processedType) {
-            let name: string | undefined = parameter.getName()
-
-            if (name.startsWith('_')) {
-              name = undefined
-            }
-
-            return {
-              ...processedType,
-              name,
-              defaultValue,
-              isOptional: isOptional ?? Boolean(defaultValue),
-              description: getSymbolDescription(parameter),
-            } satisfies ProcessedProperty
-          }
-        } else {
-          throw new Error(
-            `[processCallSignatures]: No parameter declaration found for "${parameter.getName()}". You must pass the enclosing node as the second argument to "processCallSignatures".`
-          )
-        }
-      })
-      .filter(Boolean) as ProcessedProperty[]
-    const returnType = signature
-      .getReturnType()
-      .getText(undefined, TypeFormatFlags.UseAliasDefinedOutsideCurrentScope)
-    const parametersText = parameters
-      .map((parameter) => {
-        const questionMark = parameter.isOptional ? '?' : ''
-        return parameter.name
-          ? `${parameter.name}${questionMark}: ${parameter.type}`
-          : parameter.type
-      })
-      .join(', ')
-    let simplifiedTypeText: string
-
-    if (Node.isFunctionDeclaration(signatureDeclaration)) {
-      simplifiedTypeText = `function ${signatureDeclaration.getName()}${genericsText}(${parametersText}): ${returnType}`
-    } else {
-      simplifiedTypeText = `${genericsText}(${parametersText}) => ${returnType}`
-    }
-
-    const modifier: ReturnType<typeof getModifier> =
-      Node.isFunctionDeclaration(signatureDeclaration) ||
-      Node.isMethodDeclaration(signatureDeclaration)
-        ? getModifier(signatureDeclaration)
+/** Process a single function signature including its parameters and return type. */
+export function processSignature(
+  signature: Signature,
+  enclosingNode?: Node,
+  filter: SymbolFilter = defaultFilter,
+  references: Set<string> = new Set(),
+  isRootType: boolean = true
+): FunctionSignature {
+  const signatureDeclaration = signature.getDeclaration()
+  const signatureParameters = signature.getParameters()
+  const parameterDeclarations = signatureParameters.map((parameter) =>
+    parameter.getDeclarations().at(0)
+  ) as (ParameterDeclaration | undefined)[]
+  const generics = signature
+    .getTypeParameters()
+    .map((parameter) => parameter.getText())
+    .join(', ')
+  const genericsText = generics ? `<${generics}>` : ''
+  const defaultValues = getDefaultValuesFromProperties(
+    parameterDeclarations.filter(Boolean) as ParameterDeclaration[]
+  )
+  const parameters = signatureParameters
+    .map((parameter, index) => {
+      const parameterDeclaration = parameterDeclarations[index]
+      const isOptional = parameterDeclaration
+        ? parameterDeclaration.hasQuestionToken()
         : undefined
+      const declaration = parameterDeclaration || enclosingNode
 
-    return {
-      type: simplifiedTypeText,
-      modifier,
-      parameters,
-      returnType,
-    }
-  })
+      if (declaration) {
+        const defaultValue = parameterDeclaration
+          ? defaultValues[getDefaultValueKey(parameterDeclaration)]
+          : undefined
+        const processedType = processType(
+          parameter.getTypeAtLocation(signatureDeclaration),
+          enclosingNode,
+          filter,
+          references,
+          isRootType,
+          defaultValue
+        )
+
+        if (processedType) {
+          let name: string | undefined = parameter.getName()
+
+          if (name.startsWith('_')) {
+            name = undefined
+          }
+
+          return {
+            ...processedType,
+            name,
+            defaultValue,
+            isOptional: isOptional ?? Boolean(defaultValue),
+            description: getSymbolDescription(parameter),
+          } satisfies ProcessedProperty
+        }
+      } else {
+        throw new Error(
+          `[processCallSignatures]: No parameter declaration found for "${parameter.getName()}". You must pass the enclosing node as the second argument to "processCallSignatures".`
+        )
+      }
+    })
+    .filter(Boolean) as ProcessedProperty[]
+  const returnType = signature
+    .getReturnType()
+    .getText(undefined, TypeFormatFlags.UseAliasDefinedOutsideCurrentScope)
+  const parametersText = parameters
+    .map((parameter) => {
+      const questionMark = parameter.isOptional ? '?' : ''
+      return parameter.name
+        ? `${parameter.name}${questionMark}: ${parameter.type}`
+        : parameter.type
+    })
+    .join(', ')
+  let simplifiedTypeText: string
+
+  if (Node.isFunctionDeclaration(signatureDeclaration)) {
+    simplifiedTypeText = `function ${signatureDeclaration.getName()}${genericsText}(${parametersText}): ${returnType}`
+  } else {
+    simplifiedTypeText = `${genericsText}(${parametersText}) => ${returnType}`
+  }
+
+  const modifier: ReturnType<typeof getModifier> =
+    Node.isFunctionDeclaration(signatureDeclaration) ||
+    Node.isMethodDeclaration(signatureDeclaration)
+      ? getModifier(signatureDeclaration)
+      : undefined
+
+  return {
+    type: simplifiedTypeText,
+    modifier,
+    parameters,
+    returnType,
+  }
 }
 
 /** Process all apparent properties of a given type. */
@@ -577,15 +587,13 @@ export function processTypeProperties(
   isRootType: boolean = true,
   defaultValues?: Record<string, unknown> | unknown
 ): ProcessedProperty[] {
-  const typeProperties = type.getApparentProperties()
-  const propertyDeclarations = typeProperties.map((property) =>
-    property.getDeclarations().at(0)
-  ) as (PropertySignature | undefined)[]
-
-  return typeProperties
-    .map((property, index) => {
+  return type
+    .getApparentProperties()
+    .map((property) => {
       const symbolMetadata = getSymbolMetadata(property, enclosingNode)
-      const propertyDeclaration = propertyDeclarations[index]
+      const propertyDeclaration = property.getDeclarations().at(0) as
+        | PropertySignature
+        | undefined
       const isOptional = propertyDeclaration
         ? propertyDeclaration.hasQuestionToken()
         : false
