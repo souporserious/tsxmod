@@ -1576,4 +1576,122 @@ describe('processProperties', () => {
       }
     `)
   })
+
+  test('complex library generic types', () => {
+    const project = new Project({ tsConfigFilePath: 'tsconfig.json' })
+    const sourceFile = project.createSourceFile(
+      'test.ts',
+      dedent`
+      import styled from 'styled-components'
+      export const Text = styled.span<{ fontSize: number; fontWeight?: number }>({})
+      `
+    )
+    const variableDeclaration = sourceFile.getVariableDeclarationOrThrow('Text')
+    const processedType = processType(
+      variableDeclaration.getType(),
+      variableDeclaration,
+      (symbolMetadata) => {
+        if (symbolMetadata.name === 'theme') {
+          return true
+        }
+        return !symbolMetadata.isInNodeModules
+      }
+    )
+
+    expect(processedType).toMatchInlineSnapshot(`
+      {
+        "kind": "Object",
+        "name": undefined,
+        "properties": [
+          {
+            "kind": "Function",
+            "name": "IStyledComponentBase",
+            "signatures": [
+              {
+                "modifier": undefined,
+                "parameters": [
+                  {
+                    "defaultValue": undefined,
+                    "description": undefined,
+                    "isOptional": false,
+                    "kind": "Object",
+                    "name": "props",
+                    "properties": [
+                      {
+                        "defaultValue": undefined,
+                        "isOptional": true,
+                        "kind": "Union",
+                        "name": "theme",
+                        "properties": [
+                          {
+                            "kind": "Primitive",
+                            "type": "undefined",
+                          },
+                          {
+                            "kind": "Reference",
+                            "type": "DefaultTheme",
+                          },
+                        ],
+                        "type": "DefaultTheme | undefined",
+                      },
+                    ],
+                    "type": "PolymorphicComponentProps<"web", Substitute<React.DetailedHTMLProps<React.HTMLAttributes<HTMLSpanElement>, HTMLSpanElement>, { fontSize: number; fontWeight?: number | undefined; }>, AsTarget, ForwardedAsTarget, AsTarget extends KnownTarget ? React.ComponentPropsWithRef<AsTarget> : {}, ForwardedAsTarget extends KnownTarget ? React.ComponentPropsWithRef<ForwardedAsTarget> : {}>",
+                  },
+                ],
+                "returnType": "Element",
+                "type": "<AsTarget, ForwardedAsTarget>(props: PolymorphicComponentProps<"web", Substitute<React.DetailedHTMLProps<React.HTMLAttributes<HTMLSpanElement>, HTMLSpanElement>, { fontSize: number; fontWeight?: number | undefined; }>, AsTarget, ForwardedAsTarget, AsTarget extends KnownTarget ? React.ComponentPropsWithRef<AsTarget> : {}, ForwardedAsTarget extends KnownTarget ? React.ComponentPropsWithRef<ForwardedAsTarget> : {}>) => Element",
+              },
+              {
+                "modifier": undefined,
+                "parameters": [
+                  {
+                    "defaultValue": undefined,
+                    "description": undefined,
+                    "isOptional": false,
+                    "kind": "Object",
+                    "name": "props",
+                    "properties": [
+                      {
+                        "defaultValue": undefined,
+                        "isOptional": false,
+                        "kind": "Number",
+                        "name": "fontSize",
+                        "type": "number",
+                      },
+                      {
+                        "defaultValue": undefined,
+                        "isOptional": true,
+                        "kind": "Union",
+                        "name": "fontWeight",
+                        "properties": [
+                          {
+                            "kind": "Primitive",
+                            "type": "undefined",
+                          },
+                          {
+                            "kind": "Number",
+                            "type": "number",
+                          },
+                        ],
+                        "type": "number | undefined",
+                      },
+                    ],
+                    "type": "Substitute<React.DetailedHTMLProps<React.HTMLAttributes<HTMLSpanElement>, HTMLSpanElement>, { fontSize: number; fontWeight?: number | undefined; }>",
+                  },
+                ],
+                "returnType": "ReactNode",
+                "type": "(props: Substitute<React.DetailedHTMLProps<React.HTMLAttributes<HTMLSpanElement>, HTMLSpanElement>, { fontSize: number; fontWeight?: number | undefined; }>) => ReactNode",
+              },
+            ],
+            "type": "IStyledComponentBase<"web", Substitute<React.DetailedHTMLProps<React.HTMLAttributes<HTMLSpanElement>, HTMLSpanElement>, { fontSize: number; fontWeight?: number | undefined; }>>",
+          },
+          {
+            "kind": "String",
+            "type": "string",
+          },
+        ],
+        "type": "IStyledComponentBase<"web", Substitute<React.DetailedHTMLProps<React.HTMLAttributes<HTMLSpanElement>, HTMLSpanElement>, { fontSize: number; fontWeight?: number | undefined; }>> & string",
+      }
+    `)
+  })
 })
