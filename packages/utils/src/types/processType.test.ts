@@ -2,11 +2,11 @@ import { Project } from 'ts-morph'
 import { processTypeProperties, processType } from './processType'
 import dedent from 'dedent'
 
-describe('processProperties', () => {
-  const project = new Project()
+const project = new Project()
 
+describe('processProperties', () => {
   const sourceFile = project.createSourceFile(
-    'sample.ts',
+    'test.ts',
     `
   export type ExportedType = {
     slug: string;
@@ -415,7 +415,6 @@ describe('processProperties', () => {
   })
 
   test('intersection and union', () => {
-    const project = new Project()
     const sourceFile = project.createSourceFile(
       'test.ts',
       `
@@ -432,7 +431,8 @@ describe('processProperties', () => {
       } & BaseVariant
 
       type Variant<T> = FillVariant | OutlineVariant | string;
-    `
+    `,
+      { overwrite: true }
     )
     const typeAlias = sourceFile.getTypeAliasOrThrow('Variant')
     const processedProperties = processType(typeAlias.getType())
@@ -489,7 +489,6 @@ describe('processProperties', () => {
   })
 
   test('primitives', () => {
-    const project = new Project()
     const sourceFile = project.createSourceFile(
       'test.ts',
       `
@@ -520,7 +519,8 @@ describe('processProperties', () => {
       }
 
       async function foo() {}
-    `
+    `,
+      { overwrite: true }
     )
     const typeAlias = sourceFile.getTypeAliasOrThrow('Primitives')
     const processedProperties = processType(typeAlias.getType())
@@ -646,7 +646,6 @@ describe('processProperties', () => {
   })
 
   test('variable declarations', () => {
-    const project = new Project()
     const sourceFile = project.createSourceFile(
       'test.ts',
       `
@@ -662,7 +661,8 @@ describe('processProperties', () => {
         },
         g: 'string',
       }
-    `
+    `,
+      { overwrite: true }
     )
     const variableDeclaration = sourceFile.getVariableDeclarationOrThrow('a')
     const processedProperties = processType(variableDeclaration.getType())
@@ -716,7 +716,6 @@ describe('processProperties', () => {
   })
 
   test('recursive types', () => {
-    const project = new Project()
     const sourceFile = project.createSourceFile(
       'test.ts',
       `
@@ -724,7 +723,8 @@ describe('processProperties', () => {
         id: string;
         children: SelfReferencedType[];
       }
-    `
+    `,
+      { overwrite: true }
     )
     const typeAlias = sourceFile.getTypeAliasOrThrow('SelfReferencedType')
     const processedProperties = processType(typeAlias.getType())
@@ -798,8 +798,6 @@ describe('processProperties', () => {
   })
 
   test('avoids analyzing prototype properties and methods', () => {
-    const project = new Project()
-
     const sourceFile = project.createSourceFile(
       'test.ts',
       dedent`
@@ -810,7 +808,8 @@ describe('processProperties', () => {
       type AsyncString = {
         value: Promise<Foo>
       }
-      `
+      `,
+      { overwrite: true }
     )
 
     const typeAlias = sourceFile.getTypeAliasOrThrow('AsyncString')
@@ -851,8 +850,6 @@ describe('processProperties', () => {
   })
 
   test('unwraps generic types', () => {
-    const project = new Project()
-
     const sourceFile = project.createSourceFile(
       'test.ts',
       dedent`
@@ -880,7 +877,8 @@ describe('processProperties', () => {
       }
 
       type ExportedType = UnwrapPromisesInMap<DistributiveOmit<UnionType, 'title'>>
-      `
+      `,
+      { overwrite: true }
     )
 
     const typeAlias = sourceFile.getTypeAliasOrThrow('ExportedType')
@@ -1316,7 +1314,6 @@ describe('processProperties', () => {
   })
 
   test('default parameter values', () => {
-    const project = new Project()
     const sourceFile = project.createSourceFile(
       'test.ts',
       dedent`
@@ -1326,7 +1323,8 @@ describe('processProperties', () => {
       }
 
       export function Text(props: TextProps = { color: 'red' }) {}
-      `
+      `,
+      { overwrite: true }
     )
     const typeAlias = sourceFile.getFunctionOrThrow('Text')
     const processedProperties = processType(typeAlias.getType())
@@ -1360,7 +1358,6 @@ describe('processProperties', () => {
   })
 
   test('default object values', () => {
-    const project = new Project()
     const sourceFile = project.createSourceFile(
       'test.ts',
       dedent`
@@ -1373,7 +1370,8 @@ describe('processProperties', () => {
       }
 
       export function Text({ style: { fontSize, color } }: TextProps = { style: { fontWeight: 400, color: 'blue' } }) {}
-      `
+      `,
+      { overwrite: true }
     )
     const typeAlias = sourceFile.getFunctionOrThrow('Text')
     const processedProperties = processType(typeAlias.getType())
@@ -1445,7 +1443,6 @@ describe('processProperties', () => {
   })
 
   test('conditional generic', () => {
-    const project = new Project()
     const sourceFile = project.createSourceFile(
       'test.ts',
       dedent`
@@ -1518,7 +1515,6 @@ describe('processProperties', () => {
   })
 
   test('generic function parameters', () => {
-    const project = new Project()
     const sourceFile = project.createSourceFile(
       'test.ts',
       dedent`
