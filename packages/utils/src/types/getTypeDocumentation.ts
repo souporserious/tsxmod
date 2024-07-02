@@ -305,15 +305,12 @@ function processFunctionOrExpression(
 
   return {
     kind: 'Function',
-    signatures: processedCallSignatures.map(
-      ({ parameters, ...processedCallSignatures }) => {
-        return {
-          ...processedCallSignatures,
-          kind: 'FunctionSignature',
-          parameters,
-        } satisfies FunctionSignature
-      }
-    ),
+    signatures: processedCallSignatures.map((processedCallSignature) => {
+      return {
+        ...processedCallSignature,
+        kind: 'FunctionSignature',
+      } satisfies FunctionSignature
+    }),
     ...sharedMetadata,
   }
 }
