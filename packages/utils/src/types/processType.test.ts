@@ -57,6 +57,7 @@ describe('processProperties', () => {
             "name": "method",
             "signatures": [
               {
+                "kind": "FunctionSignature",
                 "modifier": undefined,
                 "parameters": [
                   {
@@ -126,6 +127,7 @@ describe('processProperties', () => {
               "name": undefined,
               "signatures": [
                 {
+                  "kind": "FunctionSignature",
                   "modifier": undefined,
                   "parameters": [
                     {
@@ -220,6 +222,7 @@ describe('processProperties', () => {
               "name": undefined,
               "signatures": [
                 {
+                  "kind": "FunctionSignature",
                   "modifier": undefined,
                   "parameters": [
                     {
@@ -343,6 +346,7 @@ describe('processProperties', () => {
               "name": "b",
               "signatures": [
                 {
+                  "kind": "FunctionSignature",
                   "modifier": undefined,
                   "parameters": [],
                   "returnType": "void",
@@ -385,6 +389,7 @@ describe('processProperties', () => {
           "name": "function",
           "signatures": [
             {
+              "kind": "FunctionSignature",
               "modifier": undefined,
               "parameters": [
                 {
@@ -606,6 +611,7 @@ describe('processProperties', () => {
             "name": "func",
             "signatures": [
               {
+                "kind": "FunctionSignature",
                 "modifier": undefined,
                 "parameters": [
                   {
@@ -631,6 +637,7 @@ describe('processProperties', () => {
             "name": "asyncFunc",
             "signatures": [
               {
+                "kind": "FunctionSignature",
                 "modifier": "async",
                 "parameters": [],
                 "returnType": "Promise<void>",
@@ -1179,6 +1186,7 @@ describe('processProperties', () => {
         "name": "Text",
         "signatures": [
           {
+            "kind": "FunctionSignature",
             "modifier": undefined,
             "parameters": [
               {
@@ -1231,6 +1239,7 @@ describe('processProperties', () => {
         "name": "Text",
         "signatures": [
           {
+            "kind": "FunctionSignature",
             "modifier": undefined,
             "parameters": [
               {
@@ -1293,6 +1302,7 @@ describe('processProperties', () => {
         "name": "Text",
         "signatures": [
           {
+            "kind": "FunctionSignature",
             "modifier": undefined,
             "parameters": [
               {
@@ -1335,6 +1345,7 @@ describe('processProperties', () => {
         "name": "Text",
         "signatures": [
           {
+            "kind": "FunctionSignature",
             "modifier": undefined,
             "parameters": [
               {
@@ -1382,6 +1393,7 @@ describe('processProperties', () => {
         "name": "Text",
         "signatures": [
           {
+            "kind": "FunctionSignature",
             "modifier": undefined,
             "parameters": [
               {
@@ -1537,6 +1549,7 @@ describe('processProperties', () => {
         "name": undefined,
         "signatures": [
           {
+            "kind": "FunctionSignature",
             "modifier": undefined,
             "parameters": [
               {
@@ -1650,6 +1663,7 @@ describe('processProperties', () => {
             "name": "IStyledComponentBase",
             "signatures": [
               {
+                "kind": "FunctionSignature",
                 "modifier": undefined,
                 "parameters": [
                   {
@@ -1674,6 +1688,7 @@ describe('processProperties', () => {
                 "type": "<AsTarget, ForwardedAsTarget>(props: PolymorphicComponentProps<"web", Substitute<React.DetailedHTMLProps<React.HTMLAttributes<HTMLSpanElement>, HTMLSpanElement>, { fontSize: number; fontWeight?: number | undefined; }>, AsTarget, ForwardedAsTarget, AsTarget extends KnownTarget ? React.ComponentPropsWithRef<AsTarget> : {}, ForwardedAsTarget extends KnownTarget ? React.ComponentPropsWithRef<ForwardedAsTarget> : {}>) => Element",
               },
               {
+                "kind": "FunctionSignature",
                 "modifier": undefined,
                 "parameters": [
                   {
