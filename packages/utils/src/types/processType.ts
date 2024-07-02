@@ -17,7 +17,7 @@ import {
 } from '../properties'
 import { getSymbolDescription } from '../symbols'
 
-export interface SharedProperty {
+export interface SharedMetadata {
   /** The name of the symbol or declaration if it exists. */
   name?: string
 
@@ -27,6 +27,11 @@ export interface SharedProperty {
   /** The tags of the declaration if provided. */
   tags?: { tagName: string; text?: string }[]
 
+  /** The type of the declaration if provided. */
+  type: unknown
+}
+
+export interface SharedProperty extends SharedMetadata {
   /** Whether or not the property is optional. */
   isOptional?: boolean
 
@@ -93,6 +98,7 @@ export interface FunctionProperty extends SharedProperty {
 }
 
 export interface FunctionSignature {
+  kind: 'FunctionSignature'
   modifier?: 'async' | 'generator'
   parameters: ProcessedProperty[]
   type: string
@@ -581,6 +587,7 @@ export function processSignature(
       : undefined
 
   return {
+    kind: 'FunctionSignature',
     type: simplifiedTypeText,
     modifier,
     parameters,
