@@ -402,30 +402,6 @@ export function processType(
         kind: 'Primitive',
         type: typeText,
       } satisfies PrimitiveProperty
-    } else if (typeArguments.length > 0) {
-      const processedTypeArguments = typeArguments
-        .map((type) =>
-          processType(
-            type,
-            declaration,
-            filter,
-            references,
-            false,
-            defaultValues
-          )
-        )
-        .filter(Boolean) as ProcessedProperty[]
-
-      if (processedTypeArguments.length === 0) {
-        return
-      }
-
-      processedProperty = {
-        name: symbolMetadata.name,
-        kind: 'Generic',
-        type: typeText,
-        arguments: processedTypeArguments,
-      } satisfies GenericProperty
     } else if (type.isObject()) {
       const properties = processTypeProperties(
         type,
@@ -436,16 +412,40 @@ export function processType(
         defaultValues
       )
 
-      if (properties.length === 0) {
-        return undefined
-      }
+      if (properties.length === 0 && typeArguments.length > 0) {
+        const processedTypeArguments = typeArguments
+          .map((type) =>
+            processType(
+              type,
+              declaration,
+              filter,
+              references,
+              false,
+              defaultValues
+            )
+          )
+          .filter(Boolean) as ProcessedProperty[]
 
-      processedProperty = {
-        name: symbolMetadata.name,
-        kind: 'Object',
-        type: typeText,
-        properties,
-      } satisfies ObjectProperty
+        if (processedTypeArguments.length === 0) {
+          return
+        }
+
+        processedProperty = {
+          name: symbolMetadata.name,
+          kind: 'Generic',
+          type: typeText,
+          arguments: processedTypeArguments,
+        } satisfies GenericProperty
+      } else if (properties.length === 0) {
+        return undefined
+      } else {
+        processedProperty = {
+          name: symbolMetadata.name,
+          kind: 'Object',
+          type: typeText,
+          properties,
+        } satisfies ObjectProperty
+      }
     } else {
       /** Finally, try to process the apparent type if it is different from the current type. */
       const apparentType = type.getApparentType()
