@@ -154,7 +154,8 @@ export function processType(
   filter: SymbolFilter = defaultFilter,
   references: Set<string> = new Set(),
   isRootType: boolean = true,
-  defaultValues?: Record<string, unknown> | unknown
+  defaultValues?: Record<string, unknown> | unknown,
+  isOptional?: boolean
 ): ProcessedProperty | undefined {
   const typeText = type.getText(enclosingNode, TYPE_FORMAT_FLAGS)
   const symbol = getTypeSymbol(type)
@@ -285,47 +286,55 @@ export function processType(
       return
     }
   } else if (type.isUnion()) {
-    const processedUnionTypes = type
-      .getUnionTypes()
-      .map((unionType) =>
-        processType(
-          unionType,
-          declaration,
-          filter,
-          references,
-          false,
-          defaultValues
-        )
+    const processedUnionTypes: ProcessedProperty[] = []
+
+    for (const unionType of type.getUnionTypes()) {
+      const processedType = processType(
+        unionType,
+        declaration,
+        filter,
+        references,
+        false,
+        defaultValues
       )
-      .filter(Boolean) as ProcessedProperty[]
+
+      if (processedType) {
+        const previousProperty = processedUnionTypes.at(-1)
+
+        // Flatten boolean literals to just 'boolean' if both values are present
+        if (
+          processedType.kind === 'Boolean' &&
+          previousProperty?.kind === 'Boolean'
+        ) {
+          processedUnionTypes.pop()
+          processedType.type = 'boolean'
+        }
+
+        if (isOptional) {
+          // Filter out 'undefined' from union types if the property is optional
+          if (processedType.type !== 'undefined') {
+            processedUnionTypes.push(processedType)
+          }
+        } else {
+          processedUnionTypes.push(processedType)
+        }
+      }
+    }
 
     if (processedUnionTypes.length === 0) {
       return undefined
+    }
+
+    // If the union type only has one value and is optional, return the value directly
+    if (isOptional && processedUnionTypes.length === 1) {
+      return processedUnionTypes[0]
     }
 
     processedProperty = {
       name: symbolMetadata.name,
       kind: 'Union',
       type: typeText,
-      properties: processedUnionTypes
-        // Flatten boolean literals to just 'boolean' if both values are present
-        // TODO: optimize and only loop once
-        .reduce((allProperties, property, index) => {
-          const previousProperty = processedUnionTypes.at(index - 1)
-
-          // Remove previous boolean literal if the current property is a boolean as well
-          if (
-            property.kind === 'Boolean' &&
-            previousProperty?.kind === 'Boolean'
-          ) {
-            allProperties.pop()
-            property.type = 'boolean'
-          }
-
-          allProperties.push(property)
-
-          return allProperties
-        }, [] as ProcessedProperty[]),
+      properties: processedUnionTypes,
     } satisfies UnionProperty
   } else if (type.isIntersection()) {
     const processedIntersectionTypes = type
@@ -520,7 +529,8 @@ export function processSignature(
           filter,
           references,
           isRootType,
-          defaultValue
+          defaultValue,
+          isOptional
         )
 
         if (processedType) {
@@ -623,7 +633,8 @@ export function processTypeProperties(
           filter,
           references,
           isRootType,
-          defaultValue
+          defaultValue,
+          isOptional
         )
 
         if (processedProperty) {

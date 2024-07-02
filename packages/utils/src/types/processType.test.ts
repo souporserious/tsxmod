@@ -1573,6 +1573,52 @@ describe('processProperties', () => {
     `)
   })
 
+  test('explicit undefined is a union', () => {
+    const project = new Project({
+      compilerOptions: {
+        strictNullChecks: true,
+      },
+    })
+    const sourceFile = project.createSourceFile(
+      'test.ts',
+      dedent`
+      type TextProps = {
+        color: string | undefined;
+      }
+      `,
+      { overwrite: true }
+    )
+    const typeAlias = sourceFile.getTypeAliasOrThrow('TextProps')
+    const processedProperties = processType(typeAlias.getType())
+
+    expect(processedProperties).toMatchInlineSnapshot(`
+      {
+        "kind": "Object",
+        "name": "TextProps",
+        "properties": [
+          {
+            "defaultValue": undefined,
+            "isOptional": false,
+            "kind": "Union",
+            "name": "color",
+            "properties": [
+              {
+                "kind": "Primitive",
+                "type": "undefined",
+              },
+              {
+                "kind": "String",
+                "type": "string",
+              },
+            ],
+            "type": "string | undefined",
+          },
+        ],
+        "type": "TextProps",
+      }
+    `)
+  })
+
   test('complex library generic types', () => {
     const project = new Project({ tsConfigFilePath: 'tsconfig.json' })
     const sourceFile = project.createSourceFile(
@@ -1616,19 +1662,9 @@ describe('processProperties', () => {
                       {
                         "defaultValue": undefined,
                         "isOptional": true,
-                        "kind": "Union",
+                        "kind": "Reference",
                         "name": "theme",
-                        "properties": [
-                          {
-                            "kind": "Primitive",
-                            "type": "undefined",
-                          },
-                          {
-                            "kind": "Reference",
-                            "type": "DefaultTheme",
-                          },
-                        ],
-                        "type": "DefaultTheme | undefined",
+                        "type": "DefaultTheme",
                       },
                     ],
                     "type": "PolymorphicComponentProps<"web", Substitute<React.DetailedHTMLProps<React.HTMLAttributes<HTMLSpanElement>, HTMLSpanElement>, { fontSize: number; fontWeight?: number | undefined; }>, AsTarget, ForwardedAsTarget, AsTarget extends KnownTarget ? React.ComponentPropsWithRef<AsTarget> : {}, ForwardedAsTarget extends KnownTarget ? React.ComponentPropsWithRef<ForwardedAsTarget> : {}>",
@@ -1657,19 +1693,9 @@ describe('processProperties', () => {
                       {
                         "defaultValue": undefined,
                         "isOptional": true,
-                        "kind": "Union",
+                        "kind": "Number",
                         "name": "fontWeight",
-                        "properties": [
-                          {
-                            "kind": "Primitive",
-                            "type": "undefined",
-                          },
-                          {
-                            "kind": "Number",
-                            "type": "number",
-                          },
-                        ],
-                        "type": "number | undefined",
+                        "type": "number",
                       },
                     ],
                     "type": "Substitute<React.DetailedHTMLProps<React.HTMLAttributes<HTMLSpanElement>, HTMLSpanElement>, { fontSize: number; fontWeight?: number | undefined; }>",
