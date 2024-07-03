@@ -17,7 +17,7 @@ import {
 } from '../properties'
 import { getSymbolDescription } from '../symbols'
 
-export interface SharedProperty {
+export interface SharedMetadata {
   /** The name of the symbol or declaration if it exists. */
   name?: string
 
@@ -27,6 +27,11 @@ export interface SharedProperty {
   /** The tags of the declaration if provided. */
   tags?: { tagName: string; text?: string }[]
 
+  /** The type of the declaration if provided. */
+  type: unknown
+}
+
+export interface SharedProperty extends SharedMetadata {
   /** Whether or not the property is optional. */
   isOptional?: boolean
 
@@ -86,17 +91,32 @@ export interface SymbolProperty extends SharedProperty {
   type: string
 }
 
+export interface FunctionSignature {
+  kind: 'FunctionSignature'
+  modifier?: 'async' | 'generator'
+  parameters: ProcessedProperty[]
+  type: string
+  returnType: string
+}
+
 export interface FunctionProperty extends SharedProperty {
   kind: 'Function'
   type: string
   signatures: FunctionSignature[]
 }
 
-export interface FunctionSignature {
+export interface ComponentSignature {
+  kind: 'ComponentSignature'
   modifier?: 'async' | 'generator'
-  parameters: ProcessedProperty[]
+  properties: ObjectProperty
   type: string
   returnType: string
+}
+
+export interface ComponentProperty extends SharedProperty {
+  kind: 'Component'
+  type: string
+  signatures: ComponentSignature[]
 }
 
 export interface PrimitiveProperty extends SharedProperty {
@@ -131,6 +151,7 @@ export type ProcessedProperty =
   | UnionProperty
   | TupleProperty
   | FunctionProperty
+  | ComponentProperty
   | ObjectProperty
   | UnknownProperty
   | ReferenceProperty
@@ -394,18 +415,43 @@ export function processType(
     const callSignatures = type.getCallSignatures()
 
     if (callSignatures.length > 0) {
-      processedProperty = {
-        name: symbolMetadata.name,
-        kind: 'Function',
-        type: typeText,
-        signatures: processCallSignatures(
-          callSignatures,
-          declaration,
-          filter,
-          references,
-          false
-        ),
-      } satisfies FunctionProperty
+      const processedCallSignatures = processCallSignatures(
+        callSignatures,
+        declaration,
+        filter,
+        references,
+        false
+      )
+
+      if (isComponent(symbolMetadata.name, processedCallSignatures)) {
+        processedProperty = {
+          kind: 'Component',
+          name: symbolMetadata.name,
+          type: typeText,
+          signatures: processedCallSignatures.map(
+            ({ parameters, ...processedCallSignature }) => {
+              return {
+                ...processedCallSignature,
+                kind: 'ComponentSignature',
+                properties: parameters.at(0)! as ObjectProperty,
+              } satisfies ComponentSignature
+            }
+          ),
+        } satisfies ComponentProperty
+      } else {
+        processedProperty = {
+          kind: 'Function',
+          name: symbolMetadata.name,
+          type: typeText,
+          signatures: processCallSignatures(
+            callSignatures,
+            declaration,
+            filter,
+            references,
+            false
+          ),
+        } satisfies FunctionProperty
+      }
     } else if (isPrimitive) {
       processedProperty = {
         kind: 'Primitive',
@@ -485,9 +531,11 @@ export function processCallSignatures(
   references: Set<string> = new Set(),
   isRootType: boolean = true
 ): FunctionSignature[] {
-  return signatures.map((signature) =>
-    processSignature(signature, enclosingNode, filter, references, isRootType)
-  )
+  return signatures
+    .map((signature) =>
+      processSignature(signature, enclosingNode, filter, references, isRootType)
+    )
+    .filter(Boolean) as FunctionSignature[]
 }
 
 /** Process a single function signature including its parameters and return type. */
@@ -497,7 +545,7 @@ export function processSignature(
   filter: SymbolFilter = defaultFilter,
   references: Set<string> = new Set(),
   isRootType: boolean = true
-): FunctionSignature {
+): FunctionSignature | undefined {
   const signatureDeclaration = signature.getDeclaration()
   const signatureParameters = signature.getParameters()
   const parameterDeclarations = signatureParameters.map((parameter) =>
@@ -511,7 +559,7 @@ export function processSignature(
   const defaultValues = getDefaultValuesFromProperties(
     parameterDeclarations.filter(Boolean) as ParameterDeclaration[]
   )
-  const parameters = signatureParameters
+  const processedParameters = signatureParameters
     .map((parameter, index) => {
       const parameterDeclaration = parameterDeclarations[index]
       const isOptional = parameterDeclaration
@@ -555,10 +603,20 @@ export function processSignature(
       }
     })
     .filter(Boolean) as ProcessedProperty[]
+
+  /** Skip signatures with filtered parameters if they are in node_modules. */
+  if (
+    signatureParameters.length !== 0 &&
+    processedParameters.length === 0 &&
+    signatureDeclaration.getSourceFile().isInNodeModules()
+  ) {
+    return
+  }
+
   const returnType = signature
     .getReturnType()
     .getText(undefined, TypeFormatFlags.UseAliasDefinedOutsideCurrentScope)
-  const parametersText = parameters
+  const parametersText = processedParameters
     .map((parameter) => {
       const questionMark = parameter.isOptional ? '?' : ''
       return parameter.name
@@ -581,9 +639,10 @@ export function processSignature(
       : undefined
 
   return {
+    kind: 'FunctionSignature',
     type: simplifiedTypeText,
+    parameters: processedParameters,
     modifier,
-    parameters,
     returnType,
   }
 }
@@ -833,6 +892,39 @@ function getModifier(node: FunctionDeclaration | MethodDeclaration) {
   if (node.isGenerator()) {
     return 'generator'
   }
+}
+
+/** Check if a function is a component based on its name and call signature shape. */
+export function isComponent(
+  name: string | undefined,
+  callSignatures: FunctionSignature[]
+) {
+  if (!name) {
+    return false
+  }
+
+  const isFirstLetterCapitalized = /[A-Z]/.test(name.charAt(0))
+
+  if (!isFirstLetterCapitalized || callSignatures.length === 0) {
+    return false
+  }
+
+  return callSignatures.every((signature) => {
+    const onlyOneParameter = signature.parameters.length === 1
+    if (onlyOneParameter) {
+      const firstParameter = signature.parameters.at(0)!
+
+      if (firstParameter.kind === 'Object') {
+        return true
+      }
+
+      if (firstParameter.kind === 'Union') {
+        return firstParameter.properties.every(
+          (property) => property.kind === 'Object'
+        )
+      }
+    }
+  })
 }
 
 const UTILITY_TYPES = new Set([
