@@ -175,8 +175,7 @@ export function processType(
   filter: SymbolFilter = defaultFilter,
   references: Set<string> = new Set(),
   isRootType: boolean = true,
-  defaultValues?: Record<string, unknown> | unknown,
-  isOptional?: boolean
+  defaultValues?: Record<string, unknown> | unknown
 ): ProcessedType | undefined {
   const typeText = type.getText(enclosingNode, TYPE_FORMAT_FLAGS)
   const symbol = getTypeSymbol(type)
@@ -331,24 +330,12 @@ export function processType(
           processedType.type = 'boolean'
         }
 
-        if (isOptional) {
-          // Filter out 'undefined' from union types if the property is optional
-          if (processedType.type !== 'undefined') {
-            processedUnionTypes.push(processedType)
-          }
-        } else {
-          processedUnionTypes.push(processedType)
-        }
+        processedUnionTypes.push(processedType)
       }
     }
 
     if (processedUnionTypes.length === 0) {
       return undefined
-    }
-
-    // If the union type only has one value and is optional, return the value directly
-    if (isOptional && processedUnionTypes.length === 1) {
-      return processedUnionTypes[0]
     }
 
     processedProperty = {
@@ -577,8 +564,7 @@ export function processSignature(
           filter,
           references,
           isRootType,
-          defaultValue,
-          isOptional
+          defaultValue
         )
 
         if (processedType) {
@@ -692,8 +678,7 @@ export function processTypeProperties(
           filter,
           references,
           isRootType,
-          defaultValue,
-          isOptional
+          defaultValue
         )
 
         if (processedProperty) {

@@ -756,7 +756,10 @@ describe('getTypeDocumentation', () => {
   })
 
   test('library call expression generic types', () => {
-    const project = new Project({ tsConfigFilePath: 'tsconfig.json' })
+    const project = new Project({
+      compilerOptions: { strictNullChecks: false },
+      tsConfigFilePath: 'tsconfig.json',
+    })
     const sourceFile = project.createSourceFile(
       'test.ts',
       dedent`
@@ -1614,7 +1617,6 @@ describe('getTypeDocumentation', () => {
   })
 
   test('allows filtering specific node module types', () => {
-    const project = new Project({ tsConfigFilePath: 'tsconfig.json' })
     const sourceFile = project.createSourceFile(
       'test.tsx',
       dedent`
@@ -1676,7 +1678,7 @@ describe('getTypeDocumentation', () => {
                     },
                   ],
                   "name": "variant",
-                  "type": "ButtonVariant | undefined",
+                  "type": "ButtonVariant",
                 },
                 {
                   "defaultValue": undefined,
