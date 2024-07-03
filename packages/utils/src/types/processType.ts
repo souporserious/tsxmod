@@ -31,7 +31,7 @@ export interface SharedMetadata {
   type: unknown
 }
 
-export interface SharedProperty extends SharedMetadata {
+export interface SharedType extends SharedMetadata {
   /** Whether or not the property is optional. */
   isOptional?: boolean
 
@@ -39,124 +39,124 @@ export interface SharedProperty extends SharedMetadata {
   defaultValue?: unknown
 }
 
-export interface ArrayProperty extends SharedProperty {
-  kind: 'Array'
-  type: ProcessedProperty
+export interface StringType extends SharedType {
+  kind: 'String'
+  type: string
 }
 
-export interface ObjectProperty extends SharedProperty {
+export interface NumberType extends SharedType {
+  kind: 'Number'
+  type: string
+}
+
+export interface BooleanType extends SharedType {
+  kind: 'Boolean'
+  type: string
+}
+
+export interface ArrayType extends SharedType {
+  kind: 'Array'
+  type: ProcessedType
+}
+
+export interface ObjectType extends SharedType {
   kind: 'Object'
   type: string
-  properties: ProcessedProperty[]
+  properties: ProcessedType[]
 }
 
-export interface GenericProperty extends SharedProperty {
+export interface GenericType extends SharedType {
   kind: 'Generic'
   type: string
-  arguments: ProcessedProperty[]
+  arguments: ProcessedType[]
 }
 
-export interface UnionProperty extends SharedProperty {
+export interface UnionType extends SharedType {
   kind: 'Union'
   type: string
-  members: ProcessedProperty[]
+  members: ProcessedType[]
 }
 
 // TODO: add UnionLiteral to handle union literals like 'foo' | 'bar' that can just print the type instead of each property
 // this should also be the case for a UnionPrimitive type like string | number | boolean
 
-export interface TupleProperty extends SharedProperty {
+export interface TupleType extends SharedType {
   kind: 'Tuple'
   type: string
-  elements: ProcessedProperty[]
+  elements: ProcessedType[]
 }
 
-export interface BooleanProperty extends SharedProperty {
-  kind: 'Boolean'
-  type: string
-}
-
-export interface NumberProperty extends SharedProperty {
-  kind: 'Number'
-  type: string
-}
-
-export interface StringProperty extends SharedProperty {
-  kind: 'String'
-  type: string
-}
-
-export interface SymbolProperty extends SharedProperty {
+export interface SymbolType extends SharedType {
   kind: 'Symbol'
   type: string
 }
 
-export interface FunctionSignature {
+export interface FunctionSignatureType {
   kind: 'FunctionSignature'
   modifier?: 'async' | 'generator'
-  parameters: ProcessedProperty[]
+  parameters: ProcessedType[]
   type: string
   returnType: string
 }
 
-export interface FunctionProperty extends SharedProperty {
+export interface FunctionType extends SharedType {
   kind: 'Function'
   type: string
-  signatures: FunctionSignature[]
+  signatures: FunctionSignatureType[]
 }
 
-export interface ComponentSignature {
+export interface ComponentSignatureType {
   kind: 'ComponentSignature'
   modifier?: 'async' | 'generator'
-  properties: ObjectProperty
+  properties: ObjectType
   type: string
   returnType: string
 }
 
-export interface ComponentProperty extends SharedProperty {
+export interface ComponentType extends SharedType {
   kind: 'Component'
   type: string
-  signatures: ComponentSignature[]
+  signatures: ComponentSignatureType[]
 }
 
-export interface PrimitiveProperty extends SharedProperty {
+export interface PrimitiveType extends SharedType {
   kind: 'Primitive'
   type: string
 }
 
-export interface UnknownProperty extends SharedProperty {
+export interface UnknownType extends SharedType {
   kind: 'Unknown'
   type: string
 }
 
-export interface ReferenceProperty extends SharedProperty {
+export interface ReferenceType extends SharedType {
   kind: 'Reference'
   type: string
   // path?: string // TODO: add import specifier for external references and identifier for internal references
 }
 
-export interface UtilityProperty extends SharedProperty {
+export interface UtilityType extends SharedType {
   kind: 'Utility'
   type: string
-  arguments: ProcessedProperty[]
+  arguments: ProcessedType[]
 }
 
-export type ProcessedProperty =
-  | BooleanProperty
-  | NumberProperty
-  | StringProperty
-  | SymbolProperty
-  | GenericProperty
-  | ArrayProperty
-  | UnionProperty
-  | TupleProperty
-  | FunctionProperty
-  | ComponentProperty
-  | ObjectProperty
-  | UnknownProperty
-  | ReferenceProperty
-  | PrimitiveProperty
-  | UtilityProperty
+export type ProcessedType =
+  | StringType
+  | NumberType
+  | BooleanType
+  | ArrayType
+  | TupleType
+  | FunctionType
+  | ComponentType
+  | ObjectType
+  | UnionType
+  | SymbolType
+  | PrimitiveType
+  | ReferenceType
+  | GenericType
+  | UtilityType
+  | UnknownType
 
 export type SymbolMetadata = ReturnType<typeof getSymbolMetadata>
 
@@ -177,7 +177,7 @@ export function processType(
   isRootType: boolean = true,
   defaultValues?: Record<string, unknown> | unknown,
   isOptional?: boolean
-): ProcessedProperty | undefined {
+): ProcessedType | undefined {
   const typeText = type.getText(enclosingNode, TYPE_FORMAT_FLAGS)
   const symbol = getTypeSymbol(type)
   const symbolMetadata = getSymbolMetadata(symbol, enclosingNode)
@@ -187,10 +187,10 @@ export function processType(
   const typeArguments = type.getTypeArguments()
   const aliasTypeArguments = type.getAliasTypeArguments()
 
-  let processedProperty: ProcessedProperty = {
+  let processedProperty: ProcessedType = {
     kind: 'Unknown',
     type: typeText,
-  } satisfies UnknownProperty
+  } satisfies UnknownType
 
   /** Determine if the enclosing type is referencing a type in node modules. */
   if (symbol && enclosingNode && !isPrimitive) {
@@ -217,7 +217,7 @@ export function processType(
             .map((type) =>
               processType(type, declaration, filter, references, false)
             )
-            .filter(Boolean) as ProcessedProperty[]
+            .filter(Boolean) as ProcessedType[]
 
           if (processedTypeArguments.length === 0) {
             return undefined
@@ -227,12 +227,12 @@ export function processType(
             kind: 'Utility',
             type: typeText,
             arguments: processedTypeArguments,
-          } satisfies UtilityProperty
+          } satisfies UtilityType
         } else {
           return {
             kind: 'Reference',
             type: typeText,
-          } satisfies ReferenceProperty
+          } satisfies ReferenceType
         }
       }
     }
@@ -256,7 +256,7 @@ export function processType(
     return {
       kind: 'Reference',
       type: typeText,
-    } satisfies ReferenceProperty
+    } satisfies ReferenceType
   }
 
   /** Detect self-references to avoid infinite recursion */
@@ -264,7 +264,7 @@ export function processType(
     return {
       kind: 'Reference',
       type: typeText,
-    } satisfies ReferenceProperty
+    } satisfies ReferenceType
   }
 
   references.add(typeText)
@@ -273,22 +273,22 @@ export function processType(
     processedProperty = {
       kind: 'Boolean',
       type: typeText,
-    } satisfies BooleanProperty
+    } satisfies BooleanType
   } else if (type.isNumber() || type.isNumberLiteral()) {
     processedProperty = {
       kind: 'Number',
       type: typeText,
-    } satisfies NumberProperty
+    } satisfies NumberType
   } else if (type.isString() || type.isStringLiteral()) {
     processedProperty = {
       kind: 'String',
       type: typeText,
-    } satisfies StringProperty
+    } satisfies StringType
   } else if (isSymbol(type)) {
     return {
       kind: 'Symbol',
       type: typeText,
-    } satisfies SymbolProperty
+    } satisfies SymbolType
   } else if (type.isArray()) {
     const elementType = type.getArrayElementTypeOrThrow()
     const processedElementType = processType(
@@ -302,12 +302,12 @@ export function processType(
       processedProperty = {
         kind: 'Array',
         type: processedElementType,
-      } satisfies ArrayProperty
+      } satisfies ArrayType
     } else {
       return
     }
   } else if (type.isUnion()) {
-    const processedUnionTypes: ProcessedProperty[] = []
+    const processedUnionTypes: ProcessedType[] = []
 
     for (const unionType of type.getUnionTypes()) {
       const processedType = processType(
@@ -356,7 +356,7 @@ export function processType(
       kind: 'Union',
       type: typeText,
       members: processedUnionTypes,
-    } satisfies UnionProperty
+    } satisfies UnionType
   } else if (type.isIntersection()) {
     const processedIntersectionTypes = type
       .getIntersectionTypes()
@@ -370,10 +370,10 @@ export function processType(
           defaultValues
         )
       )
-      .filter(Boolean) as ProcessedProperty[]
+      .filter(Boolean) as ProcessedType[]
 
     // Intersection types can safely merge the immediate object properties to reduce nesting
-    const properties: ProcessedProperty[] = []
+    const properties: ProcessedType[] = []
 
     for (const processedType of processedIntersectionTypes) {
       if (processedType.kind === 'Object') {
@@ -392,7 +392,7 @@ export function processType(
       kind: 'Object',
       type: typeText,
       properties,
-    } satisfies ObjectProperty
+    } satisfies ObjectType
   } else if (type.isTuple()) {
     const elements = processTypeTupleElements(
       type,
@@ -410,7 +410,7 @@ export function processType(
       kind: 'Tuple',
       type: typeText,
       elements,
-    } satisfies TupleProperty
+    } satisfies TupleType
   } else {
     const callSignatures = type.getCallSignatures()
 
@@ -433,11 +433,11 @@ export function processType(
               return {
                 ...processedCallSignature,
                 kind: 'ComponentSignature',
-                properties: parameters.at(0)! as ObjectProperty,
-              } satisfies ComponentSignature
+                properties: parameters.at(0)! as ObjectType,
+              } satisfies ComponentSignatureType
             }
           ),
-        } satisfies ComponentProperty
+        } satisfies ComponentType
       } else {
         processedProperty = {
           kind: 'Function',
@@ -450,13 +450,13 @@ export function processType(
             references,
             false
           ),
-        } satisfies FunctionProperty
+        } satisfies FunctionType
       }
     } else if (isPrimitive) {
       processedProperty = {
         kind: 'Primitive',
         type: typeText,
-      } satisfies PrimitiveProperty
+      } satisfies PrimitiveType
     } else if (type.isObject()) {
       const properties = processTypeProperties(
         type,
@@ -479,7 +479,7 @@ export function processType(
               defaultValues
             )
           )
-          .filter(Boolean) as ProcessedProperty[]
+          .filter(Boolean) as ProcessedType[]
 
         if (processedTypeArguments.length === 0) {
           return
@@ -490,7 +490,7 @@ export function processType(
           kind: 'Generic',
           type: typeText,
           arguments: processedTypeArguments,
-        } satisfies GenericProperty
+        } satisfies GenericType
       } else if (properties.length === 0) {
         return undefined
       } else {
@@ -499,7 +499,7 @@ export function processType(
           kind: 'Object',
           type: typeText,
           properties,
-        } satisfies ObjectProperty
+        } satisfies ObjectType
       }
     } else {
       /** Finally, try to process the apparent type if it is different from the current type. */
@@ -530,12 +530,12 @@ export function processCallSignatures(
   filter: SymbolFilter = defaultFilter,
   references: Set<string> = new Set(),
   isRootType: boolean = true
-): FunctionSignature[] {
+): FunctionSignatureType[] {
   return signatures
     .map((signature) =>
       processSignature(signature, enclosingNode, filter, references, isRootType)
     )
-    .filter(Boolean) as FunctionSignature[]
+    .filter(Boolean) as FunctionSignatureType[]
 }
 
 /** Process a single function signature including its parameters and return type. */
@@ -545,7 +545,7 @@ export function processSignature(
   filter: SymbolFilter = defaultFilter,
   references: Set<string> = new Set(),
   isRootType: boolean = true
-): FunctionSignature | undefined {
+): FunctionSignatureType | undefined {
   const signatureDeclaration = signature.getDeclaration()
   const signatureParameters = signature.getParameters()
   const parameterDeclarations = signatureParameters.map((parameter) =>
@@ -594,7 +594,7 @@ export function processSignature(
             defaultValue,
             isOptional: isOptional ?? Boolean(defaultValue),
             description: getSymbolDescription(parameter),
-          } satisfies ProcessedProperty
+          } satisfies ProcessedType
         }
       } else {
         throw new Error(
@@ -602,7 +602,7 @@ export function processSignature(
         )
       }
     })
-    .filter(Boolean) as ProcessedProperty[]
+    .filter(Boolean) as ProcessedType[]
 
   /** Skip signatures with filtered parameters if they are in node_modules. */
   if (
@@ -655,7 +655,7 @@ export function processTypeProperties(
   references: Set<string> = new Set(),
   isRootType: boolean = true,
   defaultValues?: Record<string, unknown> | unknown
-): ProcessedProperty[] {
+): ProcessedType[] {
   return type
     .getApparentProperties()
     .map((property) => {
@@ -703,7 +703,7 @@ export function processTypeProperties(
             name,
             defaultValue,
             isOptional: isOptional || Boolean(defaultValue),
-          } satisfies ProcessedProperty
+          } satisfies ProcessedType
         }
       } else {
         throw new Error(
@@ -711,7 +711,7 @@ export function processTypeProperties(
         )
       }
     })
-    .filter(Boolean) as ProcessedProperty[]
+    .filter(Boolean) as ProcessedType[]
 }
 
 /** Process all elements of a tuple type. */
@@ -744,10 +744,10 @@ function processTypeTupleElements(
         return {
           ...processedType,
           name: tupleNames[index],
-        } satisfies ProcessedProperty
+        } satisfies ProcessedType
       }
     })
-    .filter(Boolean) as ProcessedProperty[]
+    .filter(Boolean) as ProcessedType[]
 }
 
 /** Check if every type argument is in node_modules. */
@@ -897,7 +897,7 @@ function getModifier(node: FunctionDeclaration | MethodDeclaration) {
 /** Check if a function is a component based on its name and call signature shape. */
 export function isComponent(
   name: string | undefined,
-  callSignatures: FunctionSignature[]
+  callSignatures: FunctionSignatureType[]
 ) {
   if (!name) {
     return false

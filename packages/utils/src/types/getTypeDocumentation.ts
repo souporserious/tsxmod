@@ -23,9 +23,9 @@ import {
   processCallSignatures,
   processSignature,
   processType,
-  type FunctionSignature,
-  type ObjectProperty,
-  type ProcessedProperty,
+  type FunctionSignatureType,
+  type ObjectType,
+  type ProcessedType,
   type SharedMetadata,
   type SymbolFilter,
 } from './processType'
@@ -54,7 +54,7 @@ export interface ClassGetAccessorMetadata extends SharedClassMemberMetadata {
 
 export type ClassSetAccessorMetadata = SharedClassMemberMetadata & {
   kind: 'ClassSetAccessor'
-} & Omit<FunctionSignature, 'kind'>
+} & Omit<FunctionSignatureType, 'kind'>
 
 export type ClassAccessorMetadata =
   | ClassGetAccessorMetadata
@@ -62,21 +62,21 @@ export type ClassAccessorMetadata =
 
 export interface ClassMethodMetadata extends SharedClassMemberMetadata {
   kind: 'ClassMethod'
-  signatures: FunctionSignature[]
+  signatures: FunctionSignatureType[]
 }
 
 export type ClassPropertyMetadata = SharedClassMemberMetadata & {
   isReadonly: boolean
-} & ProcessedProperty
+} & ProcessedType
 
 export interface FunctionMetadata extends SharedMetadata {
   kind: 'Function'
-  signatures: FunctionSignature[]
+  signatures: FunctionSignatureType[]
 }
 
 export interface ComponentSignatureMetadata extends SharedMetadata {
   kind: 'ComponentSignature'
-  properties: ObjectProperty
+  properties: ObjectType
   returnType: string
 }
 
@@ -113,7 +113,7 @@ type Declaration =
   | VariableDeclaration
 
 type Metadata =
-  | ProcessedProperty
+  | ProcessedType
   | EnumMetadata
   | ClassMetadata
   | FunctionMetadata
@@ -121,9 +121,9 @@ type Metadata =
   | UnknownMetadata
 
 export type DocumentationMetadata<Type> = Type extends InterfaceDeclaration
-  ? ObjectProperty
+  ? ObjectType
   : Type extends TypeAliasDeclaration
-  ? ProcessedProperty
+  ? ProcessedType
   : Type extends ClassDeclaration
   ? ClassMetadata
   : Type extends EnumDeclaration
@@ -131,7 +131,7 @@ export type DocumentationMetadata<Type> = Type extends InterfaceDeclaration
   : Type extends FunctionDeclaration
   ? FunctionMetadata | ComponentMetadata
   : Type extends VariableDeclaration
-  ? ProcessedProperty
+  ? ProcessedType
   : never
 
 const TYPE_FORMAT_FLAGS =
@@ -294,7 +294,7 @@ function processFunctionDeclarationOrExpression(
           return {
             ...processedCallSignature,
             kind: 'ComponentSignature',
-            properties: parameters.at(0)! as ObjectProperty,
+            properties: parameters.at(0)! as ObjectType,
           } satisfies ComponentSignatureMetadata
         }
       ),
@@ -308,7 +308,7 @@ function processFunctionDeclarationOrExpression(
       return {
         ...processedCallSignature,
         kind: 'FunctionSignature',
-      } satisfies FunctionSignature
+      } satisfies FunctionSignatureType
     }),
     ...sharedMetadata,
   }
