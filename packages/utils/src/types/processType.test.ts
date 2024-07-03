@@ -1235,31 +1235,29 @@ describe('processProperties', () => {
 
     expect(processedProperties).toMatchInlineSnapshot(`
       {
-        "kind": "Function",
+        "kind": "Component",
         "name": "Text",
         "signatures": [
           {
-            "kind": "FunctionSignature",
+            "kind": "ComponentSignature",
             "modifier": undefined,
-            "parameters": [
-              {
-                "defaultValue": undefined,
-                "description": undefined,
-                "isOptional": true,
-                "kind": "Object",
-                "name": "props",
-                "properties": [
-                  {
-                    "defaultValue": undefined,
-                    "isOptional": false,
-                    "kind": "Reference",
-                    "name": "color",
-                    "type": "Color",
-                  },
-                ],
-                "type": "TextProps",
-              },
-            ],
+            "properties": {
+              "defaultValue": undefined,
+              "description": undefined,
+              "isOptional": true,
+              "kind": "Object",
+              "name": "props",
+              "properties": [
+                {
+                  "defaultValue": undefined,
+                  "isOptional": false,
+                  "kind": "Reference",
+                  "name": "color",
+                  "type": "Color",
+                },
+              ],
+              "type": "TextProps",
+            },
             "returnType": "void",
             "type": "function Text(props?: TextProps): void",
           },
@@ -1389,62 +1387,60 @@ describe('processProperties', () => {
 
     expect(processedProperties).toMatchInlineSnapshot(`
       {
-        "kind": "Function",
+        "kind": "Component",
         "name": "Text",
         "signatures": [
           {
-            "kind": "FunctionSignature",
+            "kind": "ComponentSignature",
             "modifier": undefined,
-            "parameters": [
-              {
-                "defaultValue": {
-                  "style": {
+            "properties": {
+              "defaultValue": {
+                "style": {
+                  "color": "blue",
+                  "fontWeight": 400,
+                },
+              },
+              "description": undefined,
+              "isOptional": false,
+              "kind": "Object",
+              "name": undefined,
+              "properties": [
+                {
+                  "defaultValue": {
                     "color": "blue",
                     "fontWeight": 400,
                   },
-                },
-                "description": undefined,
-                "isOptional": false,
-                "kind": "Object",
-                "name": undefined,
-                "properties": [
-                  {
-                    "defaultValue": {
-                      "color": "blue",
-                      "fontWeight": 400,
+                  "isOptional": true,
+                  "kind": "Object",
+                  "name": "style",
+                  "properties": [
+                    {
+                      "defaultValue": undefined,
+                      "isOptional": false,
+                      "kind": "Number",
+                      "name": "fontSize",
+                      "type": "number",
                     },
-                    "isOptional": true,
-                    "kind": "Object",
-                    "name": "style",
-                    "properties": [
-                      {
-                        "defaultValue": undefined,
-                        "isOptional": false,
-                        "kind": "Number",
-                        "name": "fontSize",
-                        "type": "number",
-                      },
-                      {
-                        "defaultValue": 400,
-                        "isOptional": true,
-                        "kind": "Number",
-                        "name": "fontWeight",
-                        "type": "number",
-                      },
-                      {
-                        "defaultValue": "blue",
-                        "isOptional": true,
-                        "kind": "String",
-                        "name": "color",
-                        "type": "string",
-                      },
-                    ],
-                    "type": "{ fontSize: number; fontWeight: number; color?: string; }",
-                  },
-                ],
-                "type": "TextProps",
-              },
-            ],
+                    {
+                      "defaultValue": 400,
+                      "isOptional": true,
+                      "kind": "Number",
+                      "name": "fontWeight",
+                      "type": "number",
+                    },
+                    {
+                      "defaultValue": "blue",
+                      "isOptional": true,
+                      "kind": "String",
+                      "name": "color",
+                      "type": "string",
+                    },
+                  ],
+                  "type": "{ fontSize: number; fontWeight: number; color?: string; }",
+                },
+              ],
+              "type": "TextProps",
+            },
             "returnType": "void",
             "type": "function Text(TextProps): void",
           },
@@ -1659,63 +1655,59 @@ describe('processProperties', () => {
         "name": undefined,
         "properties": [
           {
-            "kind": "Function",
+            "kind": "Component",
             "name": "IStyledComponentBase",
             "signatures": [
               {
-                "kind": "FunctionSignature",
+                "kind": "ComponentSignature",
                 "modifier": undefined,
-                "parameters": [
-                  {
-                    "defaultValue": undefined,
-                    "description": undefined,
-                    "isOptional": false,
-                    "kind": "Object",
-                    "name": "props",
-                    "properties": [
-                      {
-                        "defaultValue": undefined,
-                        "isOptional": true,
-                        "kind": "Reference",
-                        "name": "theme",
-                        "type": "DefaultTheme",
-                      },
-                    ],
-                    "type": "PolymorphicComponentProps<"web", Substitute<React.DetailedHTMLProps<React.HTMLAttributes<HTMLSpanElement>, HTMLSpanElement>, { fontSize: number; fontWeight?: number | undefined; }>, AsTarget, ForwardedAsTarget, AsTarget extends KnownTarget ? React.ComponentPropsWithRef<AsTarget> : {}, ForwardedAsTarget extends KnownTarget ? React.ComponentPropsWithRef<ForwardedAsTarget> : {}>",
-                  },
-                ],
+                "properties": {
+                  "defaultValue": undefined,
+                  "description": undefined,
+                  "isOptional": false,
+                  "kind": "Object",
+                  "name": "props",
+                  "properties": [
+                    {
+                      "defaultValue": undefined,
+                      "isOptional": true,
+                      "kind": "Reference",
+                      "name": "theme",
+                      "type": "DefaultTheme",
+                    },
+                  ],
+                  "type": "PolymorphicComponentProps<"web", Substitute<React.DetailedHTMLProps<React.HTMLAttributes<HTMLSpanElement>, HTMLSpanElement>, { fontSize: number; fontWeight?: number | undefined; }>, AsTarget, ForwardedAsTarget, AsTarget extends KnownTarget ? React.ComponentPropsWithRef<AsTarget> : {}, ForwardedAsTarget extends KnownTarget ? React.ComponentPropsWithRef<ForwardedAsTarget> : {}>",
+                },
                 "returnType": "Element",
                 "type": "<AsTarget, ForwardedAsTarget>(props: PolymorphicComponentProps<"web", Substitute<React.DetailedHTMLProps<React.HTMLAttributes<HTMLSpanElement>, HTMLSpanElement>, { fontSize: number; fontWeight?: number | undefined; }>, AsTarget, ForwardedAsTarget, AsTarget extends KnownTarget ? React.ComponentPropsWithRef<AsTarget> : {}, ForwardedAsTarget extends KnownTarget ? React.ComponentPropsWithRef<ForwardedAsTarget> : {}>) => Element",
               },
               {
-                "kind": "FunctionSignature",
+                "kind": "ComponentSignature",
                 "modifier": undefined,
-                "parameters": [
-                  {
-                    "defaultValue": undefined,
-                    "description": undefined,
-                    "isOptional": false,
-                    "kind": "Object",
-                    "name": "props",
-                    "properties": [
-                      {
-                        "defaultValue": undefined,
-                        "isOptional": false,
-                        "kind": "Number",
-                        "name": "fontSize",
-                        "type": "number",
-                      },
-                      {
-                        "defaultValue": undefined,
-                        "isOptional": true,
-                        "kind": "Number",
-                        "name": "fontWeight",
-                        "type": "number",
-                      },
-                    ],
-                    "type": "Substitute<React.DetailedHTMLProps<React.HTMLAttributes<HTMLSpanElement>, HTMLSpanElement>, { fontSize: number; fontWeight?: number | undefined; }>",
-                  },
-                ],
+                "properties": {
+                  "defaultValue": undefined,
+                  "description": undefined,
+                  "isOptional": false,
+                  "kind": "Object",
+                  "name": "props",
+                  "properties": [
+                    {
+                      "defaultValue": undefined,
+                      "isOptional": false,
+                      "kind": "Number",
+                      "name": "fontSize",
+                      "type": "number",
+                    },
+                    {
+                      "defaultValue": undefined,
+                      "isOptional": true,
+                      "kind": "Number",
+                      "name": "fontWeight",
+                      "type": "number",
+                    },
+                  ],
+                  "type": "Substitute<React.DetailedHTMLProps<React.HTMLAttributes<HTMLSpanElement>, HTMLSpanElement>, { fontSize: number; fontWeight?: number | undefined; }>",
+                },
                 "returnType": "ReactNode",
                 "type": "(props: Substitute<React.DetailedHTMLProps<React.HTMLAttributes<HTMLSpanElement>, HTMLSpanElement>, { fontSize: number; fontWeight?: number | undefined; }>) => ReactNode",
               },

@@ -19,6 +19,7 @@ import { Node, SyntaxKind, TypeFormatFlags } from 'ts-morph'
 
 import { getJsDocMetadata } from '../js-docs'
 import {
+  isComponent,
   processCallSignatures,
   processSignature,
   processType,
@@ -183,7 +184,7 @@ export function getTypeDocumentation(
   }
 
   if (Node.isFunctionDeclaration(declaration)) {
-    return processFunctionOrExpression(declaration, filter)
+    return processFunctionDeclarationOrExpression(declaration, filter)
   }
 
   if (Node.isVariableDeclaration(declaration)) {
@@ -195,7 +196,11 @@ export function getTypeDocumentation(
       Node.isCallExpression(initializer) ||
       Node.isTaggedTemplateExpression(initializer)
     ) {
-      return processFunctionOrExpression(initializer, filter, declaration)
+      return processFunctionDeclarationOrExpression(
+        initializer,
+        filter,
+        declaration
+      )
     }
 
     if (Node.isAsExpression(initializer)) {
@@ -252,7 +257,7 @@ function processEnum(enumDeclaration: EnumDeclaration): EnumMetadata {
 }
 
 /** Processes a function or expression into a metadata object. */
-function processFunctionOrExpression(
+function processFunctionDeclarationOrExpression(
   functionDeclarationOrExpression:
     | AsExpression
     | FunctionDeclaration
@@ -280,14 +285,8 @@ function processFunctionOrExpression(
       .getText(functionDeclarationOrExpression, TYPE_FORMAT_FLAGS),
     ...getJsDocMetadata(variableDeclaration || functionDeclarationOrExpression),
   } as const
-  const hasSingleParameter = processedCallSignatures.every(
-    (signature) => signature.parameters.length === 1
-  )
-  const isComponent = sharedMetadata.name
-    ? /[A-Z]/.test(sharedMetadata.name.charAt(0)) && hasSingleParameter
-    : false
 
-  if (isComponent) {
+  if (isComponent(sharedMetadata.name, processedCallSignatures)) {
     return {
       kind: 'Component',
       signatures: processedCallSignatures.map(
@@ -422,12 +421,24 @@ function processClassAccessor(
   }
 
   if (Node.isSetAccessorDeclaration(accessor)) {
-    return {
-      ...processSignature(accessor.getSignature(), accessor, filter),
-      ...sharedMetadata,
-      kind: 'ClassSetAccessor',
-      type: accessor.getType().getText(accessor, TYPE_FORMAT_FLAGS),
-    } satisfies ClassSetAccessorMetadata
+    const processedSignature = processSignature(
+      accessor.getSignature(),
+      accessor,
+      filter
+    )
+
+    if (processedSignature) {
+      return {
+        ...processedSignature,
+        ...sharedMetadata,
+        kind: 'ClassSetAccessor',
+        type: accessor.getType().getText(accessor, TYPE_FORMAT_FLAGS),
+      } satisfies ClassSetAccessorMetadata
+    }
+
+    throw new Error(
+      `[processClassAccessor] Setter "${accessor.getName()}" could not be processed. This declaration was either filtered, should be marked as internal, or filed as an issue for support.`
+    )
   }
 
   return {

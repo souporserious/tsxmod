@@ -470,40 +470,42 @@ describe('getTypeDocumentation', () => {
 
     expect(types).toMatchInlineSnapshot(`
       {
-        "kind": "Component",
+        "kind": "Function",
         "name": "Component",
         "signatures": [
           {
-            "kind": "ComponentSignature",
+            "kind": "FunctionSignature",
             "modifier": undefined,
-            "properties": {
-              "defaultValue": undefined,
-              "description": undefined,
-              "isOptional": false,
-              "kind": "Union",
-              "name": "props",
-              "properties": [
-                {
-                  "kind": "String",
-                  "type": "string",
-                },
-                {
-                  "kind": "Object",
-                  "name": undefined,
-                  "properties": [
-                    {
-                      "defaultValue": undefined,
-                      "isOptional": false,
-                      "kind": "String",
-                      "name": "color",
-                      "type": "string",
-                    },
-                  ],
-                  "type": "{ color: string; }",
-                },
-              ],
-              "type": "Props",
-            },
+            "parameters": [
+              {
+                "defaultValue": undefined,
+                "description": undefined,
+                "isOptional": false,
+                "kind": "Union",
+                "name": "props",
+                "properties": [
+                  {
+                    "kind": "String",
+                    "type": "string",
+                  },
+                  {
+                    "kind": "Object",
+                    "name": undefined,
+                    "properties": [
+                      {
+                        "defaultValue": undefined,
+                        "isOptional": false,
+                        "kind": "String",
+                        "name": "color",
+                        "type": "string",
+                      },
+                    ],
+                    "type": "{ color: string; }",
+                  },
+                ],
+                "type": "Props",
+              },
+            ],
             "returnType": "void",
             "type": "function Component(props: Props): void",
           },
@@ -778,45 +780,36 @@ describe('getTypeDocumentation', () => {
 
     expect(types).toMatchInlineSnapshot(`
       {
-        "kind": "Function",
+        "kind": "Component",
         "name": "Grid",
         "signatures": [
           {
-            "kind": "FunctionSignature",
+            "kind": "ComponentSignature",
             "modifier": undefined,
-            "parameters": [],
-            "returnType": "Element",
-            "type": "<AsTarget, ForwardedAsTarget>() => Element",
-          },
-          {
-            "kind": "FunctionSignature",
-            "modifier": undefined,
-            "parameters": [
-              {
-                "defaultValue": undefined,
-                "description": undefined,
-                "isOptional": false,
-                "kind": "Object",
-                "name": "props",
-                "properties": [
-                  {
-                    "defaultValue": undefined,
-                    "isOptional": false,
-                    "kind": "String",
-                    "name": "gridTemplateColumns",
-                    "type": "string",
-                  },
-                  {
-                    "defaultValue": undefined,
-                    "isOptional": true,
-                    "kind": "String",
-                    "name": "gridTemplateRows",
-                    "type": "string",
-                  },
-                ],
-                "type": "Substitute<React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>, GridProps>",
-              },
-            ],
+            "properties": {
+              "defaultValue": undefined,
+              "description": undefined,
+              "isOptional": false,
+              "kind": "Object",
+              "name": "props",
+              "properties": [
+                {
+                  "defaultValue": undefined,
+                  "isOptional": false,
+                  "kind": "String",
+                  "name": "gridTemplateColumns",
+                  "type": "string",
+                },
+                {
+                  "defaultValue": undefined,
+                  "isOptional": true,
+                  "kind": "String",
+                  "name": "gridTemplateRows",
+                  "type": "string",
+                },
+              ],
+              "type": "Substitute<React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>, GridProps>",
+            },
             "returnType": "ReactNode",
             "type": "(props: Substitute<React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>, GridProps>) => ReactNode",
           },
@@ -851,45 +844,36 @@ describe('getTypeDocumentation', () => {
 
     expect(types).toMatchInlineSnapshot(`
       {
-        "kind": "Function",
+        "kind": "Component",
         "name": "Grid",
         "signatures": [
           {
-            "kind": "FunctionSignature",
+            "kind": "ComponentSignature",
             "modifier": undefined,
-            "parameters": [],
-            "returnType": "Element",
-            "type": "<AsTarget, ForwardedAsTarget>() => Element",
-          },
-          {
-            "kind": "FunctionSignature",
-            "modifier": undefined,
-            "parameters": [
-              {
-                "defaultValue": undefined,
-                "description": undefined,
-                "isOptional": false,
-                "kind": "Object",
-                "name": "props",
-                "properties": [
-                  {
-                    "defaultValue": undefined,
-                    "isOptional": false,
-                    "kind": "String",
-                    "name": "$gridTemplateColumns",
-                    "type": "string",
-                  },
-                  {
-                    "defaultValue": undefined,
-                    "isOptional": false,
-                    "kind": "String",
-                    "name": "$gridTemplateRows",
-                    "type": "string",
-                  },
-                ],
-                "type": "Substitute<React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>, { $gridTemplateColumns: string; $gridTemplateRows: string; }>",
-              },
-            ],
+            "properties": {
+              "defaultValue": undefined,
+              "description": undefined,
+              "isOptional": false,
+              "kind": "Object",
+              "name": "props",
+              "properties": [
+                {
+                  "defaultValue": undefined,
+                  "isOptional": false,
+                  "kind": "String",
+                  "name": "$gridTemplateColumns",
+                  "type": "string",
+                },
+                {
+                  "defaultValue": undefined,
+                  "isOptional": false,
+                  "kind": "String",
+                  "name": "$gridTemplateRows",
+                  "type": "string",
+                },
+              ],
+              "type": "Substitute<React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>, { $gridTemplateColumns: string; $gridTemplateRows: string; }>",
+            },
             "returnType": "ReactNode",
             "type": "(props: Substitute<React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>, { $gridTemplateColumns: string; $gridTemplateRows: string; }>) => ReactNode",
           },
@@ -1703,9 +1687,18 @@ describe('getTypeDocumentation', () => {
                     {
                       "kind": "FunctionSignature",
                       "modifier": undefined,
-                      "parameters": [],
+                      "parameters": [
+                        {
+                          "defaultValue": undefined,
+                          "description": undefined,
+                          "isOptional": false,
+                          "kind": "Reference",
+                          "name": "event",
+                          "type": "MouseEvent<HTMLButtonElement, globalThis.MouseEvent>",
+                        },
+                      ],
                       "returnType": "void",
-                      "type": "() => void",
+                      "type": "(event: MouseEvent<HTMLButtonElement, globalThis.MouseEvent>) => void",
                     },
                   ],
                   "type": "MouseEventHandler<HTMLButtonElement>",
