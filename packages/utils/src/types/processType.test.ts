@@ -1797,4 +1797,76 @@ describe('processProperties', () => {
       }
     `)
   })
+
+  test('enum', () => {
+    const sourceFile = project.createSourceFile(
+      'test.ts',
+      dedent`
+      enum Color {
+        Red = 'red',
+        Blue = 'blue',
+        Green = 'green',
+      }
+      `,
+      { overwrite: true }
+    )
+    const typeAlias = sourceFile.getEnumOrThrow('Color')
+    const processedProperties = processType(typeAlias.getType())
+
+    expect(processedProperties).toMatchInlineSnapshot(`
+      {
+        "kind": "Enum",
+        "members": {
+          "Blue": "blue",
+          "Green": "green",
+          "Red": "red",
+        },
+        "name": "Color",
+        "type": "Color",
+      }
+    `)
+  })
+
+  test('enum property', () => {
+    const sourceFile = project.createSourceFile(
+      'test.ts',
+      dedent`
+      enum Color {
+        Red = 'red',
+        Blue = 'blue',
+        Green = 'green',
+      }
+
+      type TextProps = {
+        color: Color;
+      }
+      `,
+      { overwrite: true }
+    )
+    const typeAlias = sourceFile.getTypeAliasOrThrow('TextProps')
+    const processedProperties = processType(typeAlias.getType())
+
+    expect(processedProperties).toMatchInlineSnapshot(`
+      {
+        "kind": "Object",
+        "name": "TextProps",
+        "properties": [
+          {
+            "defaultValue": undefined,
+            "isOptional": false,
+            "isReadonly": false,
+            "kind": "Enum",
+            "members": {
+              "Blue": "blue",
+              "Green": "green",
+              "Red": "red",
+            },
+            "name": "color",
+            "type": "Color",
+          },
+        ],
+        "type": "TextProps",
+      }
+    `)
+  })
 })

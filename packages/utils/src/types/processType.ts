@@ -92,6 +92,11 @@ export interface ObjectType extends BaseType {
   properties: PropertyTypes[]
 }
 
+export interface EnumType extends BaseType {
+  kind: 'Enum'
+  members: Record<string, string | number | undefined>
+}
+
 export interface UnionType extends BaseType {
   kind: 'Union'
   members: ProcessedType[]
@@ -152,6 +157,7 @@ export type BaseTypes =
   | ArrayType
   | TupleType
   | ObjectType
+  | EnumType
   | UnionType
   | PrimitiveType
   | ReferenceType
@@ -315,6 +321,23 @@ export function processType(
       } satisfies ArrayType
     } else {
       return
+    }
+  } else if (type.isEnum()) {
+    if (Node.isEnumDeclaration(symbolDeclaration)) {
+      processedType = {
+        kind: 'Enum',
+        name: symbolMetadata.name,
+        type: typeText,
+        members: Object.fromEntries(
+          symbolDeclaration
+            .getMembers()
+            .map((member) => [member.getName(), member.getValue()])
+        ) as Record<string, string | number | undefined>,
+      } satisfies EnumType
+    } else {
+      throw new Error(
+        `[processType]: No enum declaration found for "${symbolMetadata.name}". Please file an issue if you encounter this error.`
+      )
     }
   } else if (type.isUnion()) {
     const processedUnionTypes: ProcessedType[] = []

@@ -154,7 +154,8 @@ export function getTypeDocumentation(
 ): Metadata {
   if (
     Node.isInterfaceDeclaration(declaration) ||
-    Node.isTypeAliasDeclaration(declaration)
+    Node.isTypeAliasDeclaration(declaration) ||
+    Node.isEnumDeclaration(declaration)
   ) {
     const processedType = processType(
       declaration.getType(),
@@ -165,7 +166,9 @@ export function getTypeDocumentation(
     if (!processedType) {
       const kind = Node.isInterfaceDeclaration(declaration)
         ? 'Interface'
-        : 'TypeAlias'
+        : Node.isTypeAliasDeclaration(declaration)
+        ? 'TypeAlias'
+        : 'Enum'
 
       throw new Error(
         `[getTypeDocumentation] ${kind} "${declaration.getName()}" could not be processed. This declaration was either filtered, should be marked as internal, or filed as an issue for support.`
@@ -173,10 +176,6 @@ export function getTypeDocumentation(
     }
 
     return processedType
-  }
-
-  if (Node.isEnumDeclaration(declaration)) {
-    return processEnum(declaration)
   }
 
   if (Node.isClassDeclaration(declaration)) {
@@ -239,21 +238,6 @@ export function getTypeDocumentation(
   throw new Error(
     `[getTypeDocumentation] Declaration "${declaration.getName()}" could not be processed. This declaration was either filtered, should be marked as internal, or filed as an issue for support.`
   )
-}
-
-/** Processes an enum declaration into a metadata object. */
-function processEnum(enumDeclaration: EnumDeclaration): EnumMetadata {
-  return {
-    kind: 'Enum',
-    name: enumDeclaration.getName(),
-    type: enumDeclaration.getType().getText(enumDeclaration, TYPE_FORMAT_FLAGS),
-    members: Object.fromEntries(
-      enumDeclaration
-        .getMembers()
-        .map((member) => [member.getName(), member.getValue()])
-    ),
-    ...getJsDocMetadata(enumDeclaration),
-  }
 }
 
 /** Processes a function or expression into a metadata object. */
