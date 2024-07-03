@@ -166,7 +166,8 @@ const enclosingNodeMetadata = new WeakMap<Node, SymbolMetadata>()
 const defaultFilter = (metadata: SymbolMetadata) => !metadata.isInNodeModules
 const TYPE_FORMAT_FLAGS =
   TypeFormatFlags.NoTruncation |
-  TypeFormatFlags.UseAliasDefinedOutsideCurrentScope
+  TypeFormatFlags.UseAliasDefinedOutsideCurrentScope |
+  TypeFormatFlags.WriteArrayAsGenericType
 
 /** Process type metadata. */
 export function processType(
