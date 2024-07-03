@@ -194,8 +194,7 @@ describe('processProperties', () => {
           "defaultValue": undefined,
           "isOptional": false,
           "kind": "Union",
-          "name": "union",
-          "properties": [
+          "members": [
             {
               "kind": "String",
               "type": "string",
@@ -205,14 +204,14 @@ describe('processProperties', () => {
               "type": "number",
             },
           ],
+          "name": "union",
           "type": "string | number",
         },
         {
           "defaultValue": undefined,
           "isOptional": false,
           "kind": "Union",
-          "name": "complexUnion",
-          "properties": [
+          "members": [
             {
               "kind": "String",
               "type": "string",
@@ -272,8 +271,7 @@ describe('processProperties', () => {
                   "name": "c",
                   "type": {
                     "kind": "Union",
-                    "name": undefined,
-                    "properties": [
+                    "members": [
                       {
                         "kind": "String",
                         "type": "string",
@@ -283,6 +281,7 @@ describe('processProperties', () => {
                         "type": "number",
                       },
                     ],
+                    "name": undefined,
                     "type": "string | number",
                   },
                 },
@@ -290,6 +289,7 @@ describe('processProperties', () => {
               "type": "{ b: number; c: (string | number)[]; }",
             },
           ],
+          "name": "complexUnion",
           "type": "string | ((a: string) => string | number) | { a: string; } | { b: number; c: (string | number)[]; }",
         },
         {
@@ -445,8 +445,7 @@ describe('processProperties', () => {
     expect(processedProperties).toMatchInlineSnapshot(`
       {
         "kind": "Union",
-        "name": "Variant",
-        "properties": [
+        "members": [
           {
             "kind": "String",
             "type": "string",
@@ -488,6 +487,7 @@ describe('processProperties', () => {
             "type": "OutlineVariant",
           },
         ],
+        "name": "Variant",
         "type": "Variant<T>",
       }
     `)
@@ -894,8 +894,7 @@ describe('processProperties', () => {
     expect(processedProperties).toMatchInlineSnapshot(`
       {
         "kind": "Union",
-        "name": "ExportedType",
-        "properties": [
+        "members": [
           {
             "kind": "Object",
             "name": "UnwrapPromisesInMap",
@@ -939,6 +938,7 @@ describe('processProperties', () => {
             "type": "UnwrapPromisesInMap<Omit<B, "title">>",
           },
         ],
+        "name": "ExportedType",
         "type": "ExportedType",
       }
     `)
@@ -1029,8 +1029,7 @@ describe('processProperties', () => {
             "defaultValue": undefined,
             "isOptional": true,
             "kind": "Union",
-            "name": "fontWeight",
-            "properties": [
+            "members": [
               {
                 "kind": "String",
                 "type": "string",
@@ -1040,6 +1039,7 @@ describe('processProperties', () => {
                 "type": "number",
               },
             ],
+            "name": "fontWeight",
             "type": "string | number",
           },
           {
@@ -1110,8 +1110,7 @@ describe('processProperties', () => {
             "name": "exportedTypes",
             "type": {
               "kind": "Union",
-              "name": "ExportedType",
-              "properties": [
+              "members": [
                 {
                   "kind": "Object",
                   "name": undefined,
@@ -1149,6 +1148,7 @@ describe('processProperties', () => {
                   "type": "TypeMetadata & { slug: string; }",
                 },
               ],
+              "name": "ExportedType",
               "type": "ExportedType",
             },
           },
@@ -1466,8 +1466,7 @@ describe('processProperties', () => {
     expect(types).toMatchInlineSnapshot(`
       {
         "kind": "Union",
-        "name": undefined,
-        "properties": [
+        "members": [
           {
             "kind": "Object",
             "name": undefined,
@@ -1517,6 +1516,7 @@ describe('processProperties', () => {
             "type": "{ frontMatter: Record<string, any>; }",
           },
         ],
+        "name": undefined,
         "type": "{ frontMatter: Record<string, any>; } | { frontMatter: Record<string, any>; }",
       }
     `)
@@ -1609,8 +1609,7 @@ describe('processProperties', () => {
             "defaultValue": undefined,
             "isOptional": false,
             "kind": "Union",
-            "name": "color",
-            "properties": [
+            "members": [
               {
                 "kind": "Primitive",
                 "type": "undefined",
@@ -1620,6 +1619,7 @@ describe('processProperties', () => {
                 "type": "string",
               },
             ],
+            "name": "color",
             "type": "string | undefined",
           },
         ],

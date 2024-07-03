@@ -59,7 +59,7 @@ export interface GenericProperty extends SharedProperty {
 export interface UnionProperty extends SharedProperty {
   kind: 'Union'
   type: string
-  properties: ProcessedProperty[]
+  members: ProcessedProperty[]
 }
 
 // TODO: add UnionLiteral to handle union literals like 'foo' | 'bar' that can just print the type instead of each property
@@ -355,7 +355,7 @@ export function processType(
       name: symbolMetadata.name,
       kind: 'Union',
       type: typeText,
-      properties: processedUnionTypes,
+      members: processedUnionTypes,
     } satisfies UnionProperty
   } else if (type.isIntersection()) {
     const processedIntersectionTypes = type
@@ -919,7 +919,7 @@ export function isComponent(
       }
 
       if (firstParameter.kind === 'Union') {
-        return firstParameter.properties.every(
+        return firstParameter.members.every(
           (property) => property.kind === 'Object'
         )
       }

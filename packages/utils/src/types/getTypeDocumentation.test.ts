@@ -398,8 +398,7 @@ describe('getTypeDocumentation', () => {
               "description": undefined,
               "isOptional": false,
               "kind": "Union",
-              "name": "props",
-              "properties": [
+              "members": [
                 {
                   "kind": "Object",
                   "name": undefined,
@@ -443,6 +442,7 @@ describe('getTypeDocumentation', () => {
                   "type": "BaseProps & { value: string; }",
                 },
               ],
+              "name": "props",
               "type": "Props",
             },
             "returnType": "void",
@@ -482,8 +482,7 @@ describe('getTypeDocumentation', () => {
                 "description": undefined,
                 "isOptional": false,
                 "kind": "Union",
-                "name": "props",
-                "properties": [
+                "members": [
                   {
                     "kind": "String",
                     "type": "string",
@@ -503,6 +502,7 @@ describe('getTypeDocumentation', () => {
                     "type": "{ color: string; }",
                   },
                 ],
+                "name": "props",
                 "type": "Props",
               },
             ],
@@ -549,8 +549,7 @@ describe('getTypeDocumentation', () => {
               "description": undefined,
               "isOptional": false,
               "kind": "Union",
-              "name": "props",
-              "properties": [
+              "members": [
                 {
                   "kind": "Object",
                   "name": undefined,
@@ -588,6 +587,7 @@ describe('getTypeDocumentation', () => {
                   "type": "BaseProps & { value: string; }",
                 },
               ],
+              "name": "props",
               "type": "Props",
             },
             "returnType": "void",
@@ -677,8 +677,7 @@ describe('getTypeDocumentation', () => {
                   "defaultValue": undefined,
                   "isOptional": false,
                   "kind": "Union",
-                  "name": "variant",
-                  "properties": [
+                  "members": [
                     {
                       "kind": "String",
                       "type": ""heading1"",
@@ -696,14 +695,14 @@ describe('getTypeDocumentation', () => {
                       "type": ""body1"",
                     },
                   ],
+                  "name": "variant",
                   "type": ""heading1" | "heading2" | "heading3" | "body1"",
                 },
                 {
                   "defaultValue": undefined,
                   "isOptional": false,
                   "kind": "Union",
-                  "name": "alignment",
-                  "properties": [
+                  "members": [
                     {
                       "kind": "String",
                       "type": ""start"",
@@ -717,14 +716,14 @@ describe('getTypeDocumentation', () => {
                       "type": ""end"",
                     },
                   ],
+                  "name": "alignment",
                   "type": ""start" | "center" | "end"",
                 },
                 {
                   "defaultValue": undefined,
                   "isOptional": false,
                   "kind": "Union",
-                  "name": "width",
-                  "properties": [
+                  "members": [
                     {
                       "kind": "String",
                       "type": "string",
@@ -734,6 +733,7 @@ describe('getTypeDocumentation', () => {
                       "type": "number",
                     },
                   ],
+                  "name": "width",
                   "type": "string | number",
                 },
                 {
@@ -905,8 +905,7 @@ describe('getTypeDocumentation', () => {
             "defaultValue": undefined,
             "isOptional": false,
             "kind": "Union",
-            "name": "variant",
-            "properties": [
+            "members": [
               {
                 "kind": "String",
                 "type": ""heading1"",
@@ -928,14 +927,14 @@ describe('getTypeDocumentation', () => {
                 "type": ""body2"",
               },
             ],
+            "name": "variant",
             "type": ""heading1" | "heading2" | "heading3" | "body1" | "body2"",
           },
           {
             "defaultValue": undefined,
             "isOptional": true,
             "kind": "Union",
-            "name": "width",
-            "properties": [
+            "members": [
               {
                 "kind": "String",
                 "type": "string",
@@ -945,6 +944,7 @@ describe('getTypeDocumentation', () => {
                 "type": "number",
               },
             ],
+            "name": "width",
             "type": "string | number",
           },
         ],
@@ -978,8 +978,7 @@ describe('getTypeDocumentation', () => {
             "defaultValue": undefined,
             "isOptional": false,
             "kind": "Union",
-            "name": "variant",
-            "properties": [
+            "members": [
               {
                 "kind": "String",
                 "type": ""heading1"",
@@ -1001,14 +1000,14 @@ describe('getTypeDocumentation', () => {
                 "type": ""body2"",
               },
             ],
+            "name": "variant",
             "type": ""heading1" | "heading2" | "heading3" | "body1" | "body2"",
           },
           {
             "defaultValue": undefined,
             "isOptional": true,
             "kind": "Union",
-            "name": "width",
-            "properties": [
+            "members": [
               {
                 "kind": "String",
                 "type": "string",
@@ -1018,6 +1017,7 @@ describe('getTypeDocumentation', () => {
                 "type": "number",
               },
             ],
+            "name": "width",
             "type": "string | number",
           },
           {
@@ -1373,8 +1373,7 @@ describe('getTypeDocumentation', () => {
     expect(types).toMatchInlineSnapshot(`
       {
         "kind": "Union",
-        "name": "ButtonVariants",
-        "properties": [
+        "members": [
           {
             "kind": "Object",
             "name": undefined,
@@ -1418,6 +1417,7 @@ describe('getTypeDocumentation', () => {
             "type": "{ color: string; } & { borderColor: string; }",
           },
         ],
+        "name": "ButtonVariants",
         "type": "ButtonVariants",
       }
     `)
@@ -1460,8 +1460,7 @@ describe('getTypeDocumentation', () => {
             "defaultValue": undefined,
             "isOptional": false,
             "kind": "Union",
-            "name": "settings",
-            "properties": [
+            "members": [
               {
                 "kind": "Object",
                 "name": undefined,
@@ -1512,6 +1511,7 @@ describe('getTypeDocumentation', () => {
                 "type": "{ dbHost: string; dbPort: number; dbName: string; }",
               },
             ],
+            "name": "settings",
             "type": "{ apiEndpoint: string; apiKey: string; } | { dbHost: string; dbPort: number; dbName: string; }",
           },
         ],
@@ -1549,8 +1549,7 @@ describe('getTypeDocumentation', () => {
                 "description": undefined,
                 "isOptional": false,
                 "kind": "Union",
-                "name": "settings",
-                "properties": [
+                "members": [
                   {
                     "kind": "Object",
                     "name": undefined,
@@ -1601,6 +1600,7 @@ describe('getTypeDocumentation', () => {
                     "type": "{ dbHost: string; dbPort: number; dbName: string; }",
                   },
                 ],
+                "name": "settings",
                 "type": "{ apiEndpoint: string; apiKey: string; } | { dbHost: string; dbPort: number; dbName: string; }",
               },
             ],
@@ -1661,8 +1661,7 @@ describe('getTypeDocumentation', () => {
                   "defaultValue": undefined,
                   "isOptional": true,
                   "kind": "Union",
-                  "name": "variant",
-                  "properties": [
+                  "members": [
                     {
                       "kind": "String",
                       "type": ""primary"",
@@ -1676,6 +1675,7 @@ describe('getTypeDocumentation', () => {
                       "type": ""danger"",
                     },
                   ],
+                  "name": "variant",
                   "type": "ButtonVariant | undefined",
                 },
                 {
@@ -1765,8 +1765,7 @@ describe('getTypeDocumentation', () => {
               "description": undefined,
               "isOptional": false,
               "kind": "Union",
-              "name": undefined,
-              "properties": [
+              "members": [
                 {
                   "kind": "Object",
                   "name": undefined,
@@ -1897,6 +1896,7 @@ describe('getTypeDocumentation', () => {
                   "type": "{ filename: string; value: string; } & BaseExportedTypesProps",
                 },
               ],
+              "name": undefined,
               "type": "ExportedTypesProps",
             },
             "returnType": "void",
@@ -1979,8 +1979,7 @@ describe('getTypeDocumentation', () => {
     expect(types).toMatchInlineSnapshot(`
       {
         "kind": "Union",
-        "name": "AllMetadata",
-        "properties": [
+        "members": [
           {
             "kind": "Reference",
             "type": "InterfaceMetadata",
@@ -2007,6 +2006,7 @@ describe('getTypeDocumentation', () => {
             "type": "TypeAliasMetadata",
           },
         ],
+        "name": "AllMetadata",
         "type": "AllMetadata",
       }
     `)
