@@ -17,146 +17,155 @@ import {
 } from '../properties'
 import { getSymbolDescription } from '../symbols'
 
-export interface SharedMetadata {
+export interface BaseType {
+  /** Distinguishs between different kinds of types, such as primitives, objects, classes, functions, etc. */
+  kind?: unknown
+
   /** The name of the symbol or declaration if it exists. */
   name?: string
 
-  /** The description of the declaration if provided. */
+  /** The description of the symbol or declaration if it exists. */
   description?: string
 
-  /** The tags of the declaration if provided. */
+  /** JSDoc tags for the declaration if present. */
   tags?: { tagName: string; text?: string }[]
 
-  /** The type of the declaration if provided. */
-  type: unknown
+  /** A stringified representation of the type. */
+  type: string
 }
 
-export interface SharedType extends SharedMetadata {
-  /** Whether or not the property is optional. */
+export interface ParameterType extends BaseType {
+  /** The default value assigned to the property parsed as a literal value if possible. */
+  defaultValue?: unknown
+
+  /** Whether or not the property has an optional modifier or default value. */
+  isOptional?: boolean
+}
+
+export type CreateParameterType<Type> = Type extends any
+  ? Type & ParameterType
+  : never
+
+export interface PropertyType extends BaseType {
+  /** The default value assigned to the property parsed as a literal value if possible. */
+  defaultValue?: unknown
+
+  /** Whether or not the property has an optional modifier or default value. */
   isOptional?: boolean
 
-  /** The default value of the property. */
-  defaultValue?: unknown
+  /** Whether or not the property has a readonly modifier. */
+  isReadonly?: boolean
 }
 
-export interface StringType extends SharedType {
+export type CreatePropertyType<Type> = Type extends any
+  ? Type & PropertyType
+  : never
+
+export interface StringType extends BaseType {
   kind: 'String'
-  type: string
 }
 
-export interface NumberType extends SharedType {
+export interface NumberType extends BaseType {
   kind: 'Number'
-  type: string
 }
 
-export interface BooleanType extends SharedType {
+export interface BooleanType extends BaseType {
   kind: 'Boolean'
-  type: string
 }
 
-export interface ArrayType extends SharedType {
+export interface SymbolType extends BaseType {
+  kind: 'Symbol'
+}
+
+export interface ArrayType extends BaseType {
   kind: 'Array'
-  type: ProcessedType
+  element: ProcessedType
 }
 
-export interface ObjectType extends SharedType {
-  kind: 'Object'
-  type: string
-  properties: ProcessedType[]
-}
-
-export interface GenericType extends SharedType {
-  kind: 'Generic'
-  type: string
-  arguments: ProcessedType[]
-}
-
-export interface UnionType extends SharedType {
-  kind: 'Union'
-  type: string
-  members: ProcessedType[]
-}
-
-// TODO: add UnionLiteral to handle union literals like 'foo' | 'bar' that can just print the type instead of each property
-// this should also be the case for a UnionPrimitive type like string | number | boolean
-
-export interface TupleType extends SharedType {
+export interface TupleType extends BaseType {
   kind: 'Tuple'
-  type: string
   elements: ProcessedType[]
 }
 
-export interface SymbolType extends SharedType {
-  kind: 'Symbol'
-  type: string
+export interface ObjectType extends BaseType {
+  kind: 'Object'
+  properties: PropertyTypes[]
 }
 
-export interface FunctionSignatureType {
-  kind: 'FunctionSignature'
-  modifier?: 'async' | 'generator'
-  parameters: ProcessedType[]
-  type: string
-  returnType: string
+export interface UnionType extends BaseType {
+  kind: 'Union'
+  members: ProcessedType[]
 }
 
-export interface FunctionType extends SharedType {
-  kind: 'Function'
-  type: string
-  signatures: FunctionSignatureType[]
-}
-
-export interface ComponentSignatureType {
-  kind: 'ComponentSignature'
-  modifier?: 'async' | 'generator'
-  properties: ObjectType
-  type: string
-  returnType: string
-}
-
-export interface ComponentType extends SharedType {
-  kind: 'Component'
-  type: string
-  signatures: ComponentSignatureType[]
-}
-
-export interface PrimitiveType extends SharedType {
+export interface PrimitiveType extends BaseType {
   kind: 'Primitive'
-  type: string
 }
 
-export interface UnknownType extends SharedType {
-  kind: 'Unknown'
-  type: string
-}
-
-export interface ReferenceType extends SharedType {
+export interface ReferenceType extends BaseType {
   kind: 'Reference'
-  type: string
   // path?: string // TODO: add import specifier for external references and identifier for internal references
 }
 
-export interface UtilityType extends SharedType {
-  kind: 'Utility'
-  type: string
-  arguments: ProcessedType[]
+export interface FunctionSignatureType extends BaseType {
+  kind: 'FunctionSignature'
+  modifier?: 'async' | 'generator'
+  parameters: ParameterTypes[]
+  returnType: string
 }
 
-export type ProcessedType =
+export interface FunctionType extends BaseType {
+  kind: 'Function'
+  signatures: FunctionSignatureType[]
+}
+
+export interface ComponentSignatureType extends BaseType {
+  kind: 'ComponentSignature'
+  modifier?: 'async' | 'generator'
+  properties: ObjectType
+  returnType: string
+}
+
+export interface ComponentType extends BaseType {
+  kind: 'Component'
+  signatures: ComponentSignatureType[]
+}
+
+export interface GenericType extends BaseType {
+  kind: 'Generic'
+  arguments: ParameterTypes[]
+}
+
+export interface UtilityType extends BaseType {
+  kind: 'Utility'
+  arguments: ParameterTypes[]
+}
+
+export interface UnknownType extends BaseType {
+  kind: 'Unknown'
+}
+
+export type BaseTypes =
   | StringType
   | NumberType
   | BooleanType
+  | SymbolType
   | ArrayType
   | TupleType
-  | FunctionType
-  | ComponentType
   | ObjectType
   | UnionType
-  | SymbolType
   | PrimitiveType
   | ReferenceType
+  | FunctionType
+  | ComponentType
   | GenericType
   | UtilityType
   | UnknownType
+
+export type ParameterTypes = CreateParameterType<BaseTypes>
+
+export type PropertyTypes = CreatePropertyType<BaseTypes>
+
+export type ProcessedType = BaseTypes | ParameterTypes | PropertyTypes
 
 export type SymbolMetadata = ReturnType<typeof getSymbolMetadata>
 
@@ -187,7 +196,7 @@ export function processType(
   const typeArguments = type.getTypeArguments()
   const aliasTypeArguments = type.getAliasTypeArguments()
 
-  let processedProperty: ProcessedType = {
+  let processedType: ProcessedType = {
     kind: 'Unknown',
     type: typeText,
   } satisfies UnknownType
@@ -270,17 +279,17 @@ export function processType(
   references.add(typeText)
 
   if (type.isBoolean() || type.isBooleanLiteral()) {
-    processedProperty = {
+    processedType = {
       kind: 'Boolean',
       type: typeText,
     } satisfies BooleanType
   } else if (type.isNumber() || type.isNumberLiteral()) {
-    processedProperty = {
+    processedType = {
       kind: 'Number',
       type: typeText,
     } satisfies NumberType
   } else if (type.isString() || type.isStringLiteral()) {
-    processedProperty = {
+    processedType = {
       kind: 'String',
       type: typeText,
     } satisfies StringType
@@ -299,9 +308,10 @@ export function processType(
       false
     )
     if (processedElementType) {
-      processedProperty = {
+      processedType = {
         kind: 'Array',
-        type: processedElementType,
+        type: typeText,
+        element: processedElementType,
       } satisfies ArrayType
     } else {
       return
@@ -339,7 +349,7 @@ export function processType(
       return undefined
     }
 
-    processedProperty = {
+    processedType = {
       name: symbolMetadata.name,
       kind: 'Union',
       type: typeText,
@@ -375,7 +385,7 @@ export function processType(
       return undefined
     }
 
-    processedProperty = {
+    processedType = {
       name: symbolMetadata.name,
       kind: 'Object',
       type: typeText,
@@ -394,7 +404,7 @@ export function processType(
       return undefined
     }
 
-    processedProperty = {
+    processedType = {
       kind: 'Tuple',
       type: typeText,
       elements,
@@ -412,7 +422,7 @@ export function processType(
       )
 
       if (isComponent(symbolMetadata.name, processedCallSignatures)) {
-        processedProperty = {
+        processedType = {
           kind: 'Component',
           name: symbolMetadata.name,
           type: typeText,
@@ -427,7 +437,7 @@ export function processType(
           ),
         } satisfies ComponentType
       } else {
-        processedProperty = {
+        processedType = {
           kind: 'Function',
           name: symbolMetadata.name,
           type: typeText,
@@ -441,7 +451,7 @@ export function processType(
         } satisfies FunctionType
       }
     } else if (isPrimitive) {
-      processedProperty = {
+      processedType = {
         kind: 'Primitive',
         type: typeText,
       } satisfies PrimitiveType
@@ -473,7 +483,7 @@ export function processType(
           return
         }
 
-        processedProperty = {
+        processedType = {
           name: symbolMetadata.name,
           kind: 'Generic',
           type: typeText,
@@ -482,7 +492,7 @@ export function processType(
       } else if (properties.length === 0) {
         return undefined
       } else {
-        processedProperty = {
+        processedType = {
           name: symbolMetadata.name,
           kind: 'Object',
           type: typeText,
@@ -508,7 +518,7 @@ export function processType(
 
   references.delete(typeText)
 
-  return processedProperty
+  return processedType
 }
 
 /** Process all function signatures of a given type including their parameters and return types. */
@@ -581,7 +591,7 @@ export function processSignature(
             defaultValue,
             isOptional: isOptional ?? Boolean(defaultValue),
             description: getSymbolDescription(parameter),
-          } satisfies ProcessedType
+          } satisfies ParameterTypes
         }
       } else {
         throw new Error(
@@ -589,7 +599,7 @@ export function processSignature(
         )
       }
     })
-    .filter(Boolean) as ProcessedType[]
+    .filter(Boolean) as ParameterTypes[]
 
   /** Skip signatures with filtered parameters if they are in node_modules. */
   if (
@@ -650,9 +660,6 @@ export function processTypeProperties(
       const propertyDeclaration = property.getDeclarations().at(0) as
         | PropertySignature
         | undefined
-      const isOptional = propertyDeclaration
-        ? propertyDeclaration.hasQuestionToken()
-        : false
       const declaration = propertyDeclaration || enclosingNode
       const filterResult = filter(symbolMetadata)
 
@@ -683,13 +690,23 @@ export function processTypeProperties(
         )
 
         if (processedProperty) {
+          const isOptional = Boolean(
+            propertyDeclaration?.hasQuestionToken() || defaultValue
+          )
+          const isReadonly = propertyDeclaration
+            ? 'isReadonly' in propertyDeclaration
+              ? propertyDeclaration.isReadonly()
+              : false
+            : false
+
           return {
             ...processedProperty,
             ...getJsDocMetadata(declaration),
             name,
             defaultValue,
-            isOptional: isOptional || Boolean(defaultValue),
-          } satisfies ProcessedType
+            isOptional,
+            isReadonly,
+          } satisfies PropertyTypes
         }
       } else {
         throw new Error(
@@ -697,7 +714,7 @@ export function processTypeProperties(
         )
       }
     })
-    .filter(Boolean) as ProcessedType[]
+    .filter(Boolean) as PropertyTypes[]
 }
 
 /** Process all elements of a tuple type. */

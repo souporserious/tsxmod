@@ -26,16 +26,16 @@ import {
   type FunctionSignatureType,
   type ObjectType,
   type ProcessedType,
-  type SharedMetadata,
+  type BaseType,
   type SymbolFilter,
 } from './processType'
 
-export interface EnumMetadata extends SharedMetadata {
+export interface EnumMetadata extends BaseType {
   kind: 'Enum'
   members: Record<string, unknown>
 }
 
-export interface ClassMetadata extends SharedMetadata {
+export interface ClassMetadata extends BaseType {
   kind: 'Class'
   constructors?: ReturnType<typeof processCallSignatures>
   accessors?: ClassAccessorMetadata[]
@@ -43,7 +43,7 @@ export interface ClassMetadata extends SharedMetadata {
   properties?: ClassPropertyMetadata[]
 }
 
-export interface SharedClassMemberMetadata extends SharedMetadata {
+export interface SharedClassMemberMetadata extends BaseType {
   scope?: 'abstract' | 'static'
   visibility?: 'private' | 'protected' | 'public'
 }
@@ -69,23 +69,23 @@ export type ClassPropertyMetadata = SharedClassMemberMetadata & {
   isReadonly: boolean
 } & ProcessedType
 
-export interface FunctionMetadata extends SharedMetadata {
+export interface FunctionMetadata extends BaseType {
   kind: 'Function'
   signatures: FunctionSignatureType[]
 }
 
-export interface ComponentSignatureMetadata extends SharedMetadata {
+export interface ComponentSignatureMetadata extends BaseType {
   kind: 'ComponentSignature'
   properties: ObjectType
   returnType: string
 }
 
-export interface ComponentMetadata extends SharedMetadata {
+export interface ComponentMetadata extends BaseType {
   kind: 'Component'
   signatures: ComponentSignatureMetadata[]
 }
 
-export interface UnknownMetadata extends SharedMetadata {
+export interface UnknownMetadata extends BaseType {
   kind: 'Unknown'
 }
 

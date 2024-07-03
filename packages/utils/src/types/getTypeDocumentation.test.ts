@@ -80,6 +80,7 @@ describe('getTypeDocumentation', () => {
                     "defaultValue": undefined,
                     "description": "Provides the initial count.",
                     "isOptional": true,
+                    "isReadonly": false,
                     "kind": "Number",
                     "name": "initialCount",
                     "tags": undefined,
@@ -133,12 +134,14 @@ describe('getTypeDocumentation', () => {
                   {
                     "defaultValue": undefined,
                     "isOptional": true,
+                    "isReadonly": false,
                     "kind": "Object",
                     "name": "initial",
                     "properties": [
                       {
                         "defaultValue": undefined,
                         "isOptional": false,
+                        "isReadonly": false,
                         "kind": "Number",
                         "name": "count",
                         "type": "number",
@@ -352,6 +355,7 @@ describe('getTypeDocumentation', () => {
                   {
                     "defaultValue": undefined,
                     "isOptional": false,
+                    "isReadonly": false,
                     "kind": "Reference",
                     "name": "counterState",
                     "type": "{ initialCount: number; }",
@@ -406,6 +410,7 @@ describe('getTypeDocumentation', () => {
                     {
                       "defaultValue": undefined,
                       "isOptional": false,
+                      "isReadonly": false,
                       "kind": "String",
                       "name": "color",
                       "type": "string",
@@ -413,6 +418,7 @@ describe('getTypeDocumentation', () => {
                     {
                       "defaultValue": undefined,
                       "isOptional": false,
+                      "isReadonly": false,
                       "kind": "String",
                       "name": "source",
                       "type": "string",
@@ -427,6 +433,7 @@ describe('getTypeDocumentation', () => {
                     {
                       "defaultValue": undefined,
                       "isOptional": false,
+                      "isReadonly": false,
                       "kind": "String",
                       "name": "color",
                       "type": "string",
@@ -434,6 +441,7 @@ describe('getTypeDocumentation', () => {
                     {
                       "defaultValue": undefined,
                       "isOptional": false,
+                      "isReadonly": false,
                       "kind": "String",
                       "name": "value",
                       "type": "string",
@@ -494,6 +502,7 @@ describe('getTypeDocumentation', () => {
                       {
                         "defaultValue": undefined,
                         "isOptional": false,
+                        "isReadonly": false,
                         "kind": "String",
                         "name": "color",
                         "type": "string",
@@ -561,6 +570,7 @@ describe('getTypeDocumentation', () => {
                     {
                       "defaultValue": undefined,
                       "isOptional": false,
+                      "isReadonly": false,
                       "kind": "String",
                       "name": "source",
                       "type": "string",
@@ -579,6 +589,7 @@ describe('getTypeDocumentation', () => {
                     {
                       "defaultValue": undefined,
                       "isOptional": false,
+                      "isReadonly": false,
                       "kind": "String",
                       "name": "value",
                       "type": "string",
@@ -662,6 +673,7 @@ describe('getTypeDocumentation', () => {
                 {
                   "defaultValue": undefined,
                   "isOptional": true,
+                  "isReadonly": false,
                   "kind": "String",
                   "name": "className",
                   "type": "string",
@@ -669,6 +681,7 @@ describe('getTypeDocumentation', () => {
                 {
                   "defaultValue": undefined,
                   "isOptional": false,
+                  "isReadonly": false,
                   "kind": "Primitive",
                   "name": "children",
                   "type": "ReactNode",
@@ -676,6 +689,7 @@ describe('getTypeDocumentation', () => {
                 {
                   "defaultValue": undefined,
                   "isOptional": false,
+                  "isReadonly": false,
                   "kind": "Union",
                   "members": [
                     {
@@ -701,6 +715,7 @@ describe('getTypeDocumentation', () => {
                 {
                   "defaultValue": undefined,
                   "isOptional": false,
+                  "isReadonly": false,
                   "kind": "Union",
                   "members": [
                     {
@@ -722,6 +737,7 @@ describe('getTypeDocumentation', () => {
                 {
                   "defaultValue": undefined,
                   "isOptional": false,
+                  "isReadonly": false,
                   "kind": "Union",
                   "members": [
                     {
@@ -739,6 +755,7 @@ describe('getTypeDocumentation', () => {
                 {
                   "defaultValue": undefined,
                   "isOptional": false,
+                  "isReadonly": false,
                   "kind": "String",
                   "name": "lineHeight",
                   "type": "string",
@@ -799,6 +816,7 @@ describe('getTypeDocumentation', () => {
                 {
                   "defaultValue": undefined,
                   "isOptional": false,
+                  "isReadonly": false,
                   "kind": "String",
                   "name": "gridTemplateColumns",
                   "type": "string",
@@ -806,6 +824,7 @@ describe('getTypeDocumentation', () => {
                 {
                   "defaultValue": undefined,
                   "isOptional": true,
+                  "isReadonly": false,
                   "kind": "String",
                   "name": "gridTemplateRows",
                   "type": "string",
@@ -863,6 +882,7 @@ describe('getTypeDocumentation', () => {
                 {
                   "defaultValue": undefined,
                   "isOptional": false,
+                  "isReadonly": false,
                   "kind": "String",
                   "name": "$gridTemplateColumns",
                   "type": "string",
@@ -870,6 +890,7 @@ describe('getTypeDocumentation', () => {
                 {
                   "defaultValue": undefined,
                   "isOptional": false,
+                  "isReadonly": false,
                   "kind": "String",
                   "name": "$gridTemplateRows",
                   "type": "string",
@@ -907,6 +928,7 @@ describe('getTypeDocumentation', () => {
           {
             "defaultValue": undefined,
             "isOptional": false,
+            "isReadonly": false,
             "kind": "Union",
             "members": [
               {
@@ -936,6 +958,7 @@ describe('getTypeDocumentation', () => {
           {
             "defaultValue": undefined,
             "isOptional": true,
+            "isReadonly": false,
             "kind": "Union",
             "members": [
               {
@@ -980,6 +1003,7 @@ describe('getTypeDocumentation', () => {
           {
             "defaultValue": undefined,
             "isOptional": false,
+            "isReadonly": false,
             "kind": "Union",
             "members": [
               {
@@ -1009,6 +1033,7 @@ describe('getTypeDocumentation', () => {
           {
             "defaultValue": undefined,
             "isOptional": true,
+            "isReadonly": false,
             "kind": "Union",
             "members": [
               {
@@ -1026,6 +1051,7 @@ describe('getTypeDocumentation', () => {
           {
             "defaultValue": undefined,
             "isOptional": false,
+            "isReadonly": false,
             "kind": "String",
             "name": "color",
             "type": "string",
@@ -1301,6 +1327,7 @@ describe('getTypeDocumentation', () => {
                   {
                     "defaultValue": undefined,
                     "isOptional": false,
+                    "isReadonly": false,
                     "kind": "Number",
                     "name": "initialCount",
                     "type": "number",
@@ -1384,6 +1411,7 @@ describe('getTypeDocumentation', () => {
               {
                 "defaultValue": undefined,
                 "isOptional": false,
+                "isReadonly": false,
                 "kind": "String",
                 "name": "color",
                 "type": "string",
@@ -1391,6 +1419,7 @@ describe('getTypeDocumentation', () => {
               {
                 "defaultValue": undefined,
                 "isOptional": false,
+                "isReadonly": false,
                 "kind": "String",
                 "name": "backgroundColor",
                 "type": "string",
@@ -1405,6 +1434,7 @@ describe('getTypeDocumentation', () => {
               {
                 "defaultValue": undefined,
                 "isOptional": false,
+                "isReadonly": false,
                 "kind": "String",
                 "name": "color",
                 "type": "string",
@@ -1412,6 +1442,7 @@ describe('getTypeDocumentation', () => {
               {
                 "defaultValue": undefined,
                 "isOptional": false,
+                "isReadonly": false,
                 "kind": "String",
                 "name": "borderColor",
                 "type": "string",
@@ -1455,6 +1486,7 @@ describe('getTypeDocumentation', () => {
           {
             "defaultValue": undefined,
             "isOptional": false,
+            "isReadonly": false,
             "kind": "String",
             "name": "siteName",
             "type": "string",
@@ -1462,6 +1494,7 @@ describe('getTypeDocumentation', () => {
           {
             "defaultValue": undefined,
             "isOptional": false,
+            "isReadonly": false,
             "kind": "Union",
             "members": [
               {
@@ -1471,6 +1504,7 @@ describe('getTypeDocumentation', () => {
                   {
                     "defaultValue": undefined,
                     "isOptional": false,
+                    "isReadonly": false,
                     "kind": "String",
                     "name": "apiEndpoint",
                     "type": "string",
@@ -1478,6 +1512,7 @@ describe('getTypeDocumentation', () => {
                   {
                     "defaultValue": undefined,
                     "isOptional": false,
+                    "isReadonly": false,
                     "kind": "String",
                     "name": "apiKey",
                     "type": "string",
@@ -1492,6 +1527,7 @@ describe('getTypeDocumentation', () => {
                   {
                     "defaultValue": undefined,
                     "isOptional": false,
+                    "isReadonly": false,
                     "kind": "String",
                     "name": "dbHost",
                     "type": "string",
@@ -1499,6 +1535,7 @@ describe('getTypeDocumentation', () => {
                   {
                     "defaultValue": undefined,
                     "isOptional": false,
+                    "isReadonly": false,
                     "kind": "Number",
                     "name": "dbPort",
                     "type": "number",
@@ -1506,6 +1543,7 @@ describe('getTypeDocumentation', () => {
                   {
                     "defaultValue": undefined,
                     "isOptional": false,
+                    "isReadonly": false,
                     "kind": "String",
                     "name": "dbName",
                     "type": "string",
@@ -1560,6 +1598,7 @@ describe('getTypeDocumentation', () => {
                       {
                         "defaultValue": undefined,
                         "isOptional": false,
+                        "isReadonly": false,
                         "kind": "String",
                         "name": "apiEndpoint",
                         "type": "string",
@@ -1567,6 +1606,7 @@ describe('getTypeDocumentation', () => {
                       {
                         "defaultValue": undefined,
                         "isOptional": false,
+                        "isReadonly": false,
                         "kind": "String",
                         "name": "apiKey",
                         "type": "string",
@@ -1581,6 +1621,7 @@ describe('getTypeDocumentation', () => {
                       {
                         "defaultValue": undefined,
                         "isOptional": false,
+                        "isReadonly": false,
                         "kind": "String",
                         "name": "dbHost",
                         "type": "string",
@@ -1588,6 +1629,7 @@ describe('getTypeDocumentation', () => {
                       {
                         "defaultValue": undefined,
                         "isOptional": false,
+                        "isReadonly": false,
                         "kind": "Number",
                         "name": "dbPort",
                         "type": "number",
@@ -1595,6 +1637,7 @@ describe('getTypeDocumentation', () => {
                       {
                         "defaultValue": undefined,
                         "isOptional": false,
+                        "isReadonly": false,
                         "kind": "String",
                         "name": "dbName",
                         "type": "string",
@@ -1662,6 +1705,7 @@ describe('getTypeDocumentation', () => {
                 {
                   "defaultValue": undefined,
                   "isOptional": true,
+                  "isReadonly": false,
                   "kind": "Union",
                   "members": [
                     {
@@ -1683,6 +1727,7 @@ describe('getTypeDocumentation', () => {
                 {
                   "defaultValue": undefined,
                   "isOptional": true,
+                  "isReadonly": false,
                   "kind": "Function",
                   "name": "onClick",
                   "signatures": [
@@ -1775,6 +1820,7 @@ describe('getTypeDocumentation', () => {
                     {
                       "defaultValue": undefined,
                       "isOptional": false,
+                      "isReadonly": false,
                       "kind": "String",
                       "name": "source",
                       "type": "string",
@@ -1783,6 +1829,7 @@ describe('getTypeDocumentation', () => {
                       "defaultValue": undefined,
                       "description": "Controls how types are rendered.",
                       "isOptional": true,
+                      "isReadonly": false,
                       "kind": "Function",
                       "name": "children",
                       "signatures": [
@@ -1793,16 +1840,14 @@ describe('getTypeDocumentation', () => {
                             {
                               "defaultValue": undefined,
                               "description": undefined,
-                              "isOptional": false,
-                              "kind": "Array",
-                              "name": "exportedTypes",
-                              "type": {
+                              "element": {
                                 "kind": "Object",
                                 "name": undefined,
                                 "properties": [
                                   {
                                     "defaultValue": undefined,
                                     "isOptional": false,
+                                    "isReadonly": false,
                                     "kind": "String",
                                     "name": "name",
                                     "type": "string",
@@ -1810,6 +1855,7 @@ describe('getTypeDocumentation', () => {
                                   {
                                     "defaultValue": undefined,
                                     "isOptional": false,
+                                    "isReadonly": false,
                                     "kind": "String",
                                     "name": "description",
                                     "type": "string",
@@ -1817,10 +1863,14 @@ describe('getTypeDocumentation', () => {
                                 ],
                                 "type": "{ name: string; description: string; }",
                               },
+                              "isOptional": false,
+                              "kind": "Array",
+                              "name": "exportedTypes",
+                              "type": "Array<{ name: string; description: string; }>",
                             },
                           ],
                           "returnType": "ReactNode",
-                          "type": "(exportedTypes: [object Object]) => ReactNode",
+                          "type": "(exportedTypes: Array<{ name: string; description: string; }>) => ReactNode",
                         },
                       ],
                       "tags": undefined,
@@ -1836,6 +1886,7 @@ describe('getTypeDocumentation', () => {
                     {
                       "defaultValue": undefined,
                       "isOptional": false,
+                      "isReadonly": false,
                       "kind": "String",
                       "name": "filename",
                       "type": "string",
@@ -1843,6 +1894,7 @@ describe('getTypeDocumentation', () => {
                     {
                       "defaultValue": undefined,
                       "isOptional": false,
+                      "isReadonly": false,
                       "kind": "String",
                       "name": "value",
                       "type": "string",
@@ -1851,6 +1903,7 @@ describe('getTypeDocumentation', () => {
                       "defaultValue": undefined,
                       "description": "Controls how types are rendered.",
                       "isOptional": true,
+                      "isReadonly": false,
                       "kind": "Function",
                       "name": "children",
                       "signatures": [
@@ -1861,16 +1914,14 @@ describe('getTypeDocumentation', () => {
                             {
                               "defaultValue": undefined,
                               "description": undefined,
-                              "isOptional": false,
-                              "kind": "Array",
-                              "name": "exportedTypes",
-                              "type": {
+                              "element": {
                                 "kind": "Object",
                                 "name": undefined,
                                 "properties": [
                                   {
                                     "defaultValue": undefined,
                                     "isOptional": false,
+                                    "isReadonly": false,
                                     "kind": "String",
                                     "name": "name",
                                     "type": "string",
@@ -1878,6 +1929,7 @@ describe('getTypeDocumentation', () => {
                                   {
                                     "defaultValue": undefined,
                                     "isOptional": false,
+                                    "isReadonly": false,
                                     "kind": "String",
                                     "name": "description",
                                     "type": "string",
@@ -1885,10 +1937,14 @@ describe('getTypeDocumentation', () => {
                                 ],
                                 "type": "{ name: string; description: string; }",
                               },
+                              "isOptional": false,
+                              "kind": "Array",
+                              "name": "exportedTypes",
+                              "type": "Array<{ name: string; description: string; }>",
                             },
                           ],
                           "returnType": "ReactNode",
-                          "type": "(exportedTypes: [object Object]) => ReactNode",
+                          "type": "(exportedTypes: Array<{ name: string; description: string; }>) => ReactNode",
                         },
                       ],
                       "tags": undefined,
@@ -1993,6 +2049,7 @@ describe('getTypeDocumentation', () => {
               {
                 "defaultValue": undefined,
                 "isOptional": false,
+                "isReadonly": false,
                 "kind": "String",
                 "name": "kind",
                 "type": ""TypeAlias"",
@@ -2000,6 +2057,7 @@ describe('getTypeDocumentation', () => {
               {
                 "defaultValue": undefined,
                 "isOptional": false,
+                "isReadonly": false,
                 "kind": "String",
                 "name": "name",
                 "type": "string",
@@ -2071,6 +2129,7 @@ describe('getTypeDocumentation', () => {
           {
             "defaultValue": undefined,
             "isOptional": false,
+            "isReadonly": false,
             "kind": "String",
             "name": "primary",
             "type": ""#ff0000"",
@@ -2078,6 +2137,7 @@ describe('getTypeDocumentation', () => {
           {
             "defaultValue": undefined,
             "isOptional": false,
+            "isReadonly": false,
             "kind": "String",
             "name": "secondary",
             "type": ""#00ff00"",
@@ -2085,6 +2145,7 @@ describe('getTypeDocumentation', () => {
           {
             "defaultValue": undefined,
             "isOptional": false,
+            "isReadonly": false,
             "kind": "String",
             "name": "tertiary",
             "type": ""#0000ff"",
@@ -2136,6 +2197,7 @@ describe('getTypeDocumentation', () => {
             {
               "defaultValue": undefined,
               "isOptional": false,
+              "isReadonly": false,
               "kind": "Number",
               "name": "count",
               "type": "number",
@@ -2143,6 +2205,7 @@ describe('getTypeDocumentation', () => {
             {
               "defaultValue": undefined,
               "isOptional": false,
+              "isReadonly": false,
               "kind": "Function",
               "name": "increment",
               "signatures": [
