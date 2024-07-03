@@ -1811,7 +1811,7 @@ describe('processProperties', () => {
       { overwrite: true }
     )
     const typeAlias = sourceFile.getEnumOrThrow('Color')
-    const processedProperties = processType(typeAlias.getType())
+    const processedProperties = processType(typeAlias.getType(), typeAlias)
 
     expect(processedProperties).toMatchInlineSnapshot(`
       {
@@ -1844,7 +1844,7 @@ describe('processProperties', () => {
       { overwrite: true }
     )
     const typeAlias = sourceFile.getTypeAliasOrThrow('TextProps')
-    const processedProperties = processType(typeAlias.getType())
+    const processedProperties = processType(typeAlias.getType(), typeAlias)
 
     expect(processedProperties).toMatchInlineSnapshot(`
       {
@@ -1866,6 +1866,120 @@ describe('processProperties', () => {
           },
         ],
         "type": "TextProps",
+      }
+    `)
+  })
+
+  test('class', () => {
+    const sourceFile = project.createSourceFile(
+      'test.ts',
+      dedent`
+      class Text {
+        color: string;
+
+        setValue(value: string) {
+          this.color = value;
+        }
+      }
+      `,
+      { overwrite: true }
+    )
+    const classDeclaration = sourceFile.getClassOrThrow('Text')
+    const processedProperties = processType(
+      classDeclaration.getType(),
+      classDeclaration
+    )
+
+    expect(processedProperties).toMatchInlineSnapshot(`
+      {
+        "kind": "Class",
+        "methods": [
+          {
+            "kind": "ClassMethod",
+            "name": "setValue",
+            "scope": undefined,
+            "signatures": [
+              {
+                "kind": "FunctionSignature",
+                "modifier": undefined,
+                "parameters": [
+                  {
+                    "defaultValue": undefined,
+                    "description": undefined,
+                    "isOptional": false,
+                    "kind": "String",
+                    "name": "value",
+                    "type": "string",
+                  },
+                ],
+                "returnType": "void",
+                "type": "(value: string) => void",
+              },
+            ],
+            "type": "(value: string) => void",
+            "visibility": undefined,
+          },
+        ],
+        "name": "Text",
+        "properties": [
+          {
+            "isReadonly": false,
+            "kind": "String",
+            "name": "color",
+            "scope": undefined,
+            "type": "string",
+            "visibility": undefined,
+          },
+        ],
+        "type": "Text",
+      }
+    `)
+  })
+
+  test('class as property', () => {
+    const sourceFile = project.createSourceFile(
+      'test.ts',
+      dedent`
+      class TextView {
+        color: string = '#666'
+      }
+
+      type CardViewProps = {
+        text: TextView;
+      }
+      `,
+      { overwrite: true }
+    )
+    const typeAlias = sourceFile.getTypeAliasOrThrow('CardViewProps')
+    const processedProperties = processType(typeAlias.getType(), typeAlias)
+
+    // TODO: default value should be calculated from class properties
+
+    expect(processedProperties).toMatchInlineSnapshot(`
+      {
+        "kind": "Object",
+        "name": "CardViewProps",
+        "properties": [
+          {
+            "defaultValue": undefined,
+            "isOptional": false,
+            "isReadonly": false,
+            "kind": "Class",
+            "name": "text",
+            "properties": [
+              {
+                "isReadonly": false,
+                "kind": "String",
+                "name": "color",
+                "scope": undefined,
+                "type": "string",
+                "visibility": undefined,
+              },
+            ],
+            "type": "TextView",
+          },
+        ],
+        "type": "CardViewProps",
       }
     `)
   })

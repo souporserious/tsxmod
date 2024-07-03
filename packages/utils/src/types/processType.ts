@@ -2,10 +2,15 @@ import {
   Node,
   Type,
   TypeFormatFlags,
+  SyntaxKind,
+  type ClassDeclaration,
   type FunctionDeclaration,
-  type MethodDeclaration,
   type ParameterDeclaration,
+  type PropertyDeclaration,
   type PropertySignature,
+  type MethodDeclaration,
+  type SetAccessorDeclaration,
+  type GetAccessorDeclaration,
   type Signature,
   type Symbol,
 } from 'ts-morph'
@@ -102,14 +107,37 @@ export interface UnionType extends BaseType {
   members: ProcessedType[]
 }
 
-export interface PrimitiveType extends BaseType {
-  kind: 'Primitive'
+export interface ClassType extends BaseType {
+  kind: 'Class'
+  constructors?: ReturnType<typeof processCallSignatures>
+  accessors?: ClassAccessorType[]
+  methods?: ClassMethodType[]
+  properties?: ClassPropertyType[]
 }
 
-export interface ReferenceType extends BaseType {
-  kind: 'Reference'
-  // path?: string // TODO: add import specifier for external references and identifier for internal references
+export interface SharedClassMemberType extends BaseType {
+  scope?: 'abstract' | 'static'
+  visibility?: 'private' | 'protected' | 'public'
 }
+
+export interface ClassGetAccessorType extends SharedClassMemberType {
+  kind: 'ClassGetAccessor'
+}
+
+export type ClassSetAccessorType = SharedClassMemberType & {
+  kind: 'ClassSetAccessor'
+} & Omit<FunctionSignatureType, 'kind'>
+
+export type ClassAccessorType = ClassGetAccessorType | ClassSetAccessorType
+
+export interface ClassMethodType extends SharedClassMemberType {
+  kind: 'ClassMethod'
+  signatures: FunctionSignatureType[]
+}
+
+export type ClassPropertyType = SharedClassMemberType & {
+  isReadonly: boolean
+} & ProcessedType
 
 export interface FunctionSignatureType extends BaseType {
   kind: 'FunctionSignature'
@@ -133,6 +161,15 @@ export interface ComponentSignatureType extends BaseType {
 export interface ComponentType extends BaseType {
   kind: 'Component'
   signatures: ComponentSignatureType[]
+}
+
+export interface PrimitiveType extends BaseType {
+  kind: 'Primitive'
+}
+
+export interface ReferenceType extends BaseType {
+  kind: 'Reference'
+  // path?: string // TODO: add import specifier for external references and identifier for internal references
 }
 
 export interface GenericType extends BaseType {
@@ -159,10 +196,11 @@ export type BaseTypes =
   | ObjectType
   | EnumType
   | UnionType
-  | PrimitiveType
-  | ReferenceType
+  | ClassType
   | FunctionType
   | ComponentType
+  | PrimitiveType
+  | ReferenceType
   | GenericType
   | UtilityType
   | UnknownType
@@ -321,6 +359,14 @@ export function processType(
       } satisfies ArrayType
     } else {
       return
+    }
+  } else if (type.isClass()) {
+    if (Node.isClassDeclaration(symbolDeclaration)) {
+      processedType = processClass(symbolDeclaration, filter)
+    } else {
+      throw new Error(
+        `[processType]: No class declaration found for "${symbolMetadata.name}". Please file an issue if you encounter this error.`
+      )
     }
   } else if (type.isEnum()) {
     if (Node.isEnumDeclaration(symbolDeclaration)) {
@@ -920,7 +966,184 @@ function getModifier(node: FunctionDeclaration | MethodDeclaration) {
   }
 }
 
-/** Check if a function is a component based on its name and call signature shape. */
+/** Get the visibility of a class member. */
+function getVisibility(
+  node:
+    | MethodDeclaration
+    | SetAccessorDeclaration
+    | GetAccessorDeclaration
+    | PropertyDeclaration
+) {
+  if (node.hasModifier(SyntaxKind.PrivateKeyword)) {
+    return 'private'
+  }
+
+  if (node.hasModifier(SyntaxKind.ProtectedKeyword)) {
+    return 'protected'
+  }
+
+  if (node.hasModifier(SyntaxKind.PublicKeyword)) {
+    return 'public'
+  }
+}
+
+/** Get the scope of a class member. */
+function getScope(
+  node:
+    | MethodDeclaration
+    | SetAccessorDeclaration
+    | GetAccessorDeclaration
+    | PropertyDeclaration
+) {
+  if (node.isAbstract()) {
+    return 'abstract'
+  }
+
+  if (node.isStatic()) {
+    return 'static'
+  }
+}
+
+/** Processes a class declaration into a metadata object. */
+export function processClass(
+  classDeclaration: ClassDeclaration,
+  filter?: SymbolFilter
+): ClassType {
+  const classMetadata: ClassType = {
+    kind: 'Class',
+    name: classDeclaration.getName(),
+    type: classDeclaration
+      .getType()
+      .getText(classDeclaration, TYPE_FORMAT_FLAGS),
+    ...getJsDocMetadata(classDeclaration),
+  }
+
+  const constructorSignatures = classDeclaration
+    .getConstructors()
+    .map((constructor) => constructor.getSignature())
+
+  if (constructorSignatures.length) {
+    classMetadata.constructors = processCallSignatures(
+      constructorSignatures,
+      classDeclaration,
+      filter
+    )
+  }
+
+  classDeclaration.getMembers().forEach((member) => {
+    if (
+      Node.isGetAccessorDeclaration(member) ||
+      Node.isSetAccessorDeclaration(member)
+    ) {
+      if (!member.hasModifier(SyntaxKind.PrivateKeyword)) {
+        if (!classMetadata.accessors) {
+          classMetadata.accessors = []
+        }
+        classMetadata.accessors.push(processClassAccessor(member, filter))
+      }
+    } else if (Node.isMethodDeclaration(member)) {
+      if (!member.hasModifier(SyntaxKind.PrivateKeyword)) {
+        if (!classMetadata.methods) {
+          classMetadata.methods = []
+        }
+        classMetadata.methods.push(processClassMethod(member, filter))
+      }
+    } else if (Node.isPropertyDeclaration(member)) {
+      if (!member.hasModifier(SyntaxKind.PrivateKeyword)) {
+        if (!classMetadata.properties) {
+          classMetadata.properties = []
+        }
+        classMetadata.properties.push(processClassPropertyDeclaration(member))
+      }
+    }
+  })
+
+  return classMetadata
+}
+
+/** Processes a class accessor (getter or setter) declaration into a metadata object. */
+function processClassAccessor(
+  accessor: GetAccessorDeclaration | SetAccessorDeclaration,
+  filter?: SymbolFilter
+): ClassAccessorType {
+  const sharedMetadata: SharedClassMemberType = {
+    name: accessor.getName(),
+    scope: getScope(accessor),
+    visibility: getVisibility(accessor),
+    type: accessor.getType().getText(accessor, TYPE_FORMAT_FLAGS),
+    ...getJsDocMetadata(accessor),
+  }
+
+  if (Node.isSetAccessorDeclaration(accessor)) {
+    const processedSignature = processSignature(
+      accessor.getSignature(),
+      accessor,
+      filter
+    )
+
+    if (processedSignature) {
+      return {
+        ...processedSignature,
+        ...sharedMetadata,
+        kind: 'ClassSetAccessor',
+        type: accessor.getType().getText(accessor, TYPE_FORMAT_FLAGS),
+      } satisfies ClassSetAccessorType
+    }
+
+    throw new Error(
+      `[processClassAccessor] Setter "${accessor.getName()}" could not be processed. This declaration was either filtered, should be marked as internal, or filed as an issue for support.`
+    )
+  }
+
+  return {
+    ...sharedMetadata,
+    kind: 'ClassGetAccessor',
+  } satisfies ClassGetAccessorType
+}
+
+/** Processes a method declaration into a metadata object. */
+function processClassMethod(
+  method: MethodDeclaration,
+  filter?: SymbolFilter
+): ClassMethodType {
+  const callSignatures = method.getType().getCallSignatures()
+
+  return {
+    kind: 'ClassMethod',
+    name: method.getName(),
+    scope: getScope(method),
+    visibility: getVisibility(method),
+    signatures: processCallSignatures(callSignatures, method, filter),
+    type: method.getType().getText(method, TYPE_FORMAT_FLAGS),
+    ...getJsDocMetadata(method),
+  } satisfies ClassMethodType
+}
+
+/** Processes a class property declaration into a metadata object. */
+function processClassPropertyDeclaration(
+  property: PropertyDeclaration,
+  filter?: SymbolFilter
+): ClassPropertyType {
+  const propertyType = property.getType()
+  const processedType = processType(propertyType, property, filter)
+
+  if (processedType) {
+    return {
+      ...processedType,
+      ...getJsDocMetadata(property),
+      name: property.getName(),
+      scope: getScope(property),
+      visibility: getVisibility(property),
+      isReadonly: property.isReadonly(),
+    } satisfies ClassPropertyType
+  }
+
+  throw new Error(
+    `[processClassPropertyDeclaration] Property "${property.getName()}" could not be processed. This declaration was either filtered, should be marked as internal, or filed as an issue for support.`
+  )
+}
+
+/** Determines if a function is a component based on its name and call signature shape. */
 export function isComponent(
   name: string | undefined,
   callSignatures: FunctionSignatureType[]

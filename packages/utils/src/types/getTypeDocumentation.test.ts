@@ -2191,23 +2191,12 @@ describe('getTypeDocumentation', () => {
           "type": "number",
         },
         "counterTypes": {
-          "kind": "Object",
-          "name": "counter",
-          "properties": [
+          "kind": "Class",
+          "methods": [
             {
-              "defaultValue": undefined,
-              "isOptional": false,
-              "isReadonly": false,
-              "kind": "Number",
-              "name": "count",
-              "type": "number",
-            },
-            {
-              "defaultValue": undefined,
-              "isOptional": false,
-              "isReadonly": false,
-              "kind": "Function",
+              "kind": "ClassMethod",
               "name": "increment",
+              "scope": undefined,
               "signatures": [
                 {
                   "kind": "FunctionSignature",
@@ -2218,6 +2207,18 @@ describe('getTypeDocumentation', () => {
                 },
               ],
               "type": "() => void",
+              "visibility": undefined,
+            },
+          ],
+          "name": "counter",
+          "properties": [
+            {
+              "isReadonly": false,
+              "kind": "Number",
+              "name": "count",
+              "scope": undefined,
+              "type": "number",
+              "visibility": undefined,
             },
           ],
           "type": "Counter",
