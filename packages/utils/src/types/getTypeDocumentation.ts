@@ -1,23 +1,15 @@
 import type {
-  ArrowFunction,
-  AsExpression,
   FunctionDeclaration,
-  FunctionExpression,
-  TaggedTemplateExpression,
-  CallExpression,
   TypeAliasDeclaration,
   InterfaceDeclaration,
   EnumDeclaration,
   ClassDeclaration,
   VariableDeclaration,
 } from 'ts-morph'
-import { Node, SyntaxKind, TypeFormatFlags } from 'ts-morph'
+import { Node, TypeFormatFlags } from 'ts-morph'
 
 import { getJsDocMetadata } from '../js-docs'
 import {
-  isComponent,
-  processCallSignatures,
-  processClass,
   processType,
   type FunctionSignatureType,
   type ObjectType,
@@ -51,10 +43,6 @@ export interface UnknownMetadata extends BaseType {
 export type MetadataMap = {
   Enum: EnumType
   Class: ClassType
-  // ClassGetAccessor: ClassGetAccessorMetadata
-  // ClassSetAccessor: ClassSetAccessorMetadata
-  // ClassMethod: ClassMethodMetadata
-  // ClassProperty: ClassPropertyMetadata
   Function: FunctionMetadata
   Component: ComponentMetadata
   Unknown: UnknownMetadata
@@ -114,7 +102,9 @@ export function getTypeDocumentation(
   if (
     Node.isInterfaceDeclaration(declaration) ||
     Node.isTypeAliasDeclaration(declaration) ||
-    Node.isEnumDeclaration(declaration)
+    Node.isEnumDeclaration(declaration) ||
+    Node.isClassDeclaration(declaration) ||
+    Node.isFunctionDeclaration(declaration)
   ) {
     const processedType = processType(
       declaration.getType(),
@@ -127,7 +117,11 @@ export function getTypeDocumentation(
         ? 'Interface'
         : Node.isTypeAliasDeclaration(declaration)
         ? 'TypeAlias'
-        : 'Enum'
+        : Node.isEnumDeclaration(declaration)
+        ? 'Enum'
+        : Node.isClassDeclaration(declaration)
+        ? 'Class'
+        : 'Function'
 
       throw new Error(
         `[getTypeDocumentation] ${kind} "${declaration.getName()}" could not be processed. This declaration was either filtered, should be marked as internal, or filed as an issue for support.`
@@ -135,14 +129,6 @@ export function getTypeDocumentation(
     }
 
     return processedType
-  }
-
-  if (Node.isClassDeclaration(declaration)) {
-    return processClass(declaration, filter)
-  }
-
-  if (Node.isFunctionDeclaration(declaration)) {
-    return processFunctionDeclarationOrExpression(declaration, filter)
   }
 
   if (Node.isVariableDeclaration(declaration)) {
@@ -154,17 +140,33 @@ export function getTypeDocumentation(
       Node.isCallExpression(initializer) ||
       Node.isTaggedTemplateExpression(initializer)
     ) {
-      return processFunctionDeclarationOrExpression(
-        initializer,
-        filter,
-        declaration
+      const processedType = processType(
+        initializer.getType(),
+        declaration,
+        filter
       )
+
+      if (!processedType) {
+        const kind = Node.isArrowFunction(initializer)
+          ? 'ArrowFunction'
+          : Node.isFunctionExpression(initializer)
+          ? 'FunctionExpression'
+          : Node.isCallExpression(initializer)
+          ? 'CallExpression'
+          : 'TaggedTemplateExpression'
+
+        throw new Error(
+          `[getTypeDocumentation] ${kind} "${declaration.getName()}" could not be processed. This declaration was either filtered, should be marked as internal, or filed as an issue for support.`
+        )
+      }
+
+      return processedType
     }
 
     if (Node.isAsExpression(initializer)) {
       const processedType = processType(
         initializer.getType(),
-        initializer,
+        declaration,
         filter
       )
 
@@ -172,7 +174,6 @@ export function getTypeDocumentation(
         return {
           ...processedType,
           ...getJsDocMetadata(declaration),
-          name: declaration.getName(),
         }
       }
 
@@ -197,62 +198,4 @@ export function getTypeDocumentation(
   throw new Error(
     `[getTypeDocumentation] Declaration "${declaration.getName()}" could not be processed. This declaration was either filtered, should be marked as internal, or filed as an issue for support.`
   )
-}
-
-/** Processes a function or expression into a metadata object. */
-function processFunctionDeclarationOrExpression(
-  functionDeclarationOrExpression:
-    | AsExpression
-    | FunctionDeclaration
-    | ArrowFunction
-    | FunctionExpression
-    | TaggedTemplateExpression
-    | CallExpression,
-  filter?: SymbolFilter,
-  variableDeclaration?: VariableDeclaration
-): FunctionMetadata | ComponentMetadata {
-  const signatures = functionDeclarationOrExpression
-    .getType()
-    .getCallSignatures()
-  const processedCallSignatures = processCallSignatures(
-    signatures,
-    variableDeclaration || functionDeclarationOrExpression,
-    filter
-  )
-  const sharedMetadata = {
-    name: variableDeclaration
-      ? variableDeclaration.getName()
-      : (functionDeclarationOrExpression as FunctionDeclaration).getName(),
-    type: functionDeclarationOrExpression
-      .getType()
-      .getText(functionDeclarationOrExpression, TYPE_FORMAT_FLAGS),
-    ...getJsDocMetadata(variableDeclaration || functionDeclarationOrExpression),
-  } as const
-
-  if (isComponent(sharedMetadata.name, processedCallSignatures)) {
-    return {
-      kind: 'Component',
-      signatures: processedCallSignatures.map(
-        ({ parameters, ...processedCallSignature }) => {
-          return {
-            ...processedCallSignature,
-            kind: 'ComponentSignature',
-            properties: parameters.at(0)! as ObjectType,
-          } satisfies ComponentSignatureMetadata
-        }
-      ),
-      ...sharedMetadata,
-    }
-  }
-
-  return {
-    kind: 'Function',
-    signatures: processedCallSignatures.map((processedCallSignature) => {
-      return {
-        ...processedCallSignature,
-        kind: 'FunctionSignature',
-      } satisfies FunctionSignatureType
-    }),
-    ...sharedMetadata,
-  }
 }
