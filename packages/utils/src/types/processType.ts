@@ -291,29 +291,30 @@ export function processType(
     }
   }
 
-  /** TODO: this should account for what's actually exported from package.json exports to determine what's processed. */
-  if (
-    /** If the current symbol is located outside of this source file it is treated as a reference. */
-    ((symbolMetadata.isExternal && !symbolMetadata.isInNodeModules) ||
-      /** If the symbol is located in node_modules and not global it is also treated as a reference. */
-      (!symbolMetadata.isGlobal && symbolMetadata.isInNodeModules) ||
-      /** Finally, locally exported symbols are treated as a reference since they will be processed. */
-      (!isRootType &&
-        !symbolMetadata.isInNodeModules &&
-        !symbolMetadata.isExternal &&
-        symbolMetadata.isExported)) &&
-    /** Don't treat generics as references since they operate on type arguments that need to be processed. */
-    typeArguments.length === 0 &&
-    aliasTypeArguments.length === 0
-  ) {
-    return {
-      kind: 'Reference',
-      type: typeText,
-    } satisfies ReferenceType
-  }
+  /*
+   * Determine if the symbol should be treated as a reference.
+   * TODO: this should account for what's actually exported from package.json exports to determine what's processed.
+   */
+  const isLocallyExportedReference =
+    !isRootType &&
+    !symbolMetadata.isInNodeModules &&
+    !symbolMetadata.isExternal &&
+    symbolMetadata.isExported
+  const isExternalNonNodeModuleReference =
+    symbolMetadata.isExternal && !symbolMetadata.isInNodeModules
+  const isNodeModuleReference =
+    !symbolMetadata.isGlobal && symbolMetadata.isInNodeModules
+  const hasNoTypeArguments =
+    typeArguments.length === 0 && aliasTypeArguments.length === 0
+  const hasReference = references.has(typeText)
 
-  /** Detect self-references to avoid infinite recursion */
-  if (references.has(typeText)) {
+  if (
+    hasReference ||
+    (((isLocallyExportedReference && hasReference) ||
+      isExternalNonNodeModuleReference ||
+      isNodeModuleReference) &&
+      hasNoTypeArguments)
+  ) {
     return {
       kind: 'Reference',
       type: typeText,
