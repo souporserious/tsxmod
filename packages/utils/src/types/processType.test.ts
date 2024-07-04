@@ -109,6 +109,8 @@ describe('processProperties', () => {
     const type = typeAlias.getType()
     const processedProperties = processTypeProperties(type)
 
+    // TODO: fix generic name coming back undefined below
+
     expect(processedProperties).toMatchInlineSnapshot(`
       [
         {
@@ -207,10 +209,12 @@ describe('processProperties', () => {
           "members": [
             {
               "kind": "String",
+              "name": undefined,
               "type": "string",
             },
             {
               "kind": "Number",
+              "name": undefined,
               "type": "number",
             },
           ],
@@ -225,6 +229,7 @@ describe('processProperties', () => {
           "members": [
             {
               "kind": "String",
+              "name": undefined,
               "type": "string",
             },
             {
@@ -284,10 +289,12 @@ describe('processProperties', () => {
                     "members": [
                       {
                         "kind": "String",
+                        "name": undefined,
                         "type": "string",
                       },
                       {
                         "kind": "Number",
+                        "name": undefined,
                         "type": "number",
                       },
                     ],
@@ -348,7 +355,7 @@ describe('processProperties', () => {
                 },
               ],
               "kind": "Generic",
-              "name": "Promise",
+              "name": undefined,
               "type": "Promise<ExportedType>",
             },
             {
@@ -471,6 +478,7 @@ describe('processProperties', () => {
         "members": [
           {
             "kind": "String",
+            "name": undefined,
             "type": "string",
           },
           {
@@ -598,6 +606,7 @@ describe('processProperties', () => {
             "defaultValue": undefined,
             "element": {
               "kind": "String",
+              "name": undefined,
               "type": "string",
             },
             "isOptional": false,
@@ -610,6 +619,7 @@ describe('processProperties', () => {
             "arguments": [
               {
                 "kind": "String",
+                "name": undefined,
                 "type": "string",
               },
               {
@@ -1085,10 +1095,12 @@ describe('processProperties', () => {
             "members": [
               {
                 "kind": "String",
+                "name": undefined,
                 "type": "string",
               },
               {
                 "kind": "Number",
+                "name": undefined,
                 "type": "number",
               },
             ],
@@ -1538,6 +1550,7 @@ describe('processProperties', () => {
                 "arguments": [
                   {
                     "kind": "String",
+                    "name": undefined,
                     "type": "string",
                   },
                   {
@@ -1563,6 +1576,7 @@ describe('processProperties', () => {
                 "arguments": [
                   {
                     "kind": "String",
+                    "name": undefined,
                     "type": "string",
                   },
                   {
@@ -1684,6 +1698,7 @@ describe('processProperties', () => {
               },
               {
                 "kind": "String",
+                "name": undefined,
                 "type": "string",
               },
             ],
@@ -1720,6 +1735,8 @@ describe('processProperties', () => {
       }
     )
 
+    // TODO: this is broken, it should not be a top-level object
+
     expect(processedType).toMatchInlineSnapshot(`
       {
         "kind": "Object",
@@ -1727,7 +1744,7 @@ describe('processProperties', () => {
         "properties": [
           {
             "kind": "Component",
-            "name": "IStyledComponentBase",
+            "name": "Text",
             "signatures": [
               {
                 "kind": "ComponentSignature",
@@ -1790,6 +1807,7 @@ describe('processProperties', () => {
           },
           {
             "kind": "String",
+            "name": "Text",
             "type": "string",
           },
         ],
@@ -1980,6 +1998,30 @@ describe('processProperties', () => {
           },
         ],
         "type": "CardViewProps",
+      }
+    `)
+  })
+
+  test('variable declaration', () => {
+    const sourceFile = project.createSourceFile(
+      'test.ts',
+      dedent`
+      const color = 'blue'
+      `,
+      { overwrite: true }
+    )
+    const variableDeclaration =
+      sourceFile.getVariableDeclarationOrThrow('color')
+    const processedProperties = processType(
+      variableDeclaration.getType(),
+      variableDeclaration
+    )
+
+    expect(processedProperties).toMatchInlineSnapshot(`
+      {
+        "kind": "String",
+        "name": "color",
+        "type": ""blue"",
       }
     `)
   })

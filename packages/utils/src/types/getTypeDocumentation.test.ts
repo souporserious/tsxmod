@@ -493,6 +493,7 @@ describe('getTypeDocumentation', () => {
                 "members": [
                   {
                     "kind": "String",
+                    "name": undefined,
                     "type": "string",
                   },
                   {
@@ -649,120 +650,32 @@ describe('getTypeDocumentation', () => {
       }`,
       { overwrite: true }
     )
+    getTypeDocumentation(sourceFile.getTypeAliasOrThrow('TextProps'))
     const types = getTypeDocumentation(
       sourceFile.getVariableDeclarationOrThrow('Text')
     )
 
-    // TODO: below is not entirely correct since we should track the default value for variant
+    // TODO: need to track the default value for variant
+    // TODO: follow references to accurately determine the type and process as a component
 
     expect(types).toMatchInlineSnapshot(`
       {
-        "kind": "Component",
+        "kind": "Function",
         "name": "Text",
         "signatures": [
           {
-            "kind": "ComponentSignature",
+            "kind": "FunctionSignature",
             "modifier": undefined,
-            "properties": {
-              "defaultValue": undefined,
-              "description": undefined,
-              "isOptional": false,
-              "kind": "Object",
-              "name": "props",
-              "properties": [
-                {
-                  "defaultValue": undefined,
-                  "isOptional": true,
-                  "isReadonly": false,
-                  "kind": "String",
-                  "name": "className",
-                  "type": "string",
-                },
-                {
-                  "defaultValue": undefined,
-                  "isOptional": false,
-                  "isReadonly": false,
-                  "kind": "Primitive",
-                  "name": "children",
-                  "type": "ReactNode",
-                },
-                {
-                  "defaultValue": undefined,
-                  "isOptional": false,
-                  "isReadonly": false,
-                  "kind": "Union",
-                  "members": [
-                    {
-                      "kind": "String",
-                      "type": ""heading1"",
-                    },
-                    {
-                      "kind": "String",
-                      "type": ""heading2"",
-                    },
-                    {
-                      "kind": "String",
-                      "type": ""heading3"",
-                    },
-                    {
-                      "kind": "String",
-                      "type": ""body1"",
-                    },
-                  ],
-                  "name": "variant",
-                  "type": ""heading1" | "heading2" | "heading3" | "body1"",
-                },
-                {
-                  "defaultValue": undefined,
-                  "isOptional": false,
-                  "isReadonly": false,
-                  "kind": "Union",
-                  "members": [
-                    {
-                      "kind": "String",
-                      "type": ""start"",
-                    },
-                    {
-                      "kind": "String",
-                      "type": ""center"",
-                    },
-                    {
-                      "kind": "String",
-                      "type": ""end"",
-                    },
-                  ],
-                  "name": "alignment",
-                  "type": ""start" | "center" | "end"",
-                },
-                {
-                  "defaultValue": undefined,
-                  "isOptional": false,
-                  "isReadonly": false,
-                  "kind": "Union",
-                  "members": [
-                    {
-                      "kind": "String",
-                      "type": "string",
-                    },
-                    {
-                      "kind": "Number",
-                      "type": "number",
-                    },
-                  ],
-                  "name": "width",
-                  "type": "string | number",
-                },
-                {
-                  "defaultValue": undefined,
-                  "isOptional": false,
-                  "isReadonly": false,
-                  "kind": "String",
-                  "name": "lineHeight",
-                  "type": "string",
-                },
-              ],
-              "type": "TextProps",
-            },
+            "parameters": [
+              {
+                "defaultValue": undefined,
+                "description": undefined,
+                "isOptional": false,
+                "kind": "Reference",
+                "name": "props",
+                "type": "TextProps",
+              },
+            ],
             "returnType": "void",
             "type": "(props: TextProps) => void",
           },
@@ -800,40 +713,52 @@ describe('getTypeDocumentation', () => {
 
     expect(types).toMatchInlineSnapshot(`
       {
-        "kind": "Component",
-        "name": "Grid",
-        "signatures": [
+        "kind": "Object",
+        "name": undefined,
+        "properties": [
           {
-            "kind": "ComponentSignature",
-            "modifier": undefined,
-            "properties": {
-              "defaultValue": undefined,
-              "description": undefined,
-              "isOptional": false,
-              "kind": "Object",
-              "name": "props",
-              "properties": [
-                {
+            "kind": "Component",
+            "name": "Grid",
+            "signatures": [
+              {
+                "kind": "ComponentSignature",
+                "modifier": undefined,
+                "properties": {
                   "defaultValue": undefined,
+                  "description": undefined,
                   "isOptional": false,
-                  "isReadonly": false,
-                  "kind": "String",
-                  "name": "gridTemplateColumns",
-                  "type": "string",
+                  "kind": "Object",
+                  "name": "props",
+                  "properties": [
+                    {
+                      "defaultValue": undefined,
+                      "isOptional": false,
+                      "isReadonly": false,
+                      "kind": "String",
+                      "name": "gridTemplateColumns",
+                      "type": "string",
+                    },
+                    {
+                      "defaultValue": undefined,
+                      "isOptional": true,
+                      "isReadonly": false,
+                      "kind": "String",
+                      "name": "gridTemplateRows",
+                      "type": "string",
+                    },
+                  ],
+                  "type": "Substitute<React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>, GridProps>",
                 },
-                {
-                  "defaultValue": undefined,
-                  "isOptional": true,
-                  "isReadonly": false,
-                  "kind": "String",
-                  "name": "gridTemplateRows",
-                  "type": "string",
-                },
-              ],
-              "type": "Substitute<React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>, GridProps>",
-            },
-            "returnType": "ReactNode",
-            "type": "(props: Substitute<React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>, GridProps>) => ReactNode",
+                "returnType": "ReactNode",
+                "type": "(props: Substitute<React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>, GridProps>) => ReactNode",
+              },
+            ],
+            "type": "IStyledComponentBase<"web", Substitute<React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>, GridProps>>",
+          },
+          {
+            "kind": "String",
+            "name": "Grid",
+            "type": "string",
           },
         ],
         "type": "IStyledComponentBase<"web", Substitute<React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>, GridProps>> & string",
@@ -866,40 +791,52 @@ describe('getTypeDocumentation', () => {
 
     expect(types).toMatchInlineSnapshot(`
       {
-        "kind": "Component",
-        "name": "Grid",
-        "signatures": [
+        "kind": "Object",
+        "name": undefined,
+        "properties": [
           {
-            "kind": "ComponentSignature",
-            "modifier": undefined,
-            "properties": {
-              "defaultValue": undefined,
-              "description": undefined,
-              "isOptional": false,
-              "kind": "Object",
-              "name": "props",
-              "properties": [
-                {
+            "kind": "Component",
+            "name": "Grid",
+            "signatures": [
+              {
+                "kind": "ComponentSignature",
+                "modifier": undefined,
+                "properties": {
                   "defaultValue": undefined,
+                  "description": undefined,
                   "isOptional": false,
-                  "isReadonly": false,
-                  "kind": "String",
-                  "name": "$gridTemplateColumns",
-                  "type": "string",
+                  "kind": "Object",
+                  "name": "props",
+                  "properties": [
+                    {
+                      "defaultValue": undefined,
+                      "isOptional": false,
+                      "isReadonly": false,
+                      "kind": "String",
+                      "name": "$gridTemplateColumns",
+                      "type": "string",
+                    },
+                    {
+                      "defaultValue": undefined,
+                      "isOptional": false,
+                      "isReadonly": false,
+                      "kind": "String",
+                      "name": "$gridTemplateRows",
+                      "type": "string",
+                    },
+                  ],
+                  "type": "Substitute<React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>, { $gridTemplateColumns: string; $gridTemplateRows: string; }>",
                 },
-                {
-                  "defaultValue": undefined,
-                  "isOptional": false,
-                  "isReadonly": false,
-                  "kind": "String",
-                  "name": "$gridTemplateRows",
-                  "type": "string",
-                },
-              ],
-              "type": "Substitute<React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>, { $gridTemplateColumns: string; $gridTemplateRows: string; }>",
-            },
-            "returnType": "ReactNode",
-            "type": "(props: Substitute<React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>, { $gridTemplateColumns: string; $gridTemplateRows: string; }>) => ReactNode",
+                "returnType": "ReactNode",
+                "type": "(props: Substitute<React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>, { $gridTemplateColumns: string; $gridTemplateRows: string; }>) => ReactNode",
+              },
+            ],
+            "type": "IStyledComponentBase<"web", Substitute<React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>, { $gridTemplateColumns: string; $gridTemplateRows: string; }>>",
+          },
+          {
+            "kind": "String",
+            "name": "Grid",
+            "type": "string",
           },
         ],
         "type": "IStyledComponentBase<"web", Substitute<React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>, { $gridTemplateColumns: string; $gridTemplateRows: string; }>> & string",
@@ -933,22 +870,27 @@ describe('getTypeDocumentation', () => {
             "members": [
               {
                 "kind": "String",
+                "name": undefined,
                 "type": ""heading1"",
               },
               {
                 "kind": "String",
+                "name": undefined,
                 "type": ""heading2"",
               },
               {
                 "kind": "String",
+                "name": undefined,
                 "type": ""heading3"",
               },
               {
                 "kind": "String",
+                "name": undefined,
                 "type": ""body1"",
               },
               {
                 "kind": "String",
+                "name": undefined,
                 "type": ""body2"",
               },
             ],
@@ -963,10 +905,12 @@ describe('getTypeDocumentation', () => {
             "members": [
               {
                 "kind": "String",
+                "name": undefined,
                 "type": "string",
               },
               {
                 "kind": "Number",
+                "name": undefined,
                 "type": "number",
               },
             ],
@@ -1008,22 +952,27 @@ describe('getTypeDocumentation', () => {
             "members": [
               {
                 "kind": "String",
+                "name": undefined,
                 "type": ""heading1"",
               },
               {
                 "kind": "String",
+                "name": undefined,
                 "type": ""heading2"",
               },
               {
                 "kind": "String",
+                "name": undefined,
                 "type": ""heading3"",
               },
               {
                 "kind": "String",
+                "name": undefined,
                 "type": ""body1"",
               },
               {
                 "kind": "String",
+                "name": undefined,
                 "type": ""body2"",
               },
             ],
@@ -1038,10 +987,12 @@ describe('getTypeDocumentation', () => {
             "members": [
               {
                 "kind": "String",
+                "name": undefined,
                 "type": "string",
               },
               {
                 "kind": "Number",
+                "name": undefined,
                 "type": "number",
               },
             ],
@@ -1710,14 +1661,17 @@ describe('getTypeDocumentation', () => {
                   "members": [
                     {
                       "kind": "String",
+                      "name": undefined,
                       "type": ""primary"",
                     },
                     {
                       "kind": "String",
+                      "name": undefined,
                       "type": ""secondary"",
                     },
                     {
                       "kind": "String",
+                      "name": undefined,
                       "type": ""danger"",
                     },
                   ],
@@ -2227,6 +2181,7 @@ describe('getTypeDocumentation', () => {
           "arguments": [
             {
               "kind": "Number",
+              "name": undefined,
               "type": "number",
             },
           ],

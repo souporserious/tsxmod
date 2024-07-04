@@ -232,7 +232,17 @@ export function processType(
   defaultValues?: Record<string, unknown> | unknown
 ): ProcessedType | undefined {
   const typeText = type.getText(enclosingNode, TYPE_FORMAT_FLAGS)
-  const symbol = getTypeSymbol(type)
+  let symbol = type.getAliasSymbol() || type.getSymbol()
+  let isApparentSymbol = false
+
+  if (!symbol) {
+    const apparentType = type.getApparentType()
+    symbol = apparentType.getAliasSymbol() || apparentType.getSymbol()
+    if (symbol) {
+      isApparentSymbol = true
+    }
+  }
+
   const symbolMetadata = getSymbolMetadata(symbol, enclosingNode)
   const symbolDeclaration = symbol?.getDeclarations().at(0)
   const declaration = symbolDeclaration || enclosingNode
@@ -273,7 +283,7 @@ export function processType(
             .filter(Boolean) as ProcessedType[]
 
           if (processedTypeArguments.length === 0) {
-            return undefined
+            return
           }
 
           return {
@@ -310,7 +320,7 @@ export function processType(
 
   if (
     hasReference ||
-    (((isLocallyExportedReference && hasReference) ||
+    ((isLocallyExportedReference ||
       isExternalNonNodeModuleReference ||
       isNodeModuleReference) &&
       hasNoTypeArguments)
@@ -326,21 +336,25 @@ export function processType(
   if (type.isBoolean() || type.isBooleanLiteral()) {
     processedType = {
       kind: 'Boolean',
+      name: symbolMetadata.name,
       type: typeText,
     } satisfies BooleanType
   } else if (type.isNumber() || type.isNumberLiteral()) {
     processedType = {
       kind: 'Number',
+      name: symbolMetadata.name,
       type: typeText,
     } satisfies NumberType
   } else if (type.isString() || type.isStringLiteral()) {
     processedType = {
       kind: 'String',
+      name: symbolMetadata.name,
       type: typeText,
     } satisfies StringType
   } else if (isSymbol(type)) {
     return {
       kind: 'Symbol',
+      name: symbolMetadata.name,
       type: typeText,
     } satisfies SymbolType
   } else if (type.isArray()) {
@@ -355,6 +369,7 @@ export function processType(
     if (processedElementType) {
       processedType = {
         kind: 'Array',
+        name: symbolMetadata.name,
         type: typeText,
         element: processedElementType,
       } satisfies ArrayType
@@ -416,12 +431,12 @@ export function processType(
     }
 
     if (processedUnionTypes.length === 0) {
-      return undefined
+      return
     }
 
     processedType = {
-      name: symbolMetadata.name,
       kind: 'Union',
+      name: symbolMetadata.name,
       type: typeText,
       members: processedUnionTypes,
     } satisfies UnionType
@@ -452,12 +467,12 @@ export function processType(
     }
 
     if (properties.length === 0) {
-      return undefined
+      return
     }
 
     processedType = {
-      name: symbolMetadata.name,
       kind: 'Object',
+      name: symbolMetadata.name,
       type: typeText,
       properties,
     } satisfies ObjectType
@@ -471,11 +486,12 @@ export function processType(
     )
 
     if (elements.length === 0) {
-      return undefined
+      return
     }
 
     processedType = {
       kind: 'Tuple',
+      name: symbolMetadata.name,
       type: typeText,
       elements,
     } satisfies TupleType
@@ -554,17 +570,17 @@ export function processType(
         }
 
         processedType = {
-          name: symbolMetadata.name,
           kind: 'Generic',
+          name: symbolMetadata.name,
           type: typeText,
           arguments: processedTypeArguments,
         } satisfies GenericType
       } else if (properties.length === 0) {
-        return undefined
+        return
       } else {
         processedType = {
-          name: symbolMetadata.name,
           kind: 'Object',
+          name: symbolMetadata.name,
           type: typeText,
           properties,
         } satisfies ObjectType
@@ -588,7 +604,10 @@ export function processType(
 
   references.delete(typeText)
 
-  return processedType
+  return {
+    ...(declaration ? getJsDocMetadata(declaration) : {}),
+    ...processedType,
+  }
 }
 
 /** Process all function signatures of a given type including their parameters and return types. */
@@ -861,16 +880,6 @@ function isBigInt(type: Type) {
   return type.getText() === 'bigint'
 }
 
-/** Attempt to get the symbol of a type. */
-function getTypeSymbol(type: Type): Symbol | undefined {
-  const symbol = type.getAliasSymbol() || type.getSymbol()
-  if (!symbol) {
-    const apparentType = type.getApparentType()
-    return apparentType.getAliasSymbol() || apparentType.getSymbol()
-  }
-  return symbol
-}
-
 /** Gather metadata about a symbol. */
 function getSymbolMetadata(
   symbol?: Symbol,
@@ -916,11 +925,27 @@ function getSymbolMetadata(
   const enclosingSourceFile = enclosingNode?.getSourceFile()
 
   /** Attempt to get the name of the symbol. */
-  let name: string | undefined = symbol.getName()
+  let name: string | undefined
 
-  if ('getName' in declaration) {
+  if (
+    // If the symbol value declaration is a variable use the name from the enclosing node if provided
+    Node.isVariableDeclaration(symbol.getValueDeclaration()) ||
+    // Otherwise, use the enclosing node if it is a variable declaration
+    Node.isVariableDeclaration(enclosingNode)
+  ) {
+    if (
+      Node.isVariableDeclaration(enclosingNode) &&
+      declaration !== enclosingNode
+    ) {
+      name = enclosingNode.getName()
+    }
+    // We intentionally don't use the name from the symbol declaration if this fails
+    // to prevent using apparent names like String, Number, etc.
+  } else if ('getName' in declaration) {
     // @ts-expect-error - getName is not defined on all declaration types
     name = declaration.getName()
+  } else {
+    name = symbol.getName()
   }
 
   // Ignore private symbol names e.g. __type, __call, __0, etc.
