@@ -548,60 +548,62 @@ describe('getTypeDocumentation', () => {
 
     expect(types).toMatchInlineSnapshot(`
       {
-        "kind": "Component",
+        "kind": "Function",
         "name": "Component",
         "signatures": [
           {
-            "kind": "ComponentSignature",
+            "kind": "FunctionSignature",
             "modifier": undefined,
-            "properties": {
-              "defaultValue": undefined,
-              "description": undefined,
-              "isOptional": false,
-              "kind": "Union",
-              "members": [
-                {
-                  "kind": "Object",
-                  "name": undefined,
-                  "properties": [
-                    {
-                      "kind": "Reference",
-                      "type": "BaseProps",
-                    },
-                    {
-                      "defaultValue": undefined,
-                      "isOptional": false,
-                      "isReadonly": false,
-                      "kind": "String",
-                      "name": "source",
-                      "type": "string",
-                    },
-                  ],
-                  "type": "BaseProps & { source: string; }",
-                },
-                {
-                  "kind": "Object",
-                  "name": undefined,
-                  "properties": [
-                    {
-                      "kind": "Reference",
-                      "type": "BaseProps",
-                    },
-                    {
-                      "defaultValue": undefined,
-                      "isOptional": false,
-                      "isReadonly": false,
-                      "kind": "String",
-                      "name": "value",
-                      "type": "string",
-                    },
-                  ],
-                  "type": "BaseProps & { value: string; }",
-                },
-              ],
-              "name": "props",
-              "type": "Props",
-            },
+            "parameters": [
+              {
+                "defaultValue": undefined,
+                "description": undefined,
+                "isOptional": false,
+                "kind": "Union",
+                "members": [
+                  {
+                    "kind": "Intersection",
+                    "name": undefined,
+                    "properties": [
+                      {
+                        "kind": "Reference",
+                        "type": "BaseProps",
+                      },
+                      {
+                        "defaultValue": undefined,
+                        "isOptional": false,
+                        "isReadonly": false,
+                        "kind": "String",
+                        "name": "source",
+                        "type": "string",
+                      },
+                    ],
+                    "type": "BaseProps & { source: string; }",
+                  },
+                  {
+                    "kind": "Intersection",
+                    "name": undefined,
+                    "properties": [
+                      {
+                        "kind": "Reference",
+                        "type": "BaseProps",
+                      },
+                      {
+                        "defaultValue": undefined,
+                        "isOptional": false,
+                        "isReadonly": false,
+                        "kind": "String",
+                        "name": "value",
+                        "type": "string",
+                      },
+                    ],
+                    "type": "BaseProps & { value: string; }",
+                  },
+                ],
+                "name": "props",
+                "type": "Props",
+              },
+            ],
             "returnType": "void",
             "type": "function Component(props: Props): void",
           },
@@ -713,7 +715,7 @@ describe('getTypeDocumentation', () => {
 
     expect(types).toMatchInlineSnapshot(`
       {
-        "kind": "Object",
+        "kind": "Intersection",
         "name": undefined,
         "properties": [
           {
@@ -791,7 +793,7 @@ describe('getTypeDocumentation', () => {
 
     expect(types).toMatchInlineSnapshot(`
       {
-        "kind": "Object",
+        "kind": "Intersection",
         "name": undefined,
         "properties": [
           {

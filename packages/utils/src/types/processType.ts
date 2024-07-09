@@ -97,6 +97,11 @@ export interface ObjectType extends BaseType {
   properties: PropertyTypes[]
 }
 
+export interface IntersectionType extends BaseType {
+  kind: 'Intersection'
+  properties: ProcessedType[]
+}
+
 export interface EnumType extends BaseType {
   kind: 'Enum'
   members: Record<string, string | number | undefined>
@@ -194,6 +199,7 @@ export type BaseTypes =
   | ArrayType
   | TupleType
   | ObjectType
+  | IntersectionType
   | EnumType
   | UnionType
   | ClassType
@@ -233,14 +239,10 @@ export function processType(
 ): ProcessedType | undefined {
   const typeText = type.getText(enclosingNode, TYPE_FORMAT_FLAGS)
   let symbol = type.getAliasSymbol() || type.getSymbol()
-  let isApparentSymbol = false
 
   if (!symbol) {
     const apparentType = type.getApparentType()
     symbol = apparentType.getAliasSymbol() || apparentType.getSymbol()
-    if (symbol) {
-      isApparentSymbol = true
-    }
   }
 
   const symbolMetadata = getSymbolMetadata(symbol, enclosingNode)
@@ -457,12 +459,14 @@ export function processType(
 
     // Intersection types can safely merge the immediate object properties to reduce nesting
     const properties: ProcessedType[] = []
+    let isObject = true
 
     for (const processedType of processedIntersectionTypes) {
       if (processedType.kind === 'Object') {
         properties.push(...processedType.properties)
       } else {
         properties.push(processedType)
+        isObject = false
       }
     }
 
@@ -470,12 +474,21 @@ export function processType(
       return
     }
 
-    processedType = {
-      kind: 'Object',
-      name: symbolMetadata.name,
-      type: typeText,
-      properties,
-    } satisfies ObjectType
+    if (isObject) {
+      processedType = {
+        kind: 'Object',
+        name: symbolMetadata.name,
+        type: typeText,
+        properties,
+      } satisfies ObjectType
+    } else {
+      processedType = {
+        kind: 'Intersection',
+        name: symbolMetadata.name,
+        type: typeText,
+        properties,
+      } satisfies IntersectionType
+    }
   } else if (type.isTuple()) {
     const elements = processTypeTupleElements(
       type,

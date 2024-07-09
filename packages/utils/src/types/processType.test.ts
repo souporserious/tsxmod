@@ -344,7 +344,7 @@ describe('processProperties', () => {
           "defaultValue": undefined,
           "isOptional": false,
           "isReadonly": false,
-          "kind": "Object",
+          "kind": "Intersection",
           "name": "complexIntersection",
           "properties": [
             {
@@ -482,7 +482,7 @@ describe('processProperties', () => {
             "type": "string",
           },
           {
-            "kind": "Object",
+            "kind": "Intersection",
             "name": "FillVariant",
             "properties": [
               {
@@ -501,7 +501,7 @@ describe('processProperties', () => {
             "type": "FillVariant",
           },
           {
-            "kind": "Object",
+            "kind": "Intersection",
             "name": "OutlineVariant",
             "properties": [
               {
@@ -1175,7 +1175,7 @@ describe('processProperties', () => {
               "kind": "Union",
               "members": [
                 {
-                  "kind": "Object",
+                  "kind": "Intersection",
                   "name": undefined,
                   "properties": [
                     {
@@ -1194,7 +1194,7 @@ describe('processProperties', () => {
                   "type": "FunctionMetadata & { slug: string; }",
                 },
                 {
-                  "kind": "Object",
+                  "kind": "Intersection",
                   "name": undefined,
                   "properties": [
                     {
@@ -1735,11 +1735,9 @@ describe('processProperties', () => {
       }
     )
 
-    // TODO: this is broken, it should not be a top-level object
-
     expect(processedType).toMatchInlineSnapshot(`
       {
-        "kind": "Object",
+        "kind": "Intersection",
         "name": undefined,
         "properties": [
           {
@@ -1765,6 +1763,7 @@ describe('processProperties', () => {
                       "type": "DefaultTheme",
                     },
                   ],
+                  "tags": undefined,
                   "type": "PolymorphicComponentProps<"web", Substitute<React.DetailedHTMLProps<React.HTMLAttributes<HTMLSpanElement>, HTMLSpanElement>, { fontSize: number; fontWeight?: number; }>, AsTarget, ForwardedAsTarget, AsTarget extends KnownTarget ? React.ComponentPropsWithRef<AsTarget> : {}, ForwardedAsTarget extends KnownTarget ? React.ComponentPropsWithRef<ForwardedAsTarget> : {}>",
                 },
                 "returnType": "Element",
