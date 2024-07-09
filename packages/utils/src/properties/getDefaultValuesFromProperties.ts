@@ -26,9 +26,15 @@ export function getDefaultValueKey(
     | PropertySignature
     | MethodSignature
 ) {
-  return Node.isBindingElement(property)
-    ? property.getPropertyNameNode()?.getText() || property.getName()
-    : property.getName()
+  if (Node.isBindingElement(property)) {
+    const propertyNameNode = property.getPropertyNameNode()
+
+    if (propertyNameNode) {
+      return propertyNameNode.getText()
+    }
+  }
+
+  return property.getName()
 }
 
 /** Gets the default value for a single property. */
