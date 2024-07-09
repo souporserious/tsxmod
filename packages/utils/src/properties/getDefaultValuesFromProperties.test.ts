@@ -73,4 +73,21 @@ describe('getDefaultValuesFromProperties', () => {
       initialCount: '() => 0',
     })
   })
+
+  test('destructured properties', () => {
+    const sourceFile = project.createSourceFile(
+      'test.ts',
+      `const createCounter = ({ initialCount = 0 }) => {}`,
+      { overwrite: true }
+    )
+    const functionDeclaration =
+      sourceFile.getVariableDeclarationOrThrow('createCounter')
+    const defaultValues = getDefaultValuesFromProperties(
+      functionDeclaration
+        .getInitializerIfKindOrThrow(SyntaxKind.ArrowFunction)
+        .getParameters()
+    )
+
+    expect(defaultValues).toEqual({ initialCount: 0 })
+  })
 })

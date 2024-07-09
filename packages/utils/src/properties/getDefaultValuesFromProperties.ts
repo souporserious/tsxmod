@@ -1,17 +1,18 @@
-import type {
+import {
   BindingElement,
   MethodSignature,
+  Node,
   ParameterDeclaration,
   PropertyAssignment,
   PropertyDeclaration,
   PropertySignature,
+  type Expression,
 } from 'ts-morph'
-import { Node } from 'ts-morph'
 
 import {
   resolveLiteralExpression,
   isLiteralExpressionValue,
-  type LiteralExpressionValue,
+  LiteralExpressionValue,
 } from '../expressions'
 
 export function getDefaultValueKey(
@@ -62,13 +63,30 @@ export function getDefaultValuesFromProperties(
     const initializer = property.getInitializer()
 
     if (initializer) {
-      const resolvedValue = resolveLiteralExpression(initializer)
+      defaultValues[name] = getInitializerValue(initializer)
+    } else if (Node.isParameterDeclaration(property)) {
+      const bindingPattern = property.getNameNode()
 
-      defaultValues[name] = isLiteralExpressionValue(resolvedValue)
-        ? resolvedValue
-        : initializer.getType().getLiteralValue() ?? initializer.getText()
+      if (Node.isObjectBindingPattern(bindingPattern)) {
+        bindingPattern.getElements().forEach((element) => {
+          const elementName = element.getName()
+          const elementInitializer = element.getInitializer()
+
+          if (elementInitializer) {
+            defaultValues[elementName] = getInitializerValue(elementInitializer)
+          }
+        })
+      }
     }
   })
 
   return defaultValues
+}
+
+function getInitializerValue(initializer: Expression) {
+  const resolvedValue = resolveLiteralExpression(initializer)
+
+  return isLiteralExpressionValue(resolvedValue)
+    ? resolvedValue
+    : initializer.getType().getLiteralValue() ?? initializer.getText()
 }
