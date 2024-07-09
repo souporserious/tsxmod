@@ -90,4 +90,20 @@ describe('getDefaultValuesFromProperties', () => {
 
     expect(defaultValues).toEqual({ initialCount: 0 })
   })
+
+  test('function body default values', () => {
+    const sourceFile = project.createSourceFile(
+      'test.ts',
+      `const Text = (props) => { const { initialCount, incrementAmount = 1 } = props }`,
+      { overwrite: true }
+    )
+    const functionDeclaration = sourceFile.getFirstDescendantByKindOrThrow(
+      SyntaxKind.ArrowFunction
+    )
+    const defaultValues = getDefaultValuesFromProperties(
+      functionDeclaration.getParameters()
+    )
+
+    expect(defaultValues).toEqual({ incrementAmount: 1 })
+  })
 })
