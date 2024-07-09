@@ -136,7 +136,15 @@ export function getDefaultValuesFromProperties(
 function getInitializerValue(initializer: Expression) {
   const resolvedValue = resolveLiteralExpression(initializer)
 
-  return isLiteralExpressionValue(resolvedValue)
-    ? resolvedValue
-    : initializer.getType().getLiteralValue() ?? initializer.getText()
+  if (isLiteralExpressionValue(resolvedValue)) {
+    return resolvedValue
+  }
+
+  const literalValue = initializer.getType().getLiteralValue()
+
+  if (literalValue !== undefined) {
+    return literalValue
+  }
+
+  return initializer.getText()
 }
