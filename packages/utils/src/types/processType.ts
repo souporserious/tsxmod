@@ -767,20 +767,7 @@ export function processTypeProperties(
   isRootType: boolean = true,
   defaultValues?: Record<string, unknown> | unknown
 ): ProcessedType[] {
-  let isImmutable = false
-
-  /** Check if the type is a const assertion and treat it as immutable. */
-  if (Node.isVariableDeclaration(enclosingNode)) {
-    const initializer = enclosingNode.getInitializer()
-
-    if (Node.isAsExpression(initializer)) {
-      const typeNode = initializer.getTypeNode()
-
-      if (typeNode) {
-        isImmutable = typeNode.getText() === 'const'
-      }
-    }
-  }
+  const isReadonly = isTypeReadonly(type, enclosingNode)
 
   return type
     .getApparentProperties()
@@ -822,7 +809,7 @@ export function processTypeProperties(
           const isOptional = Boolean(
             propertyDeclaration?.hasQuestionToken() || defaultValue
           )
-          const isReadonly = propertyDeclaration
+          const isPropertyReadonly = propertyDeclaration
             ? 'isReadonly' in propertyDeclaration
               ? propertyDeclaration.isReadonly()
               : false
@@ -834,7 +821,7 @@ export function processTypeProperties(
             name,
             defaultValue,
             isOptional,
-            isReadonly: isImmutable || isReadonly,
+            isReadonly: isReadonly || isPropertyReadonly,
           } satisfies PropertyTypes
         }
       } else {
@@ -1247,6 +1234,39 @@ function processClassProperty(
   throw new Error(
     `[processClassPropertyDeclaration] Property "${property.getName()}" could not be processed. This declaration was either filtered, should be marked as internal, or filed as an issue for support.`
   )
+}
+
+/** Determines if a type is readonly. */
+function isTypeReadonly(type: Type, enclosingNode: Node | undefined) {
+  let isReadonly = false
+
+  /** Check if the type is marked as Readonly using the TypeScript utility type. */
+  if (type.getText().startsWith('Readonly')) {
+    isReadonly = Boolean(
+      type
+        .getSymbol()
+        ?.getDeclarations()
+        .at(0)
+        ?.getSourceFile()
+        .getFilePath()
+        .includes('node_modules/typescript')
+    )
+  }
+
+  /** Alternatively, check for const assertion. */
+  if (isReadonly === false && Node.isVariableDeclaration(enclosingNode)) {
+    const initializer = enclosingNode.getInitializer()
+
+    if (Node.isAsExpression(initializer)) {
+      const typeNode = initializer.getTypeNode()
+
+      if (typeNode) {
+        isReadonly = typeNode.getText() === 'const'
+      }
+    }
+  }
+
+  return isReadonly
 }
 
 /** Determines if a function is a component based on its name and call signature shape. */

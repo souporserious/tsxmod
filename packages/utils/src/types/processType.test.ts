@@ -2039,4 +2039,54 @@ describe('processProperties', () => {
       }
     `)
   })
+
+  test('frozen objects marked as readonly', () => {
+    const sourceFile = project.createSourceFile(
+      'test.ts',
+      dedent`
+      const color = Object.freeze({ red: 'red', blue: 'blue', green: 'green' })
+      `,
+      { overwrite: true }
+    )
+    const variableDeclaration =
+      sourceFile.getVariableDeclarationOrThrow('color')
+    const processedProperties = processType(
+      variableDeclaration.getType(),
+      variableDeclaration
+    )
+
+    expect(processedProperties).toMatchInlineSnapshot(`
+      {
+        "kind": "Object",
+        "name": "color",
+        "properties": [
+          {
+            "defaultValue": undefined,
+            "isOptional": false,
+            "isReadonly": true,
+            "kind": "String",
+            "name": "red",
+            "type": ""red"",
+          },
+          {
+            "defaultValue": undefined,
+            "isOptional": false,
+            "isReadonly": true,
+            "kind": "String",
+            "name": "blue",
+            "type": ""blue"",
+          },
+          {
+            "defaultValue": undefined,
+            "isOptional": false,
+            "isReadonly": true,
+            "kind": "String",
+            "name": "green",
+            "type": ""green"",
+          },
+        ],
+        "type": "Readonly<{ red: "red"; blue: "blue"; green: "green"; }>",
+      }
+    `)
+  })
 })
