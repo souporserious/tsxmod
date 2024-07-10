@@ -236,7 +236,6 @@ export function processType(
   type: Type,
   enclosingNode?: Node,
   filter: SymbolFilter = defaultFilter,
-  isConst: boolean = false,
   references: Set<string> = new Set(),
   isRootType: boolean = true,
   defaultValues?: Record<string, unknown> | unknown
@@ -247,15 +246,6 @@ export function processType(
   if (!symbol) {
     const apparentType = type.getApparentType()
     symbol = apparentType.getAliasSymbol() || apparentType.getSymbol()
-  }
-
-  if (isConst === false && Node.isVariableDeclaration(enclosingNode)) {
-    const variableStatement = enclosingNode.getFirstAncestorByKind(
-      SyntaxKind.VariableStatement
-    )
-    isConst = variableStatement
-      ? variableStatement.getDeclarationKind() === VariableDeclarationKind.Const
-      : false
   }
 
   const symbolMetadata = getSymbolMetadata(symbol, enclosingNode)
@@ -293,7 +283,7 @@ export function processType(
         if (isUtilityType) {
           const processedTypeArguments = aliasTypeArguments
             .map((type) =>
-              processType(type, declaration, filter, isConst, references, false)
+              processType(type, declaration, filter, references, false)
             )
             .filter(Boolean) as ProcessedType[]
 
@@ -390,7 +380,6 @@ export function processType(
       elementType,
       declaration,
       filter,
-      isConst,
       references,
       false
     )
@@ -437,7 +426,6 @@ export function processType(
         unionType,
         declaration,
         filter,
-        isConst,
         references,
         false,
         defaultValues
@@ -477,7 +465,6 @@ export function processType(
           intersectionType,
           declaration,
           filter,
-          isConst,
           references,
           false,
           defaultValues
@@ -522,7 +509,6 @@ export function processType(
       type,
       declaration,
       filter,
-      isConst,
       references,
       false
     )
@@ -586,9 +572,8 @@ export function processType(
     } else if (type.isObject()) {
       const properties = processTypeProperties(
         type,
-        declaration,
+        enclosingNode,
         filter,
-        isConst,
         references,
         false,
         defaultValues
@@ -601,7 +586,6 @@ export function processType(
               type,
               declaration,
               filter,
-              isConst,
               references,
               false,
               defaultValues
@@ -638,7 +622,6 @@ export function processType(
           apparentType,
           declaration,
           filter,
-          isConst,
           references,
           false,
           defaultValues
@@ -704,7 +687,6 @@ export function processSignature(
           parameter.getTypeAtLocation(signatureDeclaration),
           enclosingNode,
           filter,
-          false,
           references,
           isRootType,
           defaultValue
@@ -781,11 +763,25 @@ export function processTypeProperties(
   type: Type,
   enclosingNode?: Node,
   filter: SymbolFilter = defaultFilter,
-  isConst: boolean = false,
   references: Set<string> = new Set(),
   isRootType: boolean = true,
   defaultValues?: Record<string, unknown> | unknown
 ): ProcessedType[] {
+  let isImmutable = false
+
+  /** Check if the type is a const assertion and treat it as immutable. */
+  if (Node.isVariableDeclaration(enclosingNode)) {
+    const initializer = enclosingNode.getInitializer()
+
+    if (Node.isAsExpression(initializer)) {
+      const typeNode = initializer.getTypeNode()
+
+      if (typeNode) {
+        isImmutable = typeNode.getText() === 'const'
+      }
+    }
+  }
+
   return type
     .getApparentProperties()
     .map((property) => {
@@ -817,7 +813,6 @@ export function processTypeProperties(
           propertyType,
           declaration,
           filter,
-          isConst,
           references,
           isRootType,
           defaultValue
@@ -839,7 +834,7 @@ export function processTypeProperties(
             name,
             defaultValue,
             isOptional,
-            isReadonly: isConst || isReadonly,
+            isReadonly: isImmutable || isReadonly,
           } satisfies PropertyTypes
         }
       } else {
@@ -856,7 +851,6 @@ function processTypeTupleElements(
   type: Type,
   enclosingNode?: Node,
   filter?: SymbolFilter,
-  isConst: boolean = false,
   references: Set<string> = new Set(),
   isRootType: boolean = true
 ) {
@@ -875,7 +869,6 @@ function processTypeTupleElements(
         tupleElementType,
         enclosingNode,
         filter,
-        isConst,
         references,
         isRootType
       )

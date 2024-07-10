@@ -739,7 +739,7 @@ describe('processProperties', () => {
               {
                 "defaultValue": undefined,
                 "isOptional": false,
-                "isReadonly": true,
+                "isReadonly": false,
                 "kind": "Number",
                 "name": "f",
                 "type": "number",

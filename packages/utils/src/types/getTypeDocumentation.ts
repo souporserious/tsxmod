@@ -137,12 +137,6 @@ export function getTypeDocumentation(
   }
 
   if (Node.isVariableDeclaration(declaration)) {
-    const variableStatement = declaration.getFirstAncestorByKind(
-      SyntaxKind.VariableStatement
-    )
-    const isConst = variableStatement
-      ? variableStatement.getDeclarationKind() === VariableDeclarationKind.Const
-      : false
     const initializer = declaration.getInitializer()
 
     if (
@@ -154,8 +148,7 @@ export function getTypeDocumentation(
       const processedType = processType(
         initializer.getType(),
         declaration,
-        filter,
-        isConst
+        filter
       )
 
       if (!processedType) {
@@ -176,12 +169,10 @@ export function getTypeDocumentation(
     }
 
     if (Node.isAsExpression(initializer)) {
-      const typeNode = initializer.getTypeNode()
       const processedType = processType(
         initializer.getType(),
         declaration,
-        filter,
-        typeNode?.getText() === 'const'
+        filter
       )
 
       if (processedType) {
