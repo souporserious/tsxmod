@@ -275,6 +275,7 @@ describe('getTypeDocumentation', () => {
                 "isOptional": false,
                 "kind": "Reference",
                 "name": undefined,
+                "path": "types.ts:1:1",
                 "type": "CounterOptions",
               },
             ],
@@ -319,6 +320,7 @@ describe('getTypeDocumentation', () => {
                 "isOptional": false,
                 "kind": "Reference",
                 "name": undefined,
+                "path": "types.ts:1:1",
                 "type": "{ initialCount: number; }",
               },
             ],
@@ -370,6 +372,7 @@ describe('getTypeDocumentation', () => {
                     "isReadonly": false,
                     "kind": "Reference",
                     "name": "counterState",
+                    "path": "types.ts:1:1",
                     "type": "{ initialCount: number; }",
                   },
                 ],
@@ -579,6 +582,7 @@ describe('getTypeDocumentation', () => {
                     "properties": [
                       {
                         "kind": "Reference",
+                        "path": "types.ts:1:1",
                         "type": "BaseProps",
                       },
                       {
@@ -598,6 +602,7 @@ describe('getTypeDocumentation', () => {
                     "properties": [
                       {
                         "kind": "Reference",
+                        "path": "types.ts:1:1",
                         "type": "BaseProps",
                       },
                       {
@@ -688,6 +693,7 @@ describe('getTypeDocumentation', () => {
                 "isOptional": false,
                 "kind": "Reference",
                 "name": "props",
+                "path": "test.ts:1:1",
                 "type": "TextProps",
               },
             ],
@@ -1714,6 +1720,7 @@ describe('getTypeDocumentation', () => {
                           "isOptional": false,
                           "kind": "Reference",
                           "name": "event",
+                          "path": "node_modules/@types/react/index.d.ts:7:1",
                           "type": "MouseEvent<HTMLButtonElement, globalThis.MouseEvent>",
                         },
                       ],
@@ -2013,6 +2020,7 @@ describe('getTypeDocumentation', () => {
         "members": [
           {
             "kind": "Reference",
+            "path": "node_modules/library/index.d.ts:1:1",
             "type": "InterfaceMetadata",
           },
           {

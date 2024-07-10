@@ -6,6 +6,7 @@ import {
   type ClassDeclaration,
   type FunctionDeclaration,
   type ParameterDeclaration,
+  type Project,
   type PropertyDeclaration,
   type PropertySignature,
   type MethodDeclaration,
@@ -174,7 +175,7 @@ export interface PrimitiveType extends BaseType {
 
 export interface ReferenceType extends BaseType {
   kind: 'Reference'
-  // path?: string // TODO: add import specifier for external references and identifier for internal references
+  path: string
 }
 
 export interface GenericType extends BaseType {
@@ -221,6 +222,7 @@ export type SymbolMetadata = ReturnType<typeof getSymbolMetadata>
 
 export type SymbolFilter = (symbolMetadata: SymbolMetadata) => boolean
 
+const rootFilePaths = new WeakMap<Project, string>()
 const enclosingNodeMetadata = new WeakMap<Node, SymbolMetadata>()
 const defaultFilter = (metadata: SymbolMetadata) => !metadata.isInNodeModules
 const TYPE_FORMAT_FLAGS =
@@ -294,9 +296,15 @@ export function processType(
             arguments: processedTypeArguments,
           } satisfies UtilityType
         } else {
+          if (!symbolMetadata.filePath) {
+            throw new Error(
+              `[processType]: No file path found for "${symbolMetadata.name}". Please file an issue if you encounter this error.`
+            )
+          }
           return {
             kind: 'Reference',
             type: typeText,
+            path: symbolMetadata.filePath,
           } satisfies ReferenceType
         }
       }
@@ -327,9 +335,15 @@ export function processType(
       isNodeModuleReference) &&
       hasNoTypeArguments)
   ) {
+    if (!symbolMetadata.filePath) {
+      throw new Error(
+        `[processType]: No file path found for "${symbolMetadata.name}". Please file an issue if you encounter this error.`
+      )
+    }
     return {
       kind: 'Reference',
       type: typeText,
+      path: symbolMetadata.filePath,
     } satisfies ReferenceType
   }
 
@@ -898,6 +912,9 @@ function getSymbolMetadata(
   /** The name of the symbol if it exists. */
   name?: string
 
+  /** The file path for the symbol declaration relative to the project. */
+  filePath?: string
+
   /** Whether or not the symbol is exported. */
   isExported: boolean
 
@@ -980,15 +997,51 @@ function getSymbolMetadata(
     isExternal = enclosingSourceFile !== declarationSourceFile
   }
 
+  const filePath = getFilePathRelativeToProject(declarationSourceFile)
   const isInNodeModules = declarationSourceFile.isInNodeModules()
 
   return {
     name,
+    filePath,
     isExported,
     isExternal,
     isInNodeModules,
     isGlobal: isInNodeModules && !isExported,
   }
+}
+
+/** Calculate a file path of a source file relative to the project root. */
+function getFilePathRelativeToProject(declaration: Node) {
+  const sourceFile = declaration.getSourceFile()
+  const rootFilePath = getRootFilePath(sourceFile.getProject())
+  let trimmedFilePath = sourceFile.getFilePath().replace(rootFilePath, '')
+
+  if (trimmedFilePath.includes('node_modules')) {
+    trimmedFilePath = trimmedFilePath.slice(
+      trimmedFilePath.lastIndexOf('node_modules') - 1
+    )
+  }
+
+  const { line, column } = sourceFile.getLineAndColumnAtPos(
+    declaration.getStart()
+  )
+
+  return `${trimmedFilePath.slice(1)}:${line}:${column}`
+}
+
+/** Gets the root source file path for a project. */
+function getRootFilePath(project: Project) {
+  let rootFilePath: string
+
+  if (!rootFilePaths.has(project)) {
+    const currentDirectory = project.getFileSystem().getCurrentDirectory()
+    rootFilePaths.set(project, currentDirectory)
+    rootFilePath = currentDirectory
+  } else {
+    rootFilePath = rootFilePaths.get(project)!
+  }
+
+  return rootFilePath
 }
 
 /** Get the modifier of a function or method declaration. */

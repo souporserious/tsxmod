@@ -90,6 +90,7 @@ describe('processProperties', () => {
             "defaultValue": undefined,
             "element": {
               "kind": "Reference",
+              "path": "test.ts:2:3",
               "type": "ExportedType",
             },
             "isOptional": false,
@@ -109,14 +110,13 @@ describe('processProperties', () => {
     const type = typeAlias.getType()
     const processedProperties = processTypeProperties(type)
 
-    // TODO: fix generic name coming back undefined below
-
     expect(processedProperties).toMatchInlineSnapshot(`
       [
         {
           "arguments": [
             {
               "kind": "Reference",
+              "path": "test.ts:2:3",
               "type": "ExportedType",
             },
           ],
@@ -351,6 +351,7 @@ describe('processProperties', () => {
               "arguments": [
                 {
                   "kind": "Reference",
+                  "path": "test.ts:2:3",
                   "type": "ExportedType",
                 },
               ],
@@ -495,6 +496,7 @@ describe('processProperties', () => {
               },
               {
                 "kind": "Reference",
+                "path": "test.ts:2:7",
                 "type": "BaseVariant",
               },
             ],
@@ -514,6 +516,7 @@ describe('processProperties', () => {
               },
               {
                 "kind": "Reference",
+                "path": "test.ts:2:7",
                 "type": "BaseVariant",
               },
             ],
@@ -804,6 +807,7 @@ describe('processProperties', () => {
             "defaultValue": undefined,
             "element": {
               "kind": "Reference",
+              "path": "test.ts:2:7",
               "type": "SelfReferencedType",
             },
             "isOptional": false,
@@ -851,6 +855,7 @@ describe('processProperties', () => {
             "isReadonly": false,
             "kind": "Reference",
             "name": "readFile",
+            "path": "node_modules/@types/library/index.d.ts:1:1",
             "type": "(path: string, callback: (err: Error, data: Buffer) => void) => void",
           },
         ],
@@ -1041,6 +1046,7 @@ describe('processProperties', () => {
             "isReadonly": false,
             "kind": "Reference",
             "name": "color",
+            "path": "library/index.d.ts:1:1",
             "type": "Color",
           },
         ],
@@ -1113,6 +1119,7 @@ describe('processProperties', () => {
             "isReadonly": false,
             "kind": "Reference",
             "name": "color",
+            "path": "node_modules/@types/library/index.d.ts:1:1",
             "type": "Color",
           },
         ],
@@ -1180,6 +1187,7 @@ describe('processProperties', () => {
                   "properties": [
                     {
                       "kind": "Reference",
+                      "path": "node_modules/@types/library/index.d.ts:1:1",
                       "type": "FunctionMetadata",
                     },
                     {
@@ -1199,6 +1207,7 @@ describe('processProperties', () => {
                   "properties": [
                     {
                       "kind": "Reference",
+                      "path": "node_modules/@types/library/index.d.ts:1:1",
                       "type": "TypeMetadata",
                     },
                     {
@@ -1265,6 +1274,7 @@ describe('processProperties', () => {
                 "isOptional": false,
                 "kind": "Reference",
                 "name": "color",
+                "path": "node_modules/@types/library/index.d.ts:1:1",
                 "type": "Color",
               },
             ],
@@ -1324,6 +1334,7 @@ describe('processProperties', () => {
                   "isReadonly": false,
                   "kind": "Reference",
                   "name": "color",
+                  "path": "node_modules/@types/library/index.d.ts:1:1",
                   "type": "Color",
                 },
               ],
@@ -1380,6 +1391,7 @@ describe('processProperties', () => {
                 "isOptional": false,
                 "kind": "Reference",
                 "name": "props",
+                "path": "test.ts:1:1",
                 "type": "TextProps",
               },
             ],
@@ -1425,6 +1437,7 @@ describe('processProperties', () => {
                 "isOptional": false,
                 "kind": "Reference",
                 "name": "props",
+                "path": "test.ts:1:1",
                 "type": "TextProps",
               },
             ],
@@ -1760,6 +1773,7 @@ describe('processProperties', () => {
                       "isReadonly": false,
                       "kind": "Reference",
                       "name": "theme",
+                      "path": "node_modules/styled-components/dist/models/ThemeProvider.d.ts:1:1",
                       "type": "DefaultTheme",
                     },
                   ],
