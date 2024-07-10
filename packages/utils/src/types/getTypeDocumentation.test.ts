@@ -2110,7 +2110,7 @@ describe('getTypeDocumentation', () => {
           {
             "defaultValue": undefined,
             "isOptional": false,
-            "isReadonly": false,
+            "isReadonly": true,
             "kind": "String",
             "name": "primary",
             "type": ""#ff0000"",
@@ -2118,7 +2118,7 @@ describe('getTypeDocumentation', () => {
           {
             "defaultValue": undefined,
             "isOptional": false,
-            "isReadonly": false,
+            "isReadonly": true,
             "kind": "String",
             "name": "secondary",
             "type": ""#00ff00"",
@@ -2126,7 +2126,7 @@ describe('getTypeDocumentation', () => {
           {
             "defaultValue": undefined,
             "isOptional": false,
-            "isReadonly": false,
+            "isReadonly": true,
             "kind": "String",
             "name": "tertiary",
             "type": ""#0000ff"",

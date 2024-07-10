@@ -6,7 +6,12 @@ import type {
   ClassDeclaration,
   VariableDeclaration,
 } from 'ts-morph'
-import { Node, TypeFormatFlags } from 'ts-morph'
+import {
+  Node,
+  SyntaxKind,
+  TypeFormatFlags,
+  VariableDeclarationKind,
+} from 'ts-morph'
 
 import { getJsDocMetadata } from '../js-docs'
 import {
@@ -132,6 +137,12 @@ export function getTypeDocumentation(
   }
 
   if (Node.isVariableDeclaration(declaration)) {
+    const variableStatement = declaration.getFirstAncestorByKind(
+      SyntaxKind.VariableStatement
+    )
+    const isConst = variableStatement
+      ? variableStatement.getDeclarationKind() === VariableDeclarationKind.Const
+      : false
     const initializer = declaration.getInitializer()
 
     if (
@@ -143,7 +154,8 @@ export function getTypeDocumentation(
       const processedType = processType(
         initializer.getType(),
         declaration,
-        filter
+        filter,
+        isConst
       )
 
       if (!processedType) {
@@ -164,10 +176,12 @@ export function getTypeDocumentation(
     }
 
     if (Node.isAsExpression(initializer)) {
+      const typeNode = initializer.getTypeNode()
       const processedType = processType(
         initializer.getType(),
         declaration,
-        filter
+        filter,
+        typeNode?.getText() === 'const'
       )
 
       if (processedType) {

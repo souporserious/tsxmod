@@ -719,26 +719,27 @@ describe('processProperties', () => {
       { overwrite: true }
     )
     const variableDeclaration = sourceFile.getVariableDeclarationOrThrow('a')
-    const processedProperties = processType(variableDeclaration.getType())
-
-    // TODO: const properties should be marked as readonly
+    const processedProperties = processType(
+      variableDeclaration.getType(),
+      variableDeclaration
+    )
 
     expect(processedProperties).toMatchInlineSnapshot(`
       {
         "kind": "Object",
-        "name": undefined,
+        "name": "a",
         "properties": [
           {
             "defaultValue": undefined,
             "isOptional": false,
-            "isReadonly": false,
+            "isReadonly": true,
             "kind": "Object",
             "name": "e",
             "properties": [
               {
                 "defaultValue": undefined,
                 "isOptional": false,
-                "isReadonly": false,
+                "isReadonly": true,
                 "kind": "Number",
                 "name": "f",
                 "type": "number",
@@ -749,7 +750,7 @@ describe('processProperties', () => {
           {
             "defaultValue": undefined,
             "isOptional": false,
-            "isReadonly": false,
+            "isReadonly": true,
             "kind": "String",
             "name": "g",
             "type": "string",
@@ -757,7 +758,7 @@ describe('processProperties', () => {
           {
             "defaultValue": undefined,
             "isOptional": false,
-            "isReadonly": false,
+            "isReadonly": true,
             "kind": "Number",
             "name": "b",
             "type": "1",
@@ -765,7 +766,7 @@ describe('processProperties', () => {
           {
             "defaultValue": undefined,
             "isOptional": false,
-            "isReadonly": false,
+            "isReadonly": true,
             "kind": "String",
             "name": "c",
             "type": ""string"",
