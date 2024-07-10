@@ -1089,7 +1089,7 @@ export function processClass(
         if (!classMetadata.properties) {
           classMetadata.properties = []
         }
-        classMetadata.properties.push(processClassPropertyDeclaration(member))
+        classMetadata.properties.push(processClassProperty(member))
       }
     }
   })
@@ -1156,7 +1156,7 @@ function processClassMethod(
 }
 
 /** Processes a class property declaration into a metadata object. */
-function processClassPropertyDeclaration(
+function processClassProperty(
   property: PropertyDeclaration,
   filter?: SymbolFilter
 ): ClassPropertyType {
@@ -1168,6 +1168,7 @@ function processClassPropertyDeclaration(
       ...processedType,
       ...getJsDocMetadata(property),
       name: property.getName(),
+      defaultValue: getPropertyDefaultValue(property),
       scope: getScope(property),
       visibility: getVisibility(property),
       isReadonly: property.isReadonly(),

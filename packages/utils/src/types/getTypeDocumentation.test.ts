@@ -1243,6 +1243,7 @@ describe('getTypeDocumentation', () => {
         "name": "Counter",
         "properties": [
           {
+            "defaultValue": 0,
             "isReadonly": false,
             "kind": "Number",
             "name": "initialCount",
@@ -1251,6 +1252,7 @@ describe('getTypeDocumentation', () => {
             "visibility": undefined,
           },
           {
+            "defaultValue": 0,
             "isReadonly": false,
             "kind": "Number",
             "name": "staticCount",
@@ -2184,6 +2186,7 @@ describe('getTypeDocumentation', () => {
           "name": "counter",
           "properties": [
             {
+              "defaultValue": 0,
               "isReadonly": false,
               "kind": "Number",
               "name": "count",

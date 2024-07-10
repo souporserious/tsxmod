@@ -1940,6 +1940,7 @@ describe('processProperties', () => {
         "name": "Text",
         "properties": [
           {
+            "defaultValue": undefined,
             "isReadonly": false,
             "kind": "String",
             "name": "color",
@@ -1970,8 +1971,6 @@ describe('processProperties', () => {
     const typeAlias = sourceFile.getTypeAliasOrThrow('CardViewProps')
     const processedProperties = processType(typeAlias.getType(), typeAlias)
 
-    // TODO: default value should be calculated from class properties
-
     expect(processedProperties).toMatchInlineSnapshot(`
       {
         "kind": "Object",
@@ -1985,6 +1984,7 @@ describe('processProperties', () => {
             "name": "text",
             "properties": [
               {
+                "defaultValue": "#666",
                 "isReadonly": false,
                 "kind": "String",
                 "name": "color",

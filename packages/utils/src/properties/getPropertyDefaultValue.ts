@@ -5,6 +5,7 @@ import {
   VariableDeclaration,
   type BindingElement,
   type ObjectBindingPattern,
+  type PropertyDeclaration,
   type PropertySignature,
 } from 'ts-morph'
 
@@ -16,7 +17,11 @@ import {
 
 /** Gets the key for a default value property. */
 export function getPropertyDefaultValueKey(
-  property: BindingElement | ParameterDeclaration | PropertySignature
+  property:
+    | BindingElement
+    | ParameterDeclaration
+    | PropertyDeclaration
+    | PropertySignature
 ) {
   /* Handle renamed properties */
   if (Node.isBindingElement(property)) {
@@ -32,28 +37,30 @@ export function getPropertyDefaultValueKey(
 
 /** Gets the default value for a single parameter or property. */
 export function getPropertyDefaultValue(
-  parameter: ParameterDeclaration | PropertySignature
+  property: ParameterDeclaration | PropertyDeclaration | PropertySignature
 ): LiteralExpressionValue {
-  if (Node.isSpreadAssignment(parameter) || Node.isMethodSignature(parameter)) {
+  if (Node.isSpreadAssignment(property) || Node.isMethodSignature(property)) {
     return
   }
 
-  const nameNode = parameter.getNameNode()
+  const nameNode = property.getNameNode()
 
   if (!nameNode) {
     return
   }
 
-  const name = getPropertyDefaultValueKey(parameter)
+  const name = getPropertyDefaultValueKey(property)
 
-  if (!('getInitializer' in parameter)) {
-    const kindName = (parameter as ParameterDeclaration).getKindName()
+  if (!('getInitializer' in property)) {
+    const kindName = (
+      property as ParameterDeclaration | PropertyDeclaration | PropertySignature
+    ).getKindName()
     throw new Error(
       `[getDefaultValuesFromProperty] Property "${name}" of kind "${kindName}" does not have an initializer, so it cannot have a default value. This declaration should be filtered or file an issue for support.`
     )
   }
 
-  const initializer = parameter.getInitializer()
+  const initializer = property.getInitializer()
   let defaultValue: LiteralExpressionValue = undefined
 
   if (initializer) {
@@ -65,7 +72,7 @@ export function getPropertyDefaultValue(
   }
 
   if (Node.isIdentifier(nameNode)) {
-    const references = parameter
+    const references = property
       .findReferencesAsNodes()
       .map((reference) => reference.getParentOrThrow())
       .filter((reference) =>
