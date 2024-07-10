@@ -1,4 +1,4 @@
 export {
-  getDefaultValueKey,
-  getDefaultValuesFromProperties,
-} from './getDefaultValuesFromProperties'
+  getPropertyDefaultValueKey,
+  getPropertyDefaultValue,
+} from './getPropertyDefaultValue'

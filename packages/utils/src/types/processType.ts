@@ -17,8 +17,8 @@ import {
 
 import { getJsDocMetadata } from '../js-docs'
 import {
-  getDefaultValueKey,
-  getDefaultValuesFromProperties,
+  getPropertyDefaultValueKey,
+  getPropertyDefaultValue,
 } from '../properties'
 import { getSymbolDescription } from '../symbols'
 
@@ -656,9 +656,6 @@ export function processSignature(
     .map((parameter) => parameter.getText())
     .join(', ')
   const genericsText = generics ? `<${generics}>` : ''
-  const defaultValues = getDefaultValuesFromProperties(
-    parameterDeclarations.filter(Boolean) as ParameterDeclaration[]
-  )
   const processedParameters = signatureParameters
     .map((parameter, index) => {
       const parameterDeclaration = parameterDeclarations[index]
@@ -669,7 +666,7 @@ export function processSignature(
 
       if (declaration) {
         const defaultValue = parameterDeclaration
-          ? defaultValues[getDefaultValueKey(parameterDeclaration)]
+          ? getPropertyDefaultValue(parameterDeclaration)
           : undefined
         const processedType = processType(
           parameter.getTypeAtLocation(signatureDeclaration),
@@ -774,7 +771,7 @@ export function processTypeProperties(
         const defaultValue =
           defaultValues && propertyDeclaration
             ? (defaultValues as Record<string, unknown>)[
-                getDefaultValueKey(propertyDeclaration)
+                getPropertyDefaultValueKey(propertyDeclaration)
               ]
             : undefined
 

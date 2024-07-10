@@ -6,6 +6,7 @@ import type {
 import { Node } from 'ts-morph'
 
 export type LiteralExpressionValue =
+  | undefined
   | null
   | boolean
   | number

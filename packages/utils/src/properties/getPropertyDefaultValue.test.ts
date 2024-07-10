@@ -1,25 +1,24 @@
+import dedent from 'dedent'
 import { Project, SyntaxKind } from 'ts-morph'
-import { getDefaultValuesFromProperties } from './getDefaultValuesFromProperties'
+import { getPropertyDefaultValue } from './getPropertyDefaultValue'
 
-describe('getDefaultValuesFromProperties', () => {
+describe('getParameterDefaultValue', () => {
   const project = new Project()
 
-  test('parses a set of properties', () => {
+  test('function parameters', () => {
     const sourceFile = project.createSourceFile(
       'test.ts',
-      `const createCounter = (initialCount = 0, options: { incrementBy: number } = { incrementBy: 1 }) => {}`,
+      `const createCounter = (initialCount = 0, options: { incrementAmount: number } = { incrementAmount: 1 }) => {}`,
       { overwrite: true }
     )
     const functionDeclaration = sourceFile.getFirstDescendantByKindOrThrow(
       SyntaxKind.ArrowFunction
     )
-    const defaultValues = getDefaultValuesFromProperties(
-      functionDeclaration.getParameters()
-    )
-    expect(defaultValues).toEqual({
-      initialCount: 0,
-      options: { incrementBy: 1 },
-    })
+    const defaultValues = functionDeclaration
+      .getParameters()
+      .map(getPropertyDefaultValue)
+
+    expect(defaultValues).toEqual([0, { incrementAmount: 1 }])
   })
 
   test('renamed property default values', () => {
@@ -31,13 +30,8 @@ describe('getDefaultValuesFromProperties', () => {
     const [parameter] = sourceFile
       .getFunctionOrThrow('useCounter')
       .getParameters()
-    const types = getDefaultValuesFromProperties(
-      parameter.getDescendantsOfKind(SyntaxKind.BindingElement)
-    )
 
-    expect(types).toEqual({
-      initialCount: 0,
-    })
+    expect(getPropertyDefaultValue(parameter)).toEqual({ initialCount: 0 })
   })
 
   test('template string default values', () => {
@@ -49,15 +43,14 @@ describe('getDefaultValuesFromProperties', () => {
     const functionDeclaration = sourceFile.getFirstDescendantByKindOrThrow(
       SyntaxKind.ArrowFunction
     )
-    const defaultValues = getDefaultValuesFromProperties(
-      functionDeclaration.getParameters()
+    const defaultValue = getPropertyDefaultValue(
+      functionDeclaration.getParameters().at(0)!
     )
-    expect(defaultValues).toEqual({
-      initialCount: '3',
-    })
+
+    expect(defaultValue).toEqual('3')
   })
 
-  test('function default values', () => {
+  test('function parameter default values', () => {
     const sourceFile = project.createSourceFile(
       'test.ts',
       `const createCounter = (initialCount = () => 0) => {}`,
@@ -66,12 +59,11 @@ describe('getDefaultValuesFromProperties', () => {
     const functionDeclaration = sourceFile.getFirstDescendantByKindOrThrow(
       SyntaxKind.ArrowFunction
     )
-    const defaultValues = getDefaultValuesFromProperties(
-      functionDeclaration.getParameters()
+    const defaultValue = getPropertyDefaultValue(
+      functionDeclaration.getParameters().at(0)!
     )
-    expect(defaultValues).toEqual({
-      initialCount: '() => 0',
-    })
+
+    expect(defaultValue).toEqual('() => 0')
   })
 
   test('destructured properties', () => {
@@ -82,13 +74,14 @@ describe('getDefaultValuesFromProperties', () => {
     )
     const functionDeclaration =
       sourceFile.getVariableDeclarationOrThrow('createCounter')
-    const defaultValues = getDefaultValuesFromProperties(
+    const defaultValue = getPropertyDefaultValue(
       functionDeclaration
         .getInitializerIfKindOrThrow(SyntaxKind.ArrowFunction)
         .getParameters()
+        .at(0)!
     )
 
-    expect(defaultValues).toEqual({ initialCount: 0 })
+    expect(defaultValue).toEqual({ initialCount: 0 })
   })
 
   test('function body default values', () => {
@@ -100,10 +93,31 @@ describe('getDefaultValuesFromProperties', () => {
     const functionDeclaration = sourceFile.getFirstDescendantByKindOrThrow(
       SyntaxKind.ArrowFunction
     )
-    const defaultValues = getDefaultValuesFromProperties(
-      functionDeclaration.getParameters()
+    const defaultValue = getPropertyDefaultValue(
+      functionDeclaration.getParameters().at(0)!
     )
 
-    expect(defaultValues).toEqual({ incrementAmount: 1 })
+    expect(defaultValue).toEqual({ incrementAmount: 1 })
+  })
+
+  test('function parameter and body default values', () => {
+    const sourceFile = project.createSourceFile(
+      'test.ts',
+      dedent`
+      type TextProps = { initialCount: number; incrementAmount?: number }
+      
+      const Text = (props: TextProps = { initialCount: 0 }) => {
+        const { initialCount, incrementAmount = 1 } = props
+      }`,
+      { overwrite: true }
+    )
+    const functionDeclaration = sourceFile.getFirstDescendantByKindOrThrow(
+      SyntaxKind.ArrowFunction
+    )
+    const defaultValue = getPropertyDefaultValue(
+      functionDeclaration.getParameters().at(0)!
+    )
+
+    expect(defaultValue).toEqual({ initialCount: 0, incrementAmount: 1 })
   })
 })

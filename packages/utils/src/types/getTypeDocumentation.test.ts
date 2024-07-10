@@ -70,14 +70,16 @@ describe('getTypeDocumentation', () => {
             "modifier": undefined,
             "parameters": [
               {
-                "defaultValue": undefined,
+                "defaultValue": {
+                  "initialCount": 0,
+                },
                 "description": undefined,
                 "isOptional": false,
                 "kind": "Object",
                 "name": undefined,
                 "properties": [
                   {
-                    "defaultValue": undefined,
+                    "defaultValue": 0,
                     "description": "Provides the initial count.",
                     "isOptional": true,
                     "isReadonly": false,
@@ -125,21 +127,27 @@ describe('getTypeDocumentation', () => {
             "modifier": undefined,
             "parameters": [
               {
-                "defaultValue": {},
+                "defaultValue": {
+                  "initial": {
+                    "count": 0,
+                  },
+                },
                 "description": undefined,
                 "isOptional": true,
                 "kind": "Object",
                 "name": undefined,
                 "properties": [
                   {
-                    "defaultValue": undefined,
+                    "defaultValue": {
+                      "count": 0,
+                    },
                     "isOptional": true,
                     "isReadonly": false,
                     "kind": "Object",
                     "name": "initial",
                     "properties": [
                       {
-                        "defaultValue": undefined,
+                        "defaultValue": 0,
                         "isOptional": false,
                         "isReadonly": false,
                         "kind": "Number",
@@ -260,7 +268,9 @@ describe('getTypeDocumentation', () => {
             "modifier": undefined,
             "parameters": [
               {
-                "defaultValue": undefined,
+                "defaultValue": {
+                  "initialCount": 0,
+                },
                 "description": undefined,
                 "isOptional": false,
                 "kind": "Reference",
@@ -302,7 +312,9 @@ describe('getTypeDocumentation', () => {
             "modifier": undefined,
             "parameters": [
               {
-                "defaultValue": undefined,
+                "defaultValue": {
+                  "initialCount": 0,
+                },
                 "description": undefined,
                 "isOptional": false,
                 "kind": "Reference",
@@ -657,7 +669,6 @@ describe('getTypeDocumentation', () => {
       sourceFile.getVariableDeclarationOrThrow('Text')
     )
 
-    // TODO: need to track the default value for variant
     // TODO: follow references to accurately determine the type and process as a component
 
     expect(types).toMatchInlineSnapshot(`
@@ -670,7 +681,9 @@ describe('getTypeDocumentation', () => {
             "modifier": undefined,
             "parameters": [
               {
-                "defaultValue": undefined,
+                "defaultValue": {
+                  "variant": "body1",
+                },
                 "description": undefined,
                 "isOptional": false,
                 "kind": "Reference",
@@ -1271,14 +1284,16 @@ describe('getTypeDocumentation', () => {
             "modifier": undefined,
             "parameters": [
               {
-                "defaultValue": {},
+                "defaultValue": {
+                  "initialCount": 0,
+                },
                 "description": undefined,
                 "isOptional": false,
                 "kind": "Object",
                 "name": undefined,
                 "properties": [
                   {
-                    "defaultValue": undefined,
+                    "defaultValue": 0,
                     "isOptional": false,
                     "isReadonly": false,
                     "kind": "Number",
