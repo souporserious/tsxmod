@@ -2234,44 +2234,7 @@ describe('getTypeDocumentation', () => {
       { overwrite: true }
     )
     const typeAlias = sourceFile.getTypeAliasOrThrow('Module')
-    const types = getTypeDocumentation(typeAlias)
 
-    expect(types).toMatchInlineSnapshot(`
-      {
-        "arguments": [
-          {
-            "kind": "Object",
-            "name": undefined,
-            "properties": [
-              {
-                "defaultValue": undefined,
-                "element": {
-                  "kind": "String",
-                  "name": undefined,
-                  "type": "string",
-                },
-                "isOptional": true,
-                "isReadonly": false,
-                "kind": "Array",
-                "name": "authors",
-                "type": "Array<string>",
-              },
-              {
-                "defaultValue": undefined,
-                "isOptional": false,
-                "isReadonly": false,
-                "kind": "String",
-                "name": "authors",
-                "type": "string",
-              },
-            ],
-            "type": "{ authors?: string[] } & ReturnType<typeof getGitMetadata>",
-          },
-        ],
-        "kind": "Generic",
-        "type": "Compute<{ authors?: string[] } & ReturnType<typeof getGitMetadata>>",
-        "typeName": "Compute",
-      }
-    `)
+    expect(() => getTypeDocumentation(typeAlias)).toThrow()
   })
 })

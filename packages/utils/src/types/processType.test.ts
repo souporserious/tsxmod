@@ -650,7 +650,7 @@ describe('processProperties', () => {
             "isReadonly": false,
             "kind": "Generic",
             "name": "obj",
-            "type": "Record<string, { value: number }>",
+            "type": "Record<string, { value: number; }>",
             "typeName": "Record",
           },
           {
@@ -974,7 +974,7 @@ describe('processProperties', () => {
                 "isReadonly": false,
                 "kind": "Number",
                 "name": "a",
-                "type": "Promise<number>",
+                "type": "number",
               },
               {
                 "defaultValue": undefined,
@@ -985,7 +985,7 @@ describe('processProperties', () => {
                 "type": "string",
               },
             ],
-            "type": "UnwrapPromisesInMap<DistributiveOmit<UnionType, 'title'>>",
+            "type": "UnwrapPromisesInMap<Omit<A, "title">>",
           },
           {
             "kind": "Object",
@@ -1008,7 +1008,7 @@ describe('processProperties', () => {
                 "type": "number",
               },
             ],
-            "type": "UnwrapPromisesInMap<DistributiveOmit<UnionType, 'title'>>",
+            "type": "UnwrapPromisesInMap<Omit<B, "title">>",
           },
         ],
         "name": "ExportedType",
@@ -2115,63 +2115,35 @@ describe('processProperties', () => {
     const typeAlias = sourceFile.getTypeAliasOrThrow('TextProps')
     const processedProperties = processType(typeAlias.getType(), typeAlias)
 
-    // TODO: if all generic arguments are not references it should use the computed return type
-
     expect(processedProperties).toMatchInlineSnapshot(`
       {
         "kind": "Object",
         "name": "TextProps",
         "properties": [
           {
-            "arguments": [
-              {
-                "kind": "Function",
-                "name": undefined,
-                "signatures": [
-                  {
-                    "kind": "FunctionSignature",
-                    "modifier": undefined,
-                    "parameters": [
-                      {
-                        "defaultValue": undefined,
-                        "description": undefined,
-                        "isOptional": false,
-                        "kind": "Union",
-                        "members": [
-                          {
-                            "kind": "String",
-                            "name": undefined,
-                            "type": ""red"",
-                          },
-                          {
-                            "kind": "String",
-                            "name": undefined,
-                            "type": ""blue"",
-                          },
-                          {
-                            "kind": "String",
-                            "name": undefined,
-                            "type": ""green"",
-                          },
-                        ],
-                        "name": "key",
-                        "type": ""red" | "blue" | "green"",
-                      },
-                    ],
-                    "returnType": ""red" | "blue" | "green"",
-                    "type": "(key: "red" | "blue" | "green") => "red" | "blue" | "green"",
-                  },
-                ],
-                "type": "typeof getColor",
-              },
-            ],
             "defaultValue": undefined,
             "isOptional": false,
             "isReadonly": false,
-            "kind": "Generic",
+            "kind": "Union",
+            "members": [
+              {
+                "kind": "String",
+                "name": undefined,
+                "type": ""red"",
+              },
+              {
+                "kind": "String",
+                "name": undefined,
+                "type": ""blue"",
+              },
+              {
+                "kind": "String",
+                "name": undefined,
+                "type": ""green"",
+              },
+            ],
             "name": "color",
-            "type": "ReturnType<typeof getColor>",
-            "typeName": "ReturnType",
+            "type": ""red" | "blue" | "green"",
           },
         ],
         "type": "TextProps",

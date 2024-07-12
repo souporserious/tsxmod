@@ -249,11 +249,14 @@ export function processType(
   const typeArguments = type.getTypeArguments()
   const aliasTypeArguments = type.getAliasTypeArguments()
   let genericTypeArguments: TypeNode[] = []
+  let genericTypeName = ''
+  let genericTypeText = ''
   let typeName: string | undefined = symbolDeclaration
     ? (symbolDeclaration as any)?.getNameNode?.()?.getText()
     : undefined
   let typeText = type.getText(enclosingNode, TYPE_FORMAT_FLAGS)
 
+  /* Use the generic name and type text if the type is a type alias or property signature. */
   if (
     typeArguments.length === 0 &&
     (Node.isTypeAliasDeclaration(enclosingNode) ||
@@ -263,8 +266,8 @@ export function processType(
 
     if (Node.isTypeReference(typeNode)) {
       genericTypeArguments = typeNode.getTypeArguments()
-      typeName = typeNode.getTypeName().getText()
-      typeText = typeNode.getText()
+      genericTypeName = typeNode.getTypeName().getText()
+      genericTypeText = typeNode.getText()
     }
   }
 
@@ -410,7 +413,7 @@ export function processType(
       return
     }
   } else {
-    // Attempt to process generic type arguments if they exist.
+    /* Attempt to process generic type arguments if they exist. */
     if (aliasTypeArguments.length === 0 && genericTypeArguments.length > 0) {
       const processedTypeArguments = genericTypeArguments
         .map((type) => {
@@ -429,14 +432,18 @@ export function processType(
           }
         })
         .filter(Boolean) as ProcessedType[]
+      const everyTypeArgumentIsReference = processedTypeArguments.every(
+        (type) => type.kind === 'Reference'
+      )
 
-      if (processedTypeArguments.length > 0) {
+      /* If the any of the type arguments are references, they need need to be linked to the generic type. */
+      if (everyTypeArgumentIsReference && processedTypeArguments.length > 0) {
         references.delete(type)
 
         return {
           kind: 'Generic',
-          type: typeText,
-          typeName: typeName!,
+          type: genericTypeText,
+          typeName: genericTypeName,
           arguments: processedTypeArguments,
         } satisfies GenericType
       }
