@@ -411,7 +411,7 @@ export function processType(
     }
   } else {
     // Attempt to process generic type arguments if they exist.
-    if (genericTypeArguments.length > 0) {
+    if (aliasTypeArguments.length === 0 && genericTypeArguments.length > 0) {
       const processedTypeArguments = genericTypeArguments
         .map((type) => {
           const processedType = processType(

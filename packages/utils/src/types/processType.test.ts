@@ -960,147 +960,55 @@ describe('processProperties', () => {
     const typeAlias = sourceFile.getTypeAliasOrThrow('ExportedType')
     const processedProperties = processType(typeAlias.getType())
 
-    // TODO: in this case the promise should be unwrapped instead of marked as a Generic
-
     expect(processedProperties).toMatchInlineSnapshot(`
       {
         "kind": "Union",
         "members": [
           {
-            "arguments": [
+            "kind": "Object",
+            "name": "UnwrapPromisesInMap",
+            "properties": [
               {
-                "kind": "Union",
-                "members": [
-                  {
-                    "kind": "Object",
-                    "name": "Omit",
-                    "properties": [
-                      {
-                        "arguments": [
-                          {
-                            "kind": "Number",
-                            "name": undefined,
-                            "type": "number",
-                          },
-                        ],
-                        "defaultValue": undefined,
-                        "isOptional": false,
-                        "isReadonly": false,
-                        "kind": "Generic",
-                        "name": "a",
-                        "type": "Promise<number>",
-                        "typeName": "Promise",
-                      },
-                      {
-                        "defaultValue": undefined,
-                        "isOptional": false,
-                        "isReadonly": false,
-                        "kind": "String",
-                        "name": "url",
-                        "type": "string",
-                      },
-                    ],
-                    "type": "Omit<A, "title">",
-                  },
-                  {
-                    "kind": "Object",
-                    "name": "Omit",
-                    "properties": [
-                      {
-                        "defaultValue": undefined,
-                        "isOptional": false,
-                        "isReadonly": false,
-                        "kind": "String",
-                        "name": "url",
-                        "type": "string",
-                      },
-                      {
-                        "defaultValue": undefined,
-                        "isOptional": false,
-                        "isReadonly": false,
-                        "kind": "Number",
-                        "name": "b",
-                        "type": "number",
-                      },
-                    ],
-                    "type": "Omit<B, "title">",
-                  },
-                ],
-                "name": undefined,
-                "type": "DistributiveOmit<UnionType, 'title'>",
+                "defaultValue": undefined,
+                "isOptional": false,
+                "isReadonly": false,
+                "kind": "Number",
+                "name": "a",
+                "type": "Promise<number>",
+              },
+              {
+                "defaultValue": undefined,
+                "isOptional": false,
+                "isReadonly": false,
+                "kind": "String",
+                "name": "url",
+                "type": "string",
               },
             ],
-            "kind": "Generic",
             "type": "UnwrapPromisesInMap<DistributiveOmit<UnionType, 'title'>>",
-            "typeName": "UnwrapPromisesInMap",
           },
           {
-            "arguments": [
+            "kind": "Object",
+            "name": "UnwrapPromisesInMap",
+            "properties": [
               {
-                "kind": "Union",
-                "members": [
-                  {
-                    "kind": "Object",
-                    "name": "Omit",
-                    "properties": [
-                      {
-                        "arguments": [
-                          {
-                            "kind": "Number",
-                            "name": undefined,
-                            "type": "number",
-                          },
-                        ],
-                        "defaultValue": undefined,
-                        "isOptional": false,
-                        "isReadonly": false,
-                        "kind": "Generic",
-                        "name": "a",
-                        "type": "Promise<number>",
-                        "typeName": "Promise",
-                      },
-                      {
-                        "defaultValue": undefined,
-                        "isOptional": false,
-                        "isReadonly": false,
-                        "kind": "String",
-                        "name": "url",
-                        "type": "string",
-                      },
-                    ],
-                    "type": "Omit<A, "title">",
-                  },
-                  {
-                    "kind": "Object",
-                    "name": "Omit",
-                    "properties": [
-                      {
-                        "defaultValue": undefined,
-                        "isOptional": false,
-                        "isReadonly": false,
-                        "kind": "String",
-                        "name": "url",
-                        "type": "string",
-                      },
-                      {
-                        "defaultValue": undefined,
-                        "isOptional": false,
-                        "isReadonly": false,
-                        "kind": "Number",
-                        "name": "b",
-                        "type": "number",
-                      },
-                    ],
-                    "type": "Omit<B, "title">",
-                  },
-                ],
-                "name": undefined,
-                "type": "DistributiveOmit<UnionType, 'title'>",
+                "defaultValue": undefined,
+                "isOptional": false,
+                "isReadonly": false,
+                "kind": "String",
+                "name": "url",
+                "type": "string",
+              },
+              {
+                "defaultValue": undefined,
+                "isOptional": false,
+                "isReadonly": false,
+                "kind": "Number",
+                "name": "b",
+                "type": "number",
               },
             ],
-            "kind": "Generic",
             "type": "UnwrapPromisesInMap<DistributiveOmit<UnionType, 'title'>>",
-            "typeName": "UnwrapPromisesInMap",
           },
         ],
         "name": "ExportedType",
