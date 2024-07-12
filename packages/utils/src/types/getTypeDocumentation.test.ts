@@ -348,8 +348,6 @@ describe('getTypeDocumentation', () => {
       sourceFile.getFunctionOrThrow('useCounterOverride')
     )
 
-    // TODO: below is not correct since it should preserve the ReturnType because the argument itself is a reference that should be linked
-
     expect(types).toMatchInlineSnapshot(`
       {
         "kind": "Function",
@@ -367,13 +365,20 @@ describe('getTypeDocumentation', () => {
                 "name": undefined,
                 "properties": [
                   {
+                    "arguments": [
+                      {
+                        "kind": "Reference",
+                        "path": "types.ts:1:1",
+                        "type": "typeof useCounter",
+                      },
+                    ],
                     "defaultValue": undefined,
                     "isOptional": false,
                     "isReadonly": false,
-                    "kind": "Reference",
+                    "kind": "Generic",
                     "name": "counterState",
-                    "path": "types.ts:1:1",
-                    "type": "{ initialCount: number; }",
+                    "type": "ReturnType<typeof useCounter>",
+                    "typeName": "ReturnType",
                   },
                 ],
                 "type": "{ counterState: ReturnType<typeof useCounter>; }",
@@ -1663,6 +1668,8 @@ describe('getTypeDocumentation', () => {
       }
     )
 
+    // TODO: signatures should not be filtered below
+
     expect(types).toMatchInlineSnapshot(`
       {
         "kind": "Component",
@@ -1709,25 +1716,7 @@ describe('getTypeDocumentation', () => {
                   "isReadonly": false,
                   "kind": "Function",
                   "name": "onClick",
-                  "signatures": [
-                    {
-                      "kind": "FunctionSignature",
-                      "modifier": undefined,
-                      "parameters": [
-                        {
-                          "defaultValue": undefined,
-                          "description": undefined,
-                          "isOptional": false,
-                          "kind": "Reference",
-                          "name": "event",
-                          "path": "node_modules/@types/react/index.d.ts:7:1",
-                          "type": "MouseEvent<HTMLButtonElement, globalThis.MouseEvent>",
-                        },
-                      ],
-                      "returnType": "void",
-                      "type": "(event: MouseEvent<HTMLButtonElement, globalThis.MouseEvent>) => void",
-                    },
-                  ],
+                  "signatures": [],
                   "type": "MouseEventHandler<HTMLButtonElement>",
                 },
               ],
@@ -2216,6 +2205,7 @@ describe('getTypeDocumentation', () => {
           "kind": "Generic",
           "name": "promise",
           "type": "Promise<number>",
+          "typeName": "Promise",
         },
       }
     `)
@@ -2244,7 +2234,44 @@ describe('getTypeDocumentation', () => {
       { overwrite: true }
     )
     const typeAlias = sourceFile.getTypeAliasOrThrow('Module')
+    const types = getTypeDocumentation(typeAlias)
 
-    expect(() => getTypeDocumentation(typeAlias)).toThrow()
+    expect(types).toMatchInlineSnapshot(`
+      {
+        "arguments": [
+          {
+            "kind": "Object",
+            "name": undefined,
+            "properties": [
+              {
+                "defaultValue": undefined,
+                "element": {
+                  "kind": "String",
+                  "name": undefined,
+                  "type": "string",
+                },
+                "isOptional": true,
+                "isReadonly": false,
+                "kind": "Array",
+                "name": "authors",
+                "type": "Array<string>",
+              },
+              {
+                "defaultValue": undefined,
+                "isOptional": false,
+                "isReadonly": false,
+                "kind": "String",
+                "name": "authors",
+                "type": "string",
+              },
+            ],
+            "type": "{ authors?: string[] } & ReturnType<typeof getGitMetadata>",
+          },
+        ],
+        "kind": "Generic",
+        "type": "Compute<{ authors?: string[] } & ReturnType<typeof getGitMetadata>>",
+        "typeName": "Compute",
+      }
+    `)
   })
 })

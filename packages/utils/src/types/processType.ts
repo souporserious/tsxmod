@@ -3,7 +3,6 @@ import {
   Type,
   TypeFormatFlags,
   SyntaxKind,
-  VariableDeclarationKind,
   type ClassDeclaration,
   type FunctionDeclaration,
   type ParameterDeclaration,
@@ -15,6 +14,7 @@ import {
   type GetAccessorDeclaration,
   type Signature,
   type Symbol,
+  type TypeNode,
 } from 'ts-morph'
 
 import { getJsDocMetadata } from '../js-docs'
@@ -181,11 +181,7 @@ export interface ReferenceType extends BaseType {
 
 export interface GenericType extends BaseType {
   kind: 'Generic'
-  arguments: ParameterTypes[]
-}
-
-export interface UtilityType extends BaseType {
-  kind: 'Utility'
+  typeName: string
   arguments: ParameterTypes[]
 }
 
@@ -210,7 +206,6 @@ export type BaseTypes =
   | PrimitiveType
   | ReferenceType
   | GenericType
-  | UtilityType
   | UnknownType
 
 export type ParameterTypes = CreateParameterType<BaseTypes>
@@ -236,24 +231,42 @@ export function processType(
   type: Type,
   enclosingNode?: Node,
   filter: SymbolFilter = defaultFilter,
-  references: Set<string> = new Set(),
+  references: Set<Type> = new Set(),
   isRootType: boolean = true,
   defaultValues?: Record<string, unknown> | unknown
 ): ProcessedType | undefined {
-  const typeText = type.getText(enclosingNode, TYPE_FORMAT_FLAGS)
-  let symbol = type.getAliasSymbol() || type.getSymbol()
-
-  if (!symbol) {
-    const apparentType = type.getApparentType()
-    symbol = apparentType.getAliasSymbol() || apparentType.getSymbol()
-  }
-
+  const symbol =
+    // First, attempt to get the aliased symbol for imported and aliased types
+    type.getAliasSymbol() ||
+    // Next, try to get the symbol of the type itself
+    type.getSymbol() ||
+    // Finally, try to get the symbol of the apparent type
+    type.getApparentType().getSymbol()
   const symbolMetadata = getSymbolMetadata(symbol, enclosingNode)
   const symbolDeclaration = symbol?.getDeclarations().at(0)
   const declaration = symbolDeclaration || enclosingNode
   const isPrimitive = isPrimitiveType(type)
   const typeArguments = type.getTypeArguments()
   const aliasTypeArguments = type.getAliasTypeArguments()
+  let genericTypeArguments: TypeNode[] = []
+  let typeName: string | undefined = symbolDeclaration
+    ? (symbolDeclaration as any)?.getNameNode?.()?.getText()
+    : undefined
+  let typeText = type.getText(enclosingNode, TYPE_FORMAT_FLAGS)
+
+  if (
+    typeArguments.length === 0 &&
+    (Node.isTypeAliasDeclaration(enclosingNode) ||
+      Node.isPropertySignature(enclosingNode))
+  ) {
+    const typeNode = enclosingNode.getTypeNode()
+
+    if (Node.isTypeReference(typeNode)) {
+      genericTypeArguments = typeNode.getTypeArguments()
+      typeName = typeNode.getTypeName().getText()
+      typeText = typeNode.getText()
+    }
+  }
 
   let processedType: ProcessedType = {
     kind: 'Unknown',
@@ -276,11 +289,7 @@ export function processType(
         typeArguments.length === 0 ||
         isEveryTypeInNodeModules(typeArguments)
       ) {
-        const isUtilityType = symbolMetadata.name
-          ? UTILITY_TYPES.has(symbolMetadata.name)
-          : false
-
-        if (isUtilityType) {
+        if (aliasTypeArguments.length > 0) {
           const processedTypeArguments = aliasTypeArguments
             .map((type) =>
               processType(type, declaration, filter, references, false)
@@ -292,14 +301,15 @@ export function processType(
           }
 
           return {
-            kind: 'Utility',
+            kind: 'Generic',
             type: typeText,
+            typeName: typeName!,
             arguments: processedTypeArguments,
-          } satisfies UtilityType
+          } satisfies GenericType
         } else {
           if (!symbolMetadata.filePath) {
             throw new Error(
-              `[processType]: No file path found for "${symbolMetadata.name}". Please file an issue if you encounter this error.`
+              `[processType]: No file path found for "${typeText}". Please file an issue if you encounter this error.`
             )
           }
           return {
@@ -326,8 +336,10 @@ export function processType(
   const isNodeModuleReference =
     !symbolMetadata.isGlobal && symbolMetadata.isInNodeModules
   const hasNoTypeArguments =
-    typeArguments.length === 0 && aliasTypeArguments.length === 0
-  const hasReference = references.has(typeText)
+    typeArguments.length === 0 &&
+    aliasTypeArguments.length === 0 &&
+    genericTypeArguments.length === 0
+  const hasReference = references.has(type)
 
   if (
     hasReference ||
@@ -338,7 +350,7 @@ export function processType(
   ) {
     if (!symbolMetadata.filePath) {
       throw new Error(
-        `[processType]: No file path found for "${symbolMetadata.name}". Please file an issue if you encounter this error.`
+        `[processType]: No file path found for "${typeText}". Please file an issue if you encounter this error.`
       )
     }
     return {
@@ -348,7 +360,10 @@ export function processType(
     } satisfies ReferenceType
   }
 
-  references.add(typeText)
+  /* If the type is not virtual, store it as a reference. */
+  if (!symbolMetadata.isVirtual) {
+    references.add(type)
+  }
 
   if (type.isBoolean() || type.isBooleanLiteral()) {
     processedType = {
@@ -369,7 +384,7 @@ export function processType(
       type: typeText,
     } satisfies StringType
   } else if (isSymbol(type)) {
-    return {
+    processedType = {
       kind: 'Symbol',
       name: symbolMetadata.name,
       type: typeText,
@@ -391,246 +406,283 @@ export function processType(
         element: processedElementType,
       } satisfies ArrayType
     } else {
+      references.delete(type)
       return
     }
-  } else if (type.isClass()) {
-    if (Node.isClassDeclaration(symbolDeclaration)) {
-      processedType = processClass(symbolDeclaration, filter)
-    } else {
-      throw new Error(
-        `[processType]: No class declaration found for "${symbolMetadata.name}". Please file an issue if you encounter this error.`
-      )
-    }
-  } else if (type.isEnum()) {
-    if (Node.isEnumDeclaration(symbolDeclaration)) {
-      processedType = {
-        kind: 'Enum',
-        name: symbolMetadata.name,
-        type: typeText,
-        members: Object.fromEntries(
-          symbolDeclaration
-            .getMembers()
-            .map((member) => [member.getName(), member.getValue()])
-        ) as Record<string, string | number | undefined>,
-      } satisfies EnumType
-    } else {
-      throw new Error(
-        `[processType]: No enum declaration found for "${symbolMetadata.name}". Please file an issue if you encounter this error.`
-      )
-    }
-  } else if (type.isUnion()) {
-    const processedUnionTypes: ProcessedType[] = []
+  } else {
+    // Attempt to process generic type arguments if they exist.
+    if (genericTypeArguments.length > 0) {
+      const processedTypeArguments = genericTypeArguments
+        .map((type) => {
+          const processedType = processType(
+            type.getType(),
+            type,
+            filter,
+            references,
+            false
+          )
+          if (processedType) {
+            return {
+              ...processedType,
+              type: type.getText(),
+            }
+          }
+        })
+        .filter(Boolean) as ProcessedType[]
 
-    for (const unionType of type.getUnionTypes()) {
-      const processedType = processType(
-        unionType,
-        declaration,
-        filter,
-        references,
-        false,
-        defaultValues
-      )
+      if (processedTypeArguments.length > 0) {
+        references.delete(type)
 
-      if (processedType) {
-        const previousProperty = processedUnionTypes.at(-1)
-
-        // Flatten boolean literals to just 'boolean' if both values are present
-        if (
-          processedType.kind === 'Boolean' &&
-          previousProperty?.kind === 'Boolean'
-        ) {
-          processedUnionTypes.pop()
-          processedType.type = 'boolean'
-        }
-
-        processedUnionTypes.push(processedType)
+        return {
+          kind: 'Generic',
+          type: typeText,
+          typeName: typeName!,
+          arguments: processedTypeArguments,
+        } satisfies GenericType
       }
     }
 
-    if (processedUnionTypes.length === 0) {
-      return
-    }
+    if (type.isClass()) {
+      if (Node.isClassDeclaration(symbolDeclaration)) {
+        processedType = processClass(symbolDeclaration, filter)
+      } else {
+        throw new Error(
+          `[processType]: No class declaration found for "${symbolMetadata.name}". Please file an issue if you encounter this error.`
+        )
+      }
+    } else if (type.isEnum()) {
+      if (Node.isEnumDeclaration(symbolDeclaration)) {
+        processedType = {
+          kind: 'Enum',
+          name: symbolMetadata.name,
+          type: typeText,
+          members: Object.fromEntries(
+            symbolDeclaration
+              .getMembers()
+              .map((member) => [member.getName(), member.getValue()])
+          ) as Record<string, string | number | undefined>,
+        } satisfies EnumType
+      } else {
+        throw new Error(
+          `[processType]: No enum declaration found for "${symbolMetadata.name}". Please file an issue if you encounter this error.`
+        )
+      }
+    } else if (type.isUnion()) {
+      const processedUnionTypes: ProcessedType[] = []
 
-    processedType = {
-      kind: 'Union',
-      name: symbolMetadata.name,
-      type: typeText,
-      members: processedUnionTypes,
-    } satisfies UnionType
-  } else if (type.isIntersection()) {
-    const processedIntersectionTypes = type
-      .getIntersectionTypes()
-      .map((intersectionType) =>
-        processType(
-          intersectionType,
+      for (const unionType of type.getUnionTypes()) {
+        const processedType = processType(
+          unionType,
           declaration,
           filter,
           references,
           false,
           defaultValues
         )
-      )
-      .filter(Boolean) as ProcessedType[]
 
-    // Intersection types can safely merge the immediate object properties to reduce nesting
-    const properties: ProcessedType[] = []
-    let isObject = true
+        if (processedType) {
+          const previousProperty = processedUnionTypes.at(-1)
 
-    for (const processedType of processedIntersectionTypes) {
-      if (processedType.kind === 'Object') {
-        properties.push(...processedType.properties)
-      } else {
-        properties.push(processedType)
-        isObject = false
+          // Flatten boolean literals to just 'boolean' if both values are present
+          if (
+            processedType.kind === 'Boolean' &&
+            previousProperty?.kind === 'Boolean'
+          ) {
+            processedUnionTypes.pop()
+            processedType.type = 'boolean'
+          }
+
+          processedUnionTypes.push(processedType)
+        }
       }
-    }
 
-    if (properties.length === 0) {
-      return
-    }
+      if (processedUnionTypes.length === 0) {
+        references.delete(type)
+        return
+      }
 
-    if (isObject) {
       processedType = {
-        kind: 'Object',
+        kind: 'Union',
         name: symbolMetadata.name,
         type: typeText,
-        properties,
-      } satisfies ObjectType
-    } else {
-      processedType = {
-        kind: 'Intersection',
-        name: symbolMetadata.name,
-        type: typeText,
-        properties,
-      } satisfies IntersectionType
-    }
-  } else if (type.isTuple()) {
-    const elements = processTypeTupleElements(
-      type,
-      declaration,
-      filter,
-      references,
-      false
-    )
-
-    if (elements.length === 0) {
-      return
-    }
-
-    processedType = {
-      kind: 'Tuple',
-      name: symbolMetadata.name,
-      type: typeText,
-      elements,
-    } satisfies TupleType
-  } else {
-    const callSignatures = type.getCallSignatures()
-
-    if (callSignatures.length > 0) {
-      const processedCallSignatures = processCallSignatures(
-        callSignatures,
-        declaration,
-        filter,
-        references,
-        false
-      )
-
-      if (isComponent(symbolMetadata.name, processedCallSignatures)) {
-        processedType = {
-          kind: 'Component',
-          name: symbolMetadata.name,
-          type: typeText,
-          signatures: processedCallSignatures.map(
-            ({ parameters, ...processedCallSignature }) => {
-              return {
-                ...processedCallSignature,
-                kind: 'ComponentSignature',
-                properties: parameters.at(0)! as ObjectType,
-              } satisfies ComponentSignatureType
-            }
-          ),
-        } satisfies ComponentType
-      } else {
-        processedType = {
-          kind: 'Function',
-          name: symbolMetadata.name,
-          type: typeText,
-          signatures: processCallSignatures(
-            callSignatures,
+        members: processedUnionTypes,
+      } satisfies UnionType
+    } else if (type.isIntersection()) {
+      const processedIntersectionTypes = type
+        .getIntersectionTypes()
+        .map((intersectionType) =>
+          processType(
+            intersectionType,
             declaration,
             filter,
             references,
-            false
-          ),
-        } satisfies FunctionType
-      }
-    } else if (isPrimitive) {
-      processedType = {
-        kind: 'Primitive',
-        type: typeText,
-      } satisfies PrimitiveType
-    } else if (type.isObject()) {
-      const properties = processTypeProperties(
-        type,
-        enclosingNode,
-        filter,
-        references,
-        false,
-        defaultValues
-      )
-
-      if (properties.length === 0 && typeArguments.length > 0) {
-        const processedTypeArguments = typeArguments
-          .map((type) =>
-            processType(
-              type,
-              declaration,
-              filter,
-              references,
-              false,
-              defaultValues
-            )
+            false,
+            defaultValues
           )
-          .filter(Boolean) as ProcessedType[]
+        )
+        .filter(Boolean) as ProcessedType[]
 
-        if (processedTypeArguments.length === 0) {
-          return
+      // Intersection types can safely merge the immediate object properties to reduce nesting
+      const properties: ProcessedType[] = []
+      let isObject = true
+
+      for (const processedType of processedIntersectionTypes) {
+        if (processedType.kind === 'Object') {
+          properties.push(...processedType.properties)
+        } else {
+          properties.push(processedType)
+          isObject = false
         }
+      }
 
-        processedType = {
-          kind: 'Generic',
-          name: symbolMetadata.name,
-          type: typeText,
-          arguments: processedTypeArguments,
-        } satisfies GenericType
-      } else if (properties.length === 0) {
+      if (properties.length === 0) {
+        references.delete(type)
         return
-      } else {
+      }
+
+      if (isObject) {
         processedType = {
           kind: 'Object',
           name: symbolMetadata.name,
           type: typeText,
           properties,
         } satisfies ObjectType
+      } else {
+        processedType = {
+          kind: 'Intersection',
+          name: symbolMetadata.name,
+          type: typeText,
+          properties,
+        } satisfies IntersectionType
       }
-    } else {
-      /** Finally, try to process the apparent type if it is different from the current type. */
-      const apparentType = type.getApparentType()
+    } else if (type.isTuple()) {
+      const elements = processTypeTupleElements(
+        type,
+        declaration,
+        filter,
+        references,
+        false
+      )
 
-      if (type !== apparentType) {
-        return processType(
-          apparentType,
+      if (elements.length === 0) {
+        references.delete(type)
+        return
+      }
+
+      processedType = {
+        kind: 'Tuple',
+        name: symbolMetadata.name,
+        type: typeText,
+        elements,
+      } satisfies TupleType
+    } else {
+      const callSignatures = type.getCallSignatures()
+
+      if (callSignatures.length > 0) {
+        const processedCallSignatures = processCallSignatures(
+          callSignatures,
           declaration,
+          filter,
+          references,
+          false
+        )
+
+        if (isComponent(symbolMetadata.name, processedCallSignatures)) {
+          processedType = {
+            kind: 'Component',
+            name: symbolMetadata.name,
+            type: typeText,
+            signatures: processedCallSignatures.map(
+              ({ parameters, ...processedCallSignature }) => {
+                return {
+                  ...processedCallSignature,
+                  kind: 'ComponentSignature',
+                  properties: parameters.at(0)! as ObjectType,
+                } satisfies ComponentSignatureType
+              }
+            ),
+          } satisfies ComponentType
+        } else {
+          processedType = {
+            kind: 'Function',
+            name: symbolMetadata.name,
+            type: typeText,
+            signatures: processedCallSignatures,
+          } satisfies FunctionType
+        }
+      } else if (isPrimitive) {
+        processedType = {
+          kind: 'Primitive',
+          type: typeText,
+        } satisfies PrimitiveType
+      } else if (type.isObject()) {
+        const properties = processTypeProperties(
+          type,
+          enclosingNode,
           filter,
           references,
           false,
           defaultValues
         )
+
+        if (properties.length === 0 && typeArguments.length > 0) {
+          const processedTypeArguments = typeArguments
+            .map((type) =>
+              processType(
+                type,
+                declaration,
+                filter,
+                references,
+                false,
+                defaultValues
+              )
+            )
+            .filter(Boolean) as ProcessedType[]
+
+          if (processedTypeArguments.length === 0) {
+            references.delete(type)
+            return
+          }
+
+          processedType = {
+            kind: 'Generic',
+            name: symbolMetadata.name,
+            type: typeText,
+            typeName: typeName!,
+            arguments: processedTypeArguments,
+          } satisfies GenericType
+        } else if (properties.length === 0) {
+          references.delete(type)
+          return
+        } else {
+          processedType = {
+            kind: 'Object',
+            name: symbolMetadata.name,
+            type: typeText,
+            properties,
+          } satisfies ObjectType
+        }
+      } else {
+        /** Finally, try to process the apparent type if it is different from the current type. */
+        const apparentType = type.getApparentType()
+
+        if (type !== apparentType) {
+          references.delete(type)
+
+          return processType(
+            apparentType,
+            declaration,
+            filter,
+            references,
+            false,
+            defaultValues
+          )
+        }
       }
     }
   }
 
-  references.delete(typeText)
+  references.delete(type)
 
   return {
     ...(declaration ? getJsDocMetadata(declaration) : {}),
@@ -643,7 +695,7 @@ export function processCallSignatures(
   signatures: Signature[],
   enclosingNode?: Node,
   filter: SymbolFilter = defaultFilter,
-  references: Set<string> = new Set(),
+  references: Set<Type> = new Set(),
   isRootType: boolean = true
 ): FunctionSignatureType[] {
   return signatures
@@ -658,7 +710,7 @@ export function processSignature(
   signature: Signature,
   enclosingNode?: Node,
   filter: SymbolFilter = defaultFilter,
-  references: Set<string> = new Set(),
+  references: Set<Type> = new Set(),
   isRootType: boolean = true
 ): FunctionSignatureType | undefined {
   const signatureDeclaration = signature.getDeclaration()
@@ -763,7 +815,7 @@ export function processTypeProperties(
   type: Type,
   enclosingNode?: Node,
   filter: SymbolFilter = defaultFilter,
-  references: Set<string> = new Set(),
+  references: Set<Type> = new Set(),
   isRootType: boolean = true,
   defaultValues?: Record<string, unknown> | unknown
 ): ProcessedType[] {
@@ -838,7 +890,7 @@ function processTypeTupleElements(
   type: Type,
   enclosingNode?: Node,
   filter?: SymbolFilter,
-  references: Set<string> = new Set(),
+  references: Set<Type> = new Set(),
   isRootType: boolean = true
 ) {
   const tupleNames = type
@@ -870,7 +922,10 @@ function processTypeTupleElements(
 }
 
 /** Check if every type argument is in node_modules. */
-function isEveryTypeInNodeModules(types: Type[]) {
+function isEveryTypeInNodeModules(types: (Type | TypeNode)[]) {
+  if (types.length === 0) {
+    return false
+  }
   return types.every((type) =>
     type.getSymbol()?.getDeclarations().at(0)?.getSourceFile().isInNodeModules()
   )
@@ -929,6 +984,9 @@ function getSymbolMetadata(
 
   /** Whether or not the symbol is global. */
   isGlobal: boolean
+
+  /** Whether or not the node is generated by the compiler. */
+  isVirtual: boolean
 } {
   if (!symbol) {
     return {
@@ -936,6 +994,7 @@ function getSymbolMetadata(
       isExternal: false,
       isInNodeModules: false,
       isGlobal: false,
+      isVirtual: true,
     }
   }
 
@@ -947,6 +1006,7 @@ function getSymbolMetadata(
       isExternal: false,
       isInNodeModules: false,
       isGlobal: false,
+      isVirtual: false,
     }
   }
 
@@ -986,9 +1046,17 @@ function getSymbolMetadata(
   /** Check if the symbol is exported if it is not the enclosing node. */
   let isExported = false
 
-  if (enclosingNode !== declaration && 'isExported' in declaration) {
-    // @ts-expect-error - isExported is not defined on all declaration types
-    isExported = declaration.isExported()
+  if (declaration !== enclosingNode) {
+    if ('isExported' in declaration) {
+      // @ts-expect-error - isExported is not defined on all declaration types
+      isExported = declaration.isExported()
+    } else {
+      // alternatively, check if the declaration's parent is an exported variable declaration
+      const variableDeclaration = declaration.getParent()
+      if (Node.isVariableDeclaration(variableDeclaration)) {
+        isExported = variableDeclaration.isExported()
+      }
+    }
   }
 
   /** Check if a type is external to the enclosing source file. */
@@ -1010,6 +1078,7 @@ function getSymbolMetadata(
     isExternal,
     isInNodeModules,
     isGlobal: isInNodeModules && !isExported,
+    isVirtual: false,
   }
 }
 
@@ -1301,28 +1370,3 @@ export function isComponent(
     }
   })
 }
-
-const UTILITY_TYPES = new Set([
-  'Awaited',
-  'Partial',
-  'Required',
-  'Readonly',
-  'Record',
-  'Pick',
-  'Omit',
-  'Exclude',
-  'Extract',
-  'NonNullable',
-  'Parameters',
-  'ConstructorParameters',
-  'ReturnType',
-  'InstanceType',
-  'NoInfer',
-  'ThisParameterType',
-  'OmitThisParameter',
-  'ThisType',
-  'Uppercase',
-  'Lowercase',
-  'Capitalize',
-  'Uncapitalize',
-])

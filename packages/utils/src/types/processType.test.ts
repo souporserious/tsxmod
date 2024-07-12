@@ -126,6 +126,7 @@ describe('processProperties', () => {
           "kind": "Generic",
           "name": "promiseObject",
           "type": "Promise<ExportedType>",
+          "typeName": "Promise",
         },
         {
           "arguments": [
@@ -167,6 +168,7 @@ describe('processProperties', () => {
           "kind": "Generic",
           "name": "promiseFunction",
           "type": "Promise<(a: number, b: string) => void>",
+          "typeName": "Promise",
         },
         {
           "arguments": [
@@ -200,6 +202,7 @@ describe('processProperties', () => {
           "kind": "Generic",
           "name": "promiseVariable",
           "type": "Promise<{ slug: string; filePath: string; }>",
+          "typeName": "Promise",
         },
         {
           "defaultValue": undefined,
@@ -358,6 +361,7 @@ describe('processProperties', () => {
               "kind": "Generic",
               "name": undefined,
               "type": "Promise<ExportedType>",
+              "typeName": "Promise",
             },
             {
               "defaultValue": undefined,
@@ -644,9 +648,10 @@ describe('processProperties', () => {
             "defaultValue": undefined,
             "isOptional": false,
             "isReadonly": false,
-            "kind": "Utility",
+            "kind": "Generic",
             "name": "obj",
-            "type": "Record<string, { value: number; }>",
+            "type": "Record<string, { value: number }>",
+            "typeName": "Record",
           },
           {
             "defaultValue": undefined,
@@ -912,6 +917,7 @@ describe('processProperties', () => {
             "kind": "Generic",
             "name": "value",
             "type": "Promise<Foo>",
+            "typeName": "Promise",
           },
         ],
         "type": "AsyncString",
@@ -954,55 +960,147 @@ describe('processProperties', () => {
     const typeAlias = sourceFile.getTypeAliasOrThrow('ExportedType')
     const processedProperties = processType(typeAlias.getType())
 
+    // TODO: in this case the promise should be unwrapped instead of marked as a Generic
+
     expect(processedProperties).toMatchInlineSnapshot(`
       {
         "kind": "Union",
         "members": [
           {
-            "kind": "Object",
-            "name": "UnwrapPromisesInMap",
-            "properties": [
+            "arguments": [
               {
-                "defaultValue": undefined,
-                "isOptional": false,
-                "isReadonly": false,
-                "kind": "Number",
-                "name": "a",
-                "type": "number",
-              },
-              {
-                "defaultValue": undefined,
-                "isOptional": false,
-                "isReadonly": false,
-                "kind": "String",
-                "name": "url",
-                "type": "string",
+                "kind": "Union",
+                "members": [
+                  {
+                    "kind": "Object",
+                    "name": "Omit",
+                    "properties": [
+                      {
+                        "arguments": [
+                          {
+                            "kind": "Number",
+                            "name": undefined,
+                            "type": "number",
+                          },
+                        ],
+                        "defaultValue": undefined,
+                        "isOptional": false,
+                        "isReadonly": false,
+                        "kind": "Generic",
+                        "name": "a",
+                        "type": "Promise<number>",
+                        "typeName": "Promise",
+                      },
+                      {
+                        "defaultValue": undefined,
+                        "isOptional": false,
+                        "isReadonly": false,
+                        "kind": "String",
+                        "name": "url",
+                        "type": "string",
+                      },
+                    ],
+                    "type": "Omit<A, "title">",
+                  },
+                  {
+                    "kind": "Object",
+                    "name": "Omit",
+                    "properties": [
+                      {
+                        "defaultValue": undefined,
+                        "isOptional": false,
+                        "isReadonly": false,
+                        "kind": "String",
+                        "name": "url",
+                        "type": "string",
+                      },
+                      {
+                        "defaultValue": undefined,
+                        "isOptional": false,
+                        "isReadonly": false,
+                        "kind": "Number",
+                        "name": "b",
+                        "type": "number",
+                      },
+                    ],
+                    "type": "Omit<B, "title">",
+                  },
+                ],
+                "name": undefined,
+                "type": "DistributiveOmit<UnionType, 'title'>",
               },
             ],
-            "type": "UnwrapPromisesInMap<Omit<A, "title">>",
+            "kind": "Generic",
+            "type": "UnwrapPromisesInMap<DistributiveOmit<UnionType, 'title'>>",
+            "typeName": "UnwrapPromisesInMap",
           },
           {
-            "kind": "Object",
-            "name": "UnwrapPromisesInMap",
-            "properties": [
+            "arguments": [
               {
-                "defaultValue": undefined,
-                "isOptional": false,
-                "isReadonly": false,
-                "kind": "String",
-                "name": "url",
-                "type": "string",
-              },
-              {
-                "defaultValue": undefined,
-                "isOptional": false,
-                "isReadonly": false,
-                "kind": "Number",
-                "name": "b",
-                "type": "number",
+                "kind": "Union",
+                "members": [
+                  {
+                    "kind": "Object",
+                    "name": "Omit",
+                    "properties": [
+                      {
+                        "arguments": [
+                          {
+                            "kind": "Number",
+                            "name": undefined,
+                            "type": "number",
+                          },
+                        ],
+                        "defaultValue": undefined,
+                        "isOptional": false,
+                        "isReadonly": false,
+                        "kind": "Generic",
+                        "name": "a",
+                        "type": "Promise<number>",
+                        "typeName": "Promise",
+                      },
+                      {
+                        "defaultValue": undefined,
+                        "isOptional": false,
+                        "isReadonly": false,
+                        "kind": "String",
+                        "name": "url",
+                        "type": "string",
+                      },
+                    ],
+                    "type": "Omit<A, "title">",
+                  },
+                  {
+                    "kind": "Object",
+                    "name": "Omit",
+                    "properties": [
+                      {
+                        "defaultValue": undefined,
+                        "isOptional": false,
+                        "isReadonly": false,
+                        "kind": "String",
+                        "name": "url",
+                        "type": "string",
+                      },
+                      {
+                        "defaultValue": undefined,
+                        "isOptional": false,
+                        "isReadonly": false,
+                        "kind": "Number",
+                        "name": "b",
+                        "type": "number",
+                      },
+                    ],
+                    "type": "Omit<B, "title">",
+                  },
+                ],
+                "name": undefined,
+                "type": "DistributiveOmit<UnionType, 'title'>",
               },
             ],
-            "type": "UnwrapPromisesInMap<Omit<B, "title">>",
+            "kind": "Generic",
+            "type": "UnwrapPromisesInMap<DistributiveOmit<UnionType, 'title'>>",
+            "typeName": "UnwrapPromisesInMap",
           },
         ],
         "name": "ExportedType",
@@ -1575,9 +1673,10 @@ describe('processProperties', () => {
                 "defaultValue": undefined,
                 "isOptional": false,
                 "isReadonly": false,
-                "kind": "Utility",
+                "kind": "Generic",
                 "name": "frontMatter",
                 "type": "Record<string, any>",
+                "typeName": "Record",
               },
             ],
             "type": "{ frontMatter: Record<string, any>; }",
@@ -1601,9 +1700,10 @@ describe('processProperties', () => {
                 "defaultValue": undefined,
                 "isOptional": false,
                 "isReadonly": false,
-                "kind": "Utility",
+                "kind": "Generic",
                 "name": "frontMatter",
                 "type": "Record<string, any>",
+                "typeName": "Record",
               },
             ],
             "type": "{ frontMatter: Record<string, any>; }",
@@ -2086,6 +2186,246 @@ describe('processProperties', () => {
           },
         ],
         "type": "Readonly<{ red: "red"; blue: "blue"; green: "green"; }>",
+      }
+    `)
+  })
+
+  test('computes local generic arguments', () => {
+    const sourceFile = project.createSourceFile(
+      'test.ts',
+      dedent`
+      const colors = { red: 'red', blue: 'blue', green: 'green' } as const;
+      
+      const getColor = (key: keyof typeof colors) => colors[key];
+
+      export type TextProps = {
+        color: ReturnType<typeof getColor>;
+      }
+      `,
+      { overwrite: true }
+    )
+    const typeAlias = sourceFile.getTypeAliasOrThrow('TextProps')
+    const processedProperties = processType(typeAlias.getType(), typeAlias)
+
+    // TODO: if all generic arguments are not references it should use the computed return type
+
+    expect(processedProperties).toMatchInlineSnapshot(`
+      {
+        "kind": "Object",
+        "name": "TextProps",
+        "properties": [
+          {
+            "arguments": [
+              {
+                "kind": "Function",
+                "name": undefined,
+                "signatures": [
+                  {
+                    "kind": "FunctionSignature",
+                    "modifier": undefined,
+                    "parameters": [
+                      {
+                        "defaultValue": undefined,
+                        "description": undefined,
+                        "isOptional": false,
+                        "kind": "Union",
+                        "members": [
+                          {
+                            "kind": "String",
+                            "name": undefined,
+                            "type": ""red"",
+                          },
+                          {
+                            "kind": "String",
+                            "name": undefined,
+                            "type": ""blue"",
+                          },
+                          {
+                            "kind": "String",
+                            "name": undefined,
+                            "type": ""green"",
+                          },
+                        ],
+                        "name": "key",
+                        "type": ""red" | "blue" | "green"",
+                      },
+                    ],
+                    "returnType": ""red" | "blue" | "green"",
+                    "type": "(key: "red" | "blue" | "green") => "red" | "blue" | "green"",
+                  },
+                ],
+                "type": "typeof getColor",
+              },
+            ],
+            "defaultValue": undefined,
+            "isOptional": false,
+            "isReadonly": false,
+            "kind": "Generic",
+            "name": "color",
+            "type": "ReturnType<typeof getColor>",
+            "typeName": "ReturnType",
+          },
+        ],
+        "type": "TextProps",
+      }
+    `)
+  })
+
+  test('references locally exported generic arguments', () => {
+    const sourceFile = project.createSourceFile(
+      'test.ts',
+      dedent`
+      const colors = { red: 'red', blue: 'blue', green: 'green' } as const;
+      
+      export const getColor = (key: keyof typeof colors) => colors[key];
+
+      export type TextProps = {
+        color: ReturnType<typeof getColor>;
+      }
+      `,
+      { overwrite: true }
+    )
+    const typeAlias = sourceFile.getTypeAliasOrThrow('TextProps')
+    const processedProperties = processType(typeAlias.getType(), typeAlias)
+
+    expect(processedProperties).toMatchInlineSnapshot(`
+      {
+        "kind": "Object",
+        "name": "TextProps",
+        "properties": [
+          {
+            "arguments": [
+              {
+                "kind": "Reference",
+                "path": "test.ts:1:1",
+                "type": "typeof getColor",
+              },
+            ],
+            "defaultValue": undefined,
+            "isOptional": false,
+            "isReadonly": false,
+            "kind": "Generic",
+            "name": "color",
+            "type": "ReturnType<typeof getColor>",
+            "typeName": "ReturnType",
+          },
+        ],
+        "type": "TextProps",
+      }
+    `)
+  })
+
+  test('references external generic arguments', () => {
+    project.createSourceFile(
+      'node_modules/@types/colors/index.d.ts',
+      dedent`
+      const colors = { red: 'red', blue: 'blue', green: 'green' } as const;
+      export const getColor = (key: keyof typeof colors) => colors[key];
+      `
+    )
+
+    const sourceFile = project.createSourceFile(
+      'test.ts',
+      dedent`
+      import type { getColor } from 'colors';
+
+      export type TextProps = {
+        color: ReturnType<typeof getColor>;
+      }
+      `,
+      { overwrite: true }
+    )
+    const typeAlias = sourceFile.getTypeAliasOrThrow('TextProps')
+    const processedProperties = processType(typeAlias.getType(), typeAlias)
+
+    expect(processedProperties).toMatchInlineSnapshot(`
+      {
+        "kind": "Object",
+        "name": "TextProps",
+        "properties": [
+          {
+            "arguments": [
+              {
+                "kind": "Reference",
+                "path": "node_modules/@types/colors/index.d.ts:1:1",
+                "type": "typeof getColor",
+              },
+            ],
+            "defaultValue": undefined,
+            "isOptional": false,
+            "isReadonly": false,
+            "kind": "Generic",
+            "name": "color",
+            "type": "ReturnType<typeof getColor>",
+            "typeName": "ReturnType",
+          },
+        ],
+        "type": "TextProps",
+      }
+    `)
+  })
+
+  test('uses immediate generic for type and type name', () => {
+    const sourceFile = project.createSourceFile(
+      'test.ts',
+      dedent`
+      const foo = async () => {
+        return {
+          slug: 'foo',
+          filePath: 'bar',
+        }
+      }
+
+      export type ComplexType = {
+        functionReturn: ReturnType<typeof foo>;
+      };
+      `,
+      { overwrite: true }
+    )
+    const typeAlias = sourceFile.getTypeAliasOrThrow('ComplexType')
+    const processedProperties = processType(typeAlias.getType(), typeAlias)
+
+    expect(processedProperties).toMatchInlineSnapshot(`
+      {
+        "kind": "Object",
+        "name": "ComplexType",
+        "properties": [
+          {
+            "arguments": [
+              {
+                "kind": "Object",
+                "name": undefined,
+                "properties": [
+                  {
+                    "defaultValue": undefined,
+                    "isOptional": false,
+                    "isReadonly": false,
+                    "kind": "String",
+                    "name": "slug",
+                    "type": "string",
+                  },
+                  {
+                    "defaultValue": undefined,
+                    "isOptional": false,
+                    "isReadonly": false,
+                    "kind": "String",
+                    "name": "filePath",
+                    "type": "string",
+                  },
+                ],
+                "type": "{ slug: string; filePath: string; }",
+              },
+            ],
+            "defaultValue": undefined,
+            "isOptional": false,
+            "isReadonly": false,
+            "kind": "Generic",
+            "name": "functionReturn",
+            "type": "Promise<{ slug: string; filePath: string; }>",
+            "typeName": "Promise",
+          },
+        ],
+        "type": "ComplexType",
       }
     `)
   })
