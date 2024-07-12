@@ -218,6 +218,7 @@ export type SymbolMetadata = ReturnType<typeof getSymbolMetadata>
 
 export type SymbolFilter = (symbolMetadata: SymbolMetadata) => boolean
 
+const typeReferences = new WeakSet<Type>()
 const rootFilePaths = new WeakMap<Project, string>()
 const enclosingNodeMetadata = new WeakMap<Node, SymbolMetadata>()
 const defaultFilter = (metadata: SymbolMetadata) => !metadata.isInNodeModules
@@ -231,7 +232,6 @@ export function processType(
   type: Type,
   enclosingNode?: Node,
   filter: SymbolFilter = defaultFilter,
-  references: Set<Type> = new Set(),
   isRootType: boolean = true,
   defaultValues?: Record<string, unknown> | unknown
 ): ProcessedType | undefined {
@@ -294,9 +294,7 @@ export function processType(
       ) {
         if (aliasTypeArguments.length > 0) {
           const processedTypeArguments = aliasTypeArguments
-            .map((type) =>
-              processType(type, declaration, filter, references, false)
-            )
+            .map((type) => processType(type, declaration, filter, false))
             .filter(Boolean) as ProcessedType[]
 
           if (processedTypeArguments.length === 0) {
@@ -342,7 +340,7 @@ export function processType(
     typeArguments.length === 0 &&
     aliasTypeArguments.length === 0 &&
     genericTypeArguments.length === 0
-  const hasReference = references.has(type)
+  const hasReference = typeReferences.has(type)
 
   if (
     hasReference ||
@@ -365,7 +363,7 @@ export function processType(
 
   /* If the type is not virtual, store it as a reference. */
   if (!symbolMetadata.isVirtual) {
-    references.add(type)
+    typeReferences.add(type)
   }
 
   if (type.isBoolean() || type.isBooleanLiteral()) {
@@ -398,7 +396,6 @@ export function processType(
       elementType,
       declaration,
       filter,
-      references,
       false
     )
     if (processedElementType) {
@@ -409,7 +406,7 @@ export function processType(
         element: processedElementType,
       } satisfies ArrayType
     } else {
-      references.delete(type)
+      typeReferences.delete(type)
       return
     }
   } else {
@@ -417,13 +414,7 @@ export function processType(
     if (aliasTypeArguments.length === 0 && genericTypeArguments.length > 0) {
       const processedTypeArguments = genericTypeArguments
         .map((type) => {
-          const processedType = processType(
-            type.getType(),
-            type,
-            filter,
-            references,
-            false
-          )
+          const processedType = processType(type.getType(), type, filter, false)
           if (processedType) {
             return {
               ...processedType,
@@ -438,7 +429,7 @@ export function processType(
 
       /* If the any of the type arguments are references, they need need to be linked to the generic type. */
       if (everyTypeArgumentIsReference && processedTypeArguments.length > 0) {
-        references.delete(type)
+        typeReferences.delete(type)
 
         return {
           kind: 'Generic',
@@ -482,7 +473,6 @@ export function processType(
           unionType,
           declaration,
           filter,
-          references,
           false,
           defaultValues
         )
@@ -504,7 +494,7 @@ export function processType(
       }
 
       if (processedUnionTypes.length === 0) {
-        references.delete(type)
+        typeReferences.delete(type)
         return
       }
 
@@ -522,7 +512,6 @@ export function processType(
             intersectionType,
             declaration,
             filter,
-            references,
             false,
             defaultValues
           )
@@ -543,7 +532,7 @@ export function processType(
       }
 
       if (properties.length === 0) {
-        references.delete(type)
+        typeReferences.delete(type)
         return
       }
 
@@ -567,12 +556,11 @@ export function processType(
         type,
         declaration,
         filter,
-        references,
         false
       )
 
       if (elements.length === 0) {
-        references.delete(type)
+        typeReferences.delete(type)
         return
       }
 
@@ -590,7 +578,6 @@ export function processType(
           callSignatures,
           declaration,
           filter,
-          references,
           false
         )
 
@@ -627,7 +614,6 @@ export function processType(
           type,
           enclosingNode,
           filter,
-          references,
           false,
           defaultValues
         )
@@ -635,19 +621,12 @@ export function processType(
         if (properties.length === 0 && typeArguments.length > 0) {
           const processedTypeArguments = typeArguments
             .map((type) =>
-              processType(
-                type,
-                declaration,
-                filter,
-                references,
-                false,
-                defaultValues
-              )
+              processType(type, declaration, filter, false, defaultValues)
             )
             .filter(Boolean) as ProcessedType[]
 
           if (processedTypeArguments.length === 0) {
-            references.delete(type)
+            typeReferences.delete(type)
             return
           }
 
@@ -659,7 +638,7 @@ export function processType(
             arguments: processedTypeArguments,
           } satisfies GenericType
         } else if (properties.length === 0) {
-          references.delete(type)
+          typeReferences.delete(type)
           return
         } else {
           processedType = {
@@ -674,13 +653,12 @@ export function processType(
         const apparentType = type.getApparentType()
 
         if (type !== apparentType) {
-          references.delete(type)
+          typeReferences.delete(type)
 
           return processType(
             apparentType,
             declaration,
             filter,
-            references,
             false,
             defaultValues
           )
@@ -689,7 +667,7 @@ export function processType(
     }
   }
 
-  references.delete(type)
+  typeReferences.delete(type)
 
   return {
     ...(declaration ? getJsDocMetadata(declaration) : {}),
@@ -702,12 +680,11 @@ export function processCallSignatures(
   signatures: Signature[],
   enclosingNode?: Node,
   filter: SymbolFilter = defaultFilter,
-  references: Set<Type> = new Set(),
   isRootType: boolean = true
 ): FunctionSignatureType[] {
   return signatures
     .map((signature) =>
-      processSignature(signature, enclosingNode, filter, references, isRootType)
+      processSignature(signature, enclosingNode, filter, isRootType)
     )
     .filter(Boolean) as FunctionSignatureType[]
 }
@@ -717,7 +694,6 @@ export function processSignature(
   signature: Signature,
   enclosingNode?: Node,
   filter: SymbolFilter = defaultFilter,
-  references: Set<Type> = new Set(),
   isRootType: boolean = true
 ): FunctionSignatureType | undefined {
   const signatureDeclaration = signature.getDeclaration()
@@ -746,7 +722,6 @@ export function processSignature(
           parameter.getTypeAtLocation(signatureDeclaration),
           enclosingNode,
           filter,
-          references,
           isRootType,
           defaultValue
         )
@@ -822,7 +797,6 @@ export function processTypeProperties(
   type: Type,
   enclosingNode?: Node,
   filter: SymbolFilter = defaultFilter,
-  references: Set<Type> = new Set(),
   isRootType: boolean = true,
   defaultValues?: Record<string, unknown> | unknown
 ): ProcessedType[] {
@@ -859,7 +833,6 @@ export function processTypeProperties(
           propertyType,
           declaration,
           filter,
-          references,
           isRootType,
           defaultValue
         )
@@ -897,7 +870,6 @@ function processTypeTupleElements(
   type: Type,
   enclosingNode?: Node,
   filter?: SymbolFilter,
-  references: Set<Type> = new Set(),
   isRootType: boolean = true
 ) {
   const tupleNames = type
@@ -915,7 +887,6 @@ function processTypeTupleElements(
         tupleElementType,
         enclosingNode,
         filter,
-        references,
         isRootType
       )
       if (processedType) {
