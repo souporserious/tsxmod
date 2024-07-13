@@ -1385,23 +1385,21 @@ describe('processProperties', () => {
 
     expect(processedProperties).toMatchInlineSnapshot(`
       {
-        "kind": "Function",
+        "kind": "Component",
         "name": "Text",
         "signatures": [
           {
-            "kind": "FunctionSignature",
+            "kind": "ComponentSignature",
             "modifier": undefined,
-            "parameters": [
-              {
-                "defaultValue": undefined,
-                "description": undefined,
-                "isOptional": false,
-                "kind": "Reference",
-                "name": "props",
-                "path": "test.ts:1:1",
-                "type": "TextProps",
-              },
-            ],
+            "properties": {
+              "defaultValue": undefined,
+              "description": undefined,
+              "isOptional": false,
+              "kind": "Reference",
+              "name": "props",
+              "path": "test.ts:1:1",
+              "type": "TextProps",
+            },
             "returnType": "void",
             "type": "(props: TextProps) => void",
           },
@@ -1429,25 +1427,23 @@ describe('processProperties', () => {
 
     expect(processedProperties).toMatchInlineSnapshot(`
       {
-        "kind": "Function",
+        "kind": "Component",
         "name": "Text",
         "signatures": [
           {
-            "kind": "FunctionSignature",
+            "kind": "ComponentSignature",
             "modifier": undefined,
-            "parameters": [
-              {
-                "defaultValue": {
-                  "color": "red",
-                },
-                "description": undefined,
-                "isOptional": false,
-                "kind": "Reference",
-                "name": "props",
-                "path": "test.ts:1:1",
-                "type": "TextProps",
+            "properties": {
+              "defaultValue": {
+                "color": "red",
               },
-            ],
+              "description": undefined,
+              "isOptional": false,
+              "kind": "Reference",
+              "name": "props",
+              "path": "test.ts:1:1",
+              "type": "TextProps",
+            },
             "returnType": "void",
             "type": "function Text(props: TextProps): void",
           },

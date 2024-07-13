@@ -219,6 +219,7 @@ export type SymbolMetadata = ReturnType<typeof getSymbolMetadata>
 export type SymbolFilter = (symbolMetadata: SymbolMetadata) => boolean
 
 const typeReferences = new WeakSet<Type>()
+const objectReferences = new Set<string>()
 const rootFilePaths = new WeakMap<Project, string>()
 const enclosingNodeMetadata = new WeakMap<Node, SymbolMetadata>()
 const defaultFilter = (metadata: SymbolMetadata) => !metadata.isInNodeModules
@@ -233,7 +234,8 @@ export function processType(
   enclosingNode?: Node,
   filter: SymbolFilter = defaultFilter,
   isRootType: boolean = true,
-  defaultValues?: Record<string, unknown> | unknown
+  defaultValues?: Record<string, unknown> | unknown,
+  useReferences: boolean = true
 ): ProcessedType | undefined {
   const symbol =
     // First, attempt to get the aliased symbol for imported and aliased types
@@ -276,89 +278,123 @@ export function processType(
     type: typeText,
   } satisfies UnknownType
 
-  /** Determine if the enclosing type is referencing a type in node modules. */
-  if (symbol && enclosingNode && !isPrimitive) {
-    const enclosingSymbolMetadata = enclosingNodeMetadata.get(enclosingNode)
-    const inSeparateProjects =
-      enclosingSymbolMetadata?.isInNodeModules === false &&
-      symbolMetadata.isInNodeModules
+  if (useReferences) {
+    /** Determine if the enclosing type is referencing a type in node modules. */
+    if (symbol && enclosingNode && !isPrimitive) {
+      const enclosingSymbolMetadata = enclosingNodeMetadata.get(enclosingNode)
+      const inSeparateProjects =
+        enclosingSymbolMetadata?.isInNodeModules === false &&
+        symbolMetadata.isInNodeModules
 
-    if (inSeparateProjects) {
-      /**
-       * Additionally, we check if type arguments exist and are all located in node_modules before
-       * treating the entire expression as a reference.
-       */
-      if (
-        typeArguments.length === 0 ||
-        isEveryTypeInNodeModules(typeArguments)
-      ) {
-        if (aliasTypeArguments.length > 0) {
-          const processedTypeArguments = aliasTypeArguments
-            .map((type) => processType(type, declaration, filter, false))
-            .filter(Boolean) as ProcessedType[]
+      if (inSeparateProjects) {
+        /**
+         * Additionally, we check if type arguments exist and are all located in node_modules before
+         * treating the entire expression as a reference.
+         */
+        if (
+          typeArguments.length === 0 ||
+          isEveryTypeInNodeModules(typeArguments)
+        ) {
+          if (aliasTypeArguments.length > 0) {
+            const processedTypeArguments = aliasTypeArguments
+              .map((type) => processType(type, declaration, filter, false))
+              .filter(Boolean) as ProcessedType[]
 
-          if (processedTypeArguments.length === 0) {
-            return
+            if (processedTypeArguments.length === 0) {
+              return
+            }
+
+            return {
+              kind: 'Generic',
+              type: typeText,
+              typeName: typeName!,
+              arguments: processedTypeArguments,
+            } satisfies GenericType
+          } else {
+            if (!symbolMetadata.filePath) {
+              throw new Error(
+                `[processType]: No file path found for "${typeText}". Please file an issue if you encounter this error.`
+              )
+            }
+            return {
+              kind: 'Reference',
+              type: typeText,
+              path: symbolMetadata.filePath,
+            } satisfies ReferenceType
           }
-
-          return {
-            kind: 'Generic',
-            type: typeText,
-            typeName: typeName!,
-            arguments: processedTypeArguments,
-          } satisfies GenericType
-        } else {
-          if (!symbolMetadata.filePath) {
-            throw new Error(
-              `[processType]: No file path found for "${typeText}". Please file an issue if you encounter this error.`
-            )
-          }
-          return {
-            kind: 'Reference',
-            type: typeText,
-            path: symbolMetadata.filePath,
-          } satisfies ReferenceType
         }
       }
     }
-  }
 
-  /*
-   * Determine if the symbol should be treated as a reference.
-   * TODO: this should account for what's actually exported from package.json exports to determine what's processed.
-   */
-  const isLocallyExportedReference =
-    !isRootType &&
-    !symbolMetadata.isInNodeModules &&
-    !symbolMetadata.isExternal &&
-    symbolMetadata.isExported
-  const isExternalNonNodeModuleReference =
-    symbolMetadata.isExternal && !symbolMetadata.isInNodeModules
-  const isNodeModuleReference =
-    !symbolMetadata.isGlobal && symbolMetadata.isInNodeModules
-  const hasNoTypeArguments =
-    typeArguments.length === 0 &&
-    aliasTypeArguments.length === 0 &&
-    genericTypeArguments.length === 0
-  const hasReference = typeReferences.has(type)
+    /*
+     * Determine if the symbol should be treated as a reference.
+     * TODO: this should account for what's actually exported from package.json exports to determine what's processed.
+     */
+    const isLocallyExportedReference =
+      !isRootType &&
+      !symbolMetadata.isInNodeModules &&
+      !symbolMetadata.isExternal &&
+      symbolMetadata.isExported
+    const isExternalNonNodeModuleReference =
+      symbolMetadata.isExternal && !symbolMetadata.isInNodeModules
+    const isNodeModuleReference =
+      !symbolMetadata.isGlobal && symbolMetadata.isInNodeModules
+    const hasNoTypeArguments =
+      typeArguments.length === 0 &&
+      aliasTypeArguments.length === 0 &&
+      genericTypeArguments.length === 0
+    const hasReference = typeReferences.has(type)
 
-  if (
-    hasReference ||
-    ((isLocallyExportedReference ||
-      isExternalNonNodeModuleReference ||
-      isNodeModuleReference) &&
-      hasNoTypeArguments)
-  ) {
-    if (!symbolMetadata.filePath) {
-      throw new Error(
-        `[processType]: No file path found for "${typeText}". Please file an issue if you encounter this error.`
-      )
+    if (
+      hasReference ||
+      ((isLocallyExportedReference ||
+        isExternalNonNodeModuleReference ||
+        isNodeModuleReference) &&
+        hasNoTypeArguments)
+    ) {
+      if (!symbolMetadata.filePath) {
+        throw new Error(
+          `[processType]: No file path found for "${typeText}". Please file an issue if you encounter this error.`
+        )
+      }
+
+      /* Check if the reference is an object. This is specifically used in the `isComponent` function. */
+      let isObject = false
+
+      if (
+        isLocallyExportedReference ||
+        isExternalNonNodeModuleReference ||
+        isNodeModuleReference
+      ) {
+        const processedReferenceType = processType(
+          type,
+          enclosingNode,
+          filter,
+          isRootType,
+          defaultValues,
+          false
+        )
+
+        if (processedReferenceType?.kind === 'Object') {
+          isObject = true
+        } else if (processedReferenceType?.kind === 'Union') {
+          isObject = processedReferenceType.members.every(
+            (property) => property.kind === 'Object'
+          )
+        }
+
+        if (isObject) {
+          const referenceId = typeText + symbolMetadata.filePath
+          objectReferences.add(referenceId)
+        }
+      }
+
+      return {
+        kind: 'Reference',
+        type: typeText,
+        path: symbolMetadata.filePath,
+      } satisfies ReferenceType
     }
-    return {
-      kind: 'Reference',
-      type: typeText,
-      path: symbolMetadata.filePath,
-    } satisfies ReferenceType
   }
 
   /* If the type is not virtual, store it as a reference. */
@@ -1335,6 +1371,11 @@ export function isComponent(
     const onlyOneParameter = signature.parameters.length === 1
     if (onlyOneParameter) {
       const firstParameter = signature.parameters.at(0)!
+
+      if (firstParameter.kind === 'Reference') {
+        const referenceId = firstParameter.type + firstParameter.path
+        return Boolean(objectReferences.has(referenceId))
+      }
 
       if (firstParameter.kind === 'Object') {
         return true

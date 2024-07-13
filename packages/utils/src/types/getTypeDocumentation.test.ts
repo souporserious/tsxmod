@@ -674,34 +674,29 @@ describe('getTypeDocumentation', () => {
       }`,
       { overwrite: true }
     )
-    getTypeDocumentation(sourceFile.getTypeAliasOrThrow('TextProps'))
     const types = getTypeDocumentation(
       sourceFile.getVariableDeclarationOrThrow('Text')
     )
 
-    // TODO: follow references to accurately determine the type and process as a component
-
     expect(types).toMatchInlineSnapshot(`
       {
-        "kind": "Function",
+        "kind": "Component",
         "name": "Text",
         "signatures": [
           {
-            "kind": "FunctionSignature",
+            "kind": "ComponentSignature",
             "modifier": undefined,
-            "parameters": [
-              {
-                "defaultValue": {
-                  "variant": "body1",
-                },
-                "description": undefined,
-                "isOptional": false,
-                "kind": "Reference",
-                "name": "props",
-                "path": "test.ts:1:1",
-                "type": "TextProps",
+            "properties": {
+              "defaultValue": {
+                "variant": "body1",
               },
-            ],
+              "description": undefined,
+              "isOptional": false,
+              "kind": "Reference",
+              "name": "props",
+              "path": "test.ts:1:1",
+              "type": "TextProps",
+            },
             "returnType": "void",
             "type": "(props: TextProps) => void",
           },
@@ -1669,6 +1664,7 @@ describe('getTypeDocumentation', () => {
     )
 
     // TODO: signatures should not be filtered below
+    // TODO: metadata doesn't include accurate name for properties like aria-label which are currently camel cased in the symbol name
 
     expect(types).toMatchInlineSnapshot(`
       {
