@@ -729,7 +729,7 @@ export function processSignature(
         if (processedType) {
           let name: string | undefined = parameter.getName()
 
-          if (name.startsWith('_')) {
+          if (name.startsWith('__')) {
             name = undefined
           }
 
