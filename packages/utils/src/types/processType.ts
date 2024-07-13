@@ -1043,11 +1043,7 @@ function getSymbolMetadata(
     ) {
       name = enclosingNode.getName()
     }
-    // We intentionally don't use the name from the symbol declaration if this fails
-    // to prevent using apparent names like String, Number, etc.
-  } else if ('getName' in declaration) {
-    // @ts-expect-error - getName is not defined on all declaration types
-    name = declaration.getName()
+    // Don't use the name from the symbol if this fails to prevent using apparent names like String, Number, etc.
   } else {
     name = symbol.getName()
   }

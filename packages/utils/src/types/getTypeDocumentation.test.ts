@@ -1664,7 +1664,6 @@ describe('getTypeDocumentation', () => {
     )
 
     // TODO: signatures should not be filtered below
-    // TODO: metadata doesn't include accurate name for properties like aria-label which are currently camel cased in the symbol name
 
     expect(types).toMatchInlineSnapshot(`
       {
