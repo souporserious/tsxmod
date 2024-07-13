@@ -1078,7 +1078,7 @@ function getSymbolMetadata(
     isExternal = enclosingSourceFile !== declarationSourceFile
   }
 
-  const filePath = getFilePathRelativeToProject(declarationSourceFile)
+  const filePath = getFilePathRelativeToProject(declaration)
   const isInNodeModules = declarationSourceFile.isInNodeModules()
 
   return {

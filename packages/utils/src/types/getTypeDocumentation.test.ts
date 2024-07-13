@@ -320,7 +320,7 @@ describe('getTypeDocumentation', () => {
                 "isOptional": false,
                 "kind": "Reference",
                 "name": undefined,
-                "path": "types.ts:1:1",
+                "path": "types.ts:1:39",
                 "type": "{ initialCount: number; }",
               },
             ],
@@ -694,7 +694,7 @@ describe('getTypeDocumentation', () => {
               "isOptional": false,
               "kind": "Reference",
               "name": "props",
-              "path": "test.ts:1:1",
+              "path": "test.ts:16:1",
               "type": "TextProps",
             },
             "returnType": "void",
@@ -1662,8 +1662,6 @@ describe('getTypeDocumentation', () => {
         return !symbolMetadata.isInNodeModules
       }
     )
-
-    // TODO: signatures should not be filtered below
 
     expect(types).toMatchInlineSnapshot(`
       {

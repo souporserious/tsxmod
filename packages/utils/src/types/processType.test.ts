@@ -1194,7 +1194,7 @@ describe('processProperties', () => {
                   "properties": [
                     {
                       "kind": "Reference",
-                      "path": "node_modules/@types/library/index.d.ts:1:1",
+                      "path": "node_modules/@types/library/index.d.ts:5:1",
                       "type": "FunctionMetadata",
                     },
                     {
@@ -1214,7 +1214,7 @@ describe('processProperties', () => {
                   "properties": [
                     {
                       "kind": "Reference",
-                      "path": "node_modules/@types/library/index.d.ts:1:1",
+                      "path": "node_modules/@types/library/index.d.ts:9:1",
                       "type": "TypeMetadata",
                     },
                     {
@@ -1397,7 +1397,7 @@ describe('processProperties', () => {
               "isOptional": false,
               "kind": "Reference",
               "name": "props",
-              "path": "test.ts:1:1",
+              "path": "test.ts:3:1",
               "type": "TextProps",
             },
             "returnType": "void",
@@ -1778,7 +1778,7 @@ describe('processProperties', () => {
                       "isReadonly": false,
                       "kind": "Reference",
                       "name": "theme",
-                      "path": "node_modules/styled-components/dist/models/ThemeProvider.d.ts:1:1",
+                      "path": "node_modules/styled-components/dist/models/ThemeProvider.d.ts:24:1",
                       "type": "DefaultTheme",
                     },
                   ],
@@ -2173,7 +2173,7 @@ describe('processProperties', () => {
             "arguments": [
               {
                 "kind": "Reference",
-                "path": "test.ts:1:1",
+                "path": "test.ts:3:25",
                 "type": "typeof getColor",
               },
             ],
@@ -2223,7 +2223,7 @@ describe('processProperties', () => {
             "arguments": [
               {
                 "kind": "Reference",
-                "path": "node_modules/@types/colors/index.d.ts:1:1",
+                "path": "node_modules/@types/colors/index.d.ts:2:25",
                 "type": "typeof getColor",
               },
             ],
