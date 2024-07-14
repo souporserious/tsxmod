@@ -79,10 +79,12 @@ export type CreatePropertyType<Type> = Type extends any
 
 export interface StringType extends BaseType {
   kind: 'String'
+  value?: string
 }
 
 export interface NumberType extends BaseType {
   kind: 'Number'
+  value?: number
 }
 
 export interface BooleanType extends BaseType {
@@ -444,12 +446,14 @@ export function processType(
       kind: 'Number',
       name: symbolMetadata.name,
       type: typeText,
+      value: type.getLiteralValue() as number,
     } satisfies NumberType
   } else if (type.isString() || type.isStringLiteral()) {
     processedType = {
       kind: 'String',
       name: symbolMetadata.name,
       type: typeText,
+      value: type.getLiteralValue() as string,
     } satisfies StringType
   } else if (isSymbol(type)) {
     processedType = {
