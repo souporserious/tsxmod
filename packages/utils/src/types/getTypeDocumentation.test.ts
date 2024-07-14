@@ -661,7 +661,7 @@ describe('getTypeDocumentation', () => {
           {
             "kind": "ComponentSignature",
             "modifier": undefined,
-            "properties": {
+            "parameter": {
               "defaultValue": undefined,
               "description": undefined,
               "filePath": "test.ts",
@@ -1167,7 +1167,7 @@ describe('getTypeDocumentation', () => {
           {
             "kind": "ComponentSignature",
             "modifier": undefined,
-            "properties": {
+            "parameter": {
               "defaultValue": {
                 "variant": "body1",
               },
@@ -1257,7 +1257,7 @@ describe('getTypeDocumentation', () => {
               {
                 "kind": "ComponentSignature",
                 "modifier": undefined,
-                "properties": {
+                "parameter": {
                   "defaultValue": undefined,
                   "description": undefined,
                   "filePath": "node_modules/@types/react/index.d.ts",
@@ -1404,7 +1404,7 @@ describe('getTypeDocumentation', () => {
               {
                 "kind": "ComponentSignature",
                 "modifier": undefined,
-                "properties": {
+                "parameter": {
                   "defaultValue": undefined,
                   "description": undefined,
                   "filePath": "node_modules/@types/react/index.d.ts",
@@ -3008,7 +3008,7 @@ describe('getTypeDocumentation', () => {
           {
             "kind": "ComponentSignature",
             "modifier": undefined,
-            "properties": {
+            "parameter": {
               "defaultValue": undefined,
               "description": undefined,
               "filePath": "test.tsx",
@@ -3186,7 +3186,7 @@ describe('getTypeDocumentation', () => {
           {
             "kind": "ComponentSignature",
             "modifier": undefined,
-            "properties": {
+            "parameter": {
               "defaultValue": undefined,
               "description": undefined,
               "filePath": "test.ts",

@@ -2559,7 +2559,7 @@ describe('processProperties', () => {
           {
             "kind": "ComponentSignature",
             "modifier": undefined,
-            "properties": {
+            "parameter": {
               "defaultValue": undefined,
               "description": undefined,
               "filePath": "test.ts",
@@ -2654,7 +2654,7 @@ describe('processProperties', () => {
           {
             "kind": "ComponentSignature",
             "modifier": undefined,
-            "properties": {
+            "parameter": {
               "defaultValue": undefined,
               "description": undefined,
               "filePath": "test.ts",
@@ -2717,7 +2717,7 @@ describe('processProperties', () => {
           {
             "kind": "ComponentSignature",
             "modifier": undefined,
-            "properties": {
+            "parameter": {
               "defaultValue": {
                 "color": "red",
               },
@@ -2785,7 +2785,7 @@ describe('processProperties', () => {
           {
             "kind": "ComponentSignature",
             "modifier": undefined,
-            "properties": {
+            "parameter": {
               "defaultValue": {
                 "style": {
                   "color": "blue",
@@ -3342,7 +3342,7 @@ describe('processProperties', () => {
               {
                 "kind": "ComponentSignature",
                 "modifier": undefined,
-                "properties": {
+                "parameter": {
                   "defaultValue": undefined,
                   "description": undefined,
                   "filePath": "node_modules/styled-components/dist/types.d.ts",
@@ -3389,7 +3389,7 @@ describe('processProperties', () => {
               {
                 "kind": "ComponentSignature",
                 "modifier": undefined,
-                "properties": {
+                "parameter": {
                   "defaultValue": undefined,
                   "description": undefined,
                   "filePath": "node_modules/@types/react/index.d.ts",
@@ -4287,6 +4287,49 @@ describe('processProperties', () => {
           },
         ],
         "type": "ComplexType",
+      }
+    `)
+  })
+
+  test('infers component with no parameter from return type', () => {
+    const sourceFile = project.createSourceFile(
+      'test.ts',
+      dedent`
+      import * as React from 'react'
+      export function Text(): React.ReactNode {
+        return null
+      }
+      `,
+      { overwrite: true }
+    )
+    const typeAlias = sourceFile.getFunctionOrThrow('Text')
+    const processedProperties = processType(typeAlias.getType())
+
+    expect(processedProperties).toMatchInlineSnapshot(`
+      {
+        "filePath": "test.ts",
+        "kind": "Component",
+        "name": "Text",
+        "position": {
+          "end": {
+            "column": 2,
+            "line": 4,
+          },
+          "start": {
+            "column": 1,
+            "line": 2,
+          },
+        },
+        "signatures": [
+          {
+            "kind": "ComponentSignature",
+            "modifier": undefined,
+            "parameter": undefined,
+            "returnType": "ReactNode",
+            "type": "function Text(): ReactNode",
+          },
+        ],
+        "type": "() => ReactNode",
       }
     `)
   })

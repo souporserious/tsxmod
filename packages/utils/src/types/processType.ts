@@ -172,7 +172,7 @@ export interface FunctionType extends BaseType {
 export interface ComponentSignatureType extends BaseType {
   kind: 'ComponentSignature'
   modifier?: 'async' | 'generator'
-  properties: ObjectType
+  parameter?: ObjectType | ReferenceType
   returnType: string
 }
 
@@ -663,7 +663,10 @@ export function processType(
                 return {
                   ...processedCallSignature,
                   kind: 'ComponentSignature',
-                  properties: parameters.at(0)! as ObjectType,
+                  parameter: parameters.at(0) as
+                    | ObjectType
+                    | ReferenceType
+                    | undefined,
                 } satisfies ComponentSignatureType
               }
             ),
@@ -1426,14 +1429,10 @@ export function isComponent(
   }
 
   return callSignatures.every((signature) => {
-    const onlyOneParameter = signature.parameters.length === 1
-    if (onlyOneParameter) {
+    if (signature.returnType === 'ReactNode') {
+      return true
+    } else if (signature.parameters.length === 1) {
       const firstParameter = signature.parameters.at(0)!
-
-      if (firstParameter.kind === 'Reference') {
-        const referenceId = getReferenceId(firstParameter)
-        return Boolean(objectReferences.has(referenceId))
-      }
 
       if (firstParameter.kind === 'Object') {
         return true
@@ -1443,6 +1442,11 @@ export function isComponent(
         return firstParameter.members.every(
           (property) => property.kind === 'Object'
         )
+      }
+
+      if (firstParameter.kind === 'Reference') {
+        const referenceId = getReferenceId(firstParameter)
+        return Boolean(objectReferences.has(referenceId))
       }
     }
   })
