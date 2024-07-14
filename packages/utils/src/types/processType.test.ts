@@ -2594,7 +2594,7 @@ describe('processProperties', () => {
     expect(processedProperties).toMatchInlineSnapshot(`
       {
         "filePath": "test.ts",
-        "kind": "Function",
+        "kind": "Component",
         "name": "Text",
         "position": {
           "end": {
@@ -2608,29 +2608,27 @@ describe('processProperties', () => {
         },
         "signatures": [
           {
-            "kind": "FunctionSignature",
+            "kind": "ComponentSignature",
             "modifier": undefined,
-            "parameters": [
-              {
-                "defaultValue": undefined,
-                "description": undefined,
-                "filePath": "test.ts",
-                "isOptional": false,
-                "kind": "Reference",
-                "name": "props",
-                "position": {
-                  "end": {
-                    "column": 37,
-                    "line": 8,
-                  },
-                  "start": {
-                    "column": 21,
-                    "line": 8,
-                  },
+            "properties": {
+              "defaultValue": undefined,
+              "description": undefined,
+              "filePath": "test.ts",
+              "isOptional": false,
+              "kind": "Reference",
+              "name": "props",
+              "position": {
+                "end": {
+                  "column": 37,
+                  "line": 8,
                 },
-                "type": "TextProps",
+                "start": {
+                  "column": 21,
+                  "line": 8,
+                },
               },
-            ],
+              "type": "TextProps",
+            },
             "returnType": "void",
             "type": "(props: TextProps) => void",
           },
@@ -2659,7 +2657,7 @@ describe('processProperties', () => {
     expect(processedProperties).toMatchInlineSnapshot(`
       {
         "filePath": "test.ts",
-        "kind": "Function",
+        "kind": "Component",
         "name": "Text",
         "position": {
           "end": {
@@ -2673,31 +2671,29 @@ describe('processProperties', () => {
         },
         "signatures": [
           {
-            "kind": "FunctionSignature",
+            "kind": "ComponentSignature",
             "modifier": undefined,
-            "parameters": [
-              {
-                "defaultValue": {
-                  "color": "red",
-                },
-                "description": undefined,
-                "filePath": "test.ts",
-                "isOptional": false,
-                "kind": "Reference",
-                "name": "props",
-                "position": {
-                  "end": {
-                    "column": 57,
-                    "line": 6,
-                  },
-                  "start": {
-                    "column": 22,
-                    "line": 6,
-                  },
-                },
-                "type": "TextProps",
+            "properties": {
+              "defaultValue": {
+                "color": "red",
               },
-            ],
+              "description": undefined,
+              "filePath": "test.ts",
+              "isOptional": false,
+              "kind": "Reference",
+              "name": "props",
+              "position": {
+                "end": {
+                  "column": 57,
+                  "line": 6,
+                },
+                "start": {
+                  "column": 22,
+                  "line": 6,
+                },
+              },
+              "type": "TextProps",
+            },
             "returnType": "void",
             "type": "function Text(props: TextProps): void",
           },

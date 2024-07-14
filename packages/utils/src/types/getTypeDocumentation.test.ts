@@ -1138,7 +1138,7 @@ describe('getTypeDocumentation', () => {
     expect(types).toMatchInlineSnapshot(`
       {
         "filePath": "test.ts",
-        "kind": "Function",
+        "kind": "Component",
         "name": "Text",
         "position": {
           "end": {
@@ -1152,31 +1152,29 @@ describe('getTypeDocumentation', () => {
         },
         "signatures": [
           {
-            "kind": "FunctionSignature",
+            "kind": "ComponentSignature",
             "modifier": undefined,
-            "parameters": [
-              {
-                "defaultValue": {
-                  "variant": "body1",
-                },
-                "description": undefined,
-                "filePath": "test.ts",
-                "isOptional": false,
-                "kind": "Reference",
-                "name": "props",
-                "position": {
-                  "end": {
-                    "column": 38,
-                    "line": 21,
-                  },
-                  "start": {
-                    "column": 22,
-                    "line": 21,
-                  },
-                },
-                "type": "TextProps",
+            "properties": {
+              "defaultValue": {
+                "variant": "body1",
               },
-            ],
+              "description": undefined,
+              "filePath": "test.ts",
+              "isOptional": false,
+              "kind": "Reference",
+              "name": "props",
+              "position": {
+                "end": {
+                  "column": 38,
+                  "line": 21,
+                },
+                "start": {
+                  "column": 22,
+                  "line": 21,
+                },
+              },
+              "type": "TextProps",
+            },
             "returnType": "void",
             "type": "(props: TextProps) => void",
           },

@@ -407,7 +407,10 @@ export function processType(
         }
 
         if (isObject) {
-          const referenceId = typeText + declarationLocation.filePath
+          const referenceId = getReferenceId({
+            type: typeText,
+            ...declarationLocation,
+          })
           objectReferences.add(referenceId)
         }
       }
@@ -1393,6 +1396,16 @@ function isTypeReadonly(type: Type, enclosingNode: Node | undefined) {
   return isReadonly
 }
 
+/** Generate an id based on the type metadata. */
+function getReferenceId(typeMetadata: BaseType) {
+  return (
+    typeMetadata.type +
+    typeMetadata.path +
+    typeMetadata.position?.start.line +
+    typeMetadata.position?.start.column
+  )
+}
+
 /** Determines if a function is a component based on its name and call signature shape. */
 export function isComponent(
   name: string | undefined,
@@ -1414,7 +1427,7 @@ export function isComponent(
       const firstParameter = signature.parameters.at(0)!
 
       if (firstParameter.kind === 'Reference') {
-        const referenceId = firstParameter.type + firstParameter.path
+        const referenceId = getReferenceId(firstParameter)
         return Boolean(objectReferences.has(referenceId))
       }
 
