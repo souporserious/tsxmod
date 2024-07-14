@@ -39,6 +39,15 @@ export interface BaseType {
 
   /** A stringified representation of the type. */
   type: string
+
+  /** The path to the file where the symbol declaration is located. */
+  path?: string
+
+  /** The line and column number of the symbol declaration. */
+  position?: {
+    start: { line: number; column: number }
+    end: { line: number; column: number }
+  }
 }
 
 export interface ParameterType extends BaseType {
@@ -176,7 +185,6 @@ export interface PrimitiveType extends BaseType {
 
 export interface ReferenceType extends BaseType {
   kind: 'Reference'
-  path: string
 }
 
 export interface GenericType extends BaseType {
@@ -220,7 +228,6 @@ export type SymbolFilter = (symbolMetadata: SymbolMetadata) => boolean
 
 const typeReferences = new WeakSet<Type>()
 const objectReferences = new Set<string>()
-const rootFilePaths = new WeakMap<Project, string>()
 const enclosingNodeMetadata = new WeakMap<Node, SymbolMetadata>()
 const defaultFilter = (metadata: SymbolMetadata) => !metadata.isInNodeModules
 const TYPE_FORMAT_FLAGS =
@@ -246,19 +253,39 @@ export function processType(
     type.getApparentType().getSymbol()
   const symbolMetadata = getSymbolMetadata(symbol, enclosingNode)
   const symbolDeclaration = symbol?.getDeclarations().at(0)
-  const declaration = symbolDeclaration || enclosingNode
   const isPrimitive = isPrimitiveType(type)
+  const declaration = symbolDeclaration || enclosingNode
   const typeArguments = type.getTypeArguments()
   const aliasTypeArguments = type.getAliasTypeArguments()
-  let genericTypeArguments: TypeNode[] = []
-  let genericTypeName = ''
-  let genericTypeText = ''
   let typeName: string | undefined = symbolDeclaration
     ? (symbolDeclaration as any)?.getNameNode?.()?.getText()
     : undefined
   let typeText = type.getText(enclosingNode, TYPE_FORMAT_FLAGS)
+  let declarationLocation: ReturnType<typeof getDeclarationLocation> = {}
+
+  if (declaration) {
+    /* Use the enclosing node's location if it is a member. */
+    const isMember =
+      Node.isVariableDeclaration(enclosingNode) ||
+      Node.isPropertyAssignment(enclosingNode) ||
+      Node.isPropertySignature(enclosingNode) ||
+      Node.isMethodSignature(enclosingNode) ||
+      Node.isParameterDeclaration(enclosingNode) ||
+      Node.isPropertyDeclaration(enclosingNode) ||
+      Node.isMethodDeclaration(enclosingNode) ||
+      Node.isGetAccessorDeclaration(enclosingNode) ||
+      Node.isSetAccessorDeclaration(enclosingNode)
+
+    declarationLocation = getDeclarationLocation(
+      isMember ? enclosingNode : declaration
+    )
+  }
 
   /* Use the generic name and type text if the type is a type alias or property signature. */
+  let genericTypeArguments: TypeNode[] = []
+  let genericTypeName = ''
+  let genericTypeText = ''
+
   if (
     typeArguments.length === 0 &&
     (Node.isTypeAliasDeclaration(enclosingNode) ||
@@ -272,11 +299,6 @@ export function processType(
       genericTypeText = typeNode.getText()
     }
   }
-
-  let processedType: ProcessedType = {
-    kind: 'Unknown',
-    type: typeText,
-  } satisfies UnknownType
 
   if (useReferences) {
     /** Determine if the enclosing type is referencing a type in node modules. */
@@ -309,9 +331,10 @@ export function processType(
               type: typeText,
               typeName: typeName!,
               arguments: processedTypeArguments,
+              ...declarationLocation,
             } satisfies GenericType
           } else {
-            if (!symbolMetadata.filePath) {
+            if (!declarationLocation.filePath) {
               throw new Error(
                 `[processType]: No file path found for "${typeText}". Please file an issue if you encounter this error.`
               )
@@ -319,7 +342,7 @@ export function processType(
             return {
               kind: 'Reference',
               type: typeText,
-              path: symbolMetadata.filePath,
+              ...declarationLocation,
             } satisfies ReferenceType
           }
         }
@@ -352,7 +375,7 @@ export function processType(
         isNodeModuleReference) &&
         hasNoTypeArguments)
     ) {
-      if (!symbolMetadata.filePath) {
+      if (!declarationLocation.filePath) {
         throw new Error(
           `[processType]: No file path found for "${typeText}". Please file an issue if you encounter this error.`
         )
@@ -384,7 +407,7 @@ export function processType(
         }
 
         if (isObject) {
-          const referenceId = typeText + symbolMetadata.filePath
+          const referenceId = typeText + declarationLocation.filePath
           objectReferences.add(referenceId)
         }
       }
@@ -392,7 +415,7 @@ export function processType(
       return {
         kind: 'Reference',
         type: typeText,
-        path: symbolMetadata.filePath,
+        ...declarationLocation,
       } satisfies ReferenceType
     }
   }
@@ -401,6 +424,11 @@ export function processType(
   if (!symbolMetadata.isVirtual) {
     typeReferences.add(type)
   }
+
+  let processedType: ProcessedType = {
+    kind: 'Unknown',
+    type: typeText,
+  } satisfies UnknownType
 
   if (type.isBoolean() || type.isBooleanLiteral()) {
     processedType = {
@@ -472,6 +500,7 @@ export function processType(
           type: genericTypeText,
           typeName: genericTypeName,
           arguments: processedTypeArguments,
+          ...declarationLocation,
         } satisfies GenericType
       }
     }
@@ -708,6 +737,7 @@ export function processType(
   return {
     ...(declaration ? getJsDocMetadata(declaration) : {}),
     ...processedType,
+    ...declarationLocation,
   }
 }
 
@@ -756,7 +786,7 @@ export function processSignature(
           : undefined
         const processedType = processType(
           parameter.getTypeAtLocation(signatureDeclaration),
-          enclosingNode,
+          declaration,
           filter,
           isRootType,
           defaultValue
@@ -984,9 +1014,6 @@ function getSymbolMetadata(
   /** The name of the symbol if it exists. */
   name?: string
 
-  /** The file path for the symbol declaration relative to the project. */
-  filePath?: string
-
   /** Whether or not the symbol is exported. */
   isExported: boolean
 
@@ -1026,7 +1053,7 @@ function getSymbolMetadata(
 
   const declaration = declarations.at(0)!
   const declarationSourceFile = declaration?.getSourceFile()
-  const enclosingSourceFile = enclosingNode?.getSourceFile()
+  const enclosingNodeSourceFile = enclosingNode?.getSourceFile()
 
   /** Attempt to get the name of the symbol. */
   let name: string | undefined
@@ -1074,21 +1101,42 @@ function getSymbolMetadata(
 
   // TODO: this is not sufficient because the enclosing node can be from node modules e.g. Promise
   // this should use a root source file to determine if the symbol is external
-  if (enclosingSourceFile && !enclosingSourceFile.isInNodeModules()) {
-    isExternal = enclosingSourceFile !== declarationSourceFile
+  if (enclosingNodeSourceFile && !enclosingNodeSourceFile.isInNodeModules()) {
+    isExternal = enclosingNodeSourceFile !== declarationSourceFile
   }
 
-  const filePath = getFilePathRelativeToProject(declaration)
   const isInNodeModules = declarationSourceFile.isInNodeModules()
 
   return {
     name,
-    filePath,
     isExported,
     isExternal,
     isInNodeModules,
     isGlobal: isInNodeModules && !isExported,
     isVirtual: false,
+  }
+}
+
+/** Gets the location of a declaration. */
+function getDeclarationLocation(declaration: Node): {
+  /** The file path for the symbol declaration relative to the project. */
+  filePath?: string
+
+  /** The line and column number of the symbol declaration. */
+  position?: {
+    start: { line: number; column: number }
+    end: { line: number; column: number }
+  }
+} {
+  const filePath = getFilePathRelativeToProject(declaration)
+  const sourceFile = declaration.getSourceFile()
+
+  return {
+    filePath,
+    position: {
+      start: sourceFile.getLineAndColumnAtPos(declaration.getStart()),
+      end: sourceFile.getLineAndColumnAtPos(declaration.getEnd()),
+    },
   }
 }
 
@@ -1104,21 +1152,18 @@ function getFilePathRelativeToProject(declaration: Node) {
     )
   }
 
-  const { line, column } = sourceFile.getLineAndColumnAtPos(
-    declaration.getStart()
-  )
-
-  return `${trimmedFilePath.slice(1)}:${line}:${column}`
+  return trimmedFilePath.slice(1)
 }
+
+const rootFilePaths = new WeakMap<Project, string>()
 
 /** Gets the root source file path for a project. */
 function getRootFilePath(project: Project) {
   let rootFilePath: string
 
   if (!rootFilePaths.has(project)) {
-    const currentDirectory = project.getFileSystem().getCurrentDirectory()
-    rootFilePaths.set(project, currentDirectory)
-    rootFilePath = currentDirectory
+    rootFilePath = project.getFileSystem().getCurrentDirectory()
+    rootFilePaths.set(project, rootFilePath)
   } else {
     rootFilePath = rootFilePaths.get(project)!
   }
