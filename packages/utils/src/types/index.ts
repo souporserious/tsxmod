@@ -8,6 +8,7 @@ export {
   processTypeProperties,
 } from './processType'
 export type {
+  AllTypes,
   ArrayType,
   BaseType,
   BaseTypes,
@@ -42,6 +43,8 @@ export type {
   SymbolMetadata,
   SymbolType,
   TupleType,
+  TypeByKind,
+  TypeOfKind,
   UnionType,
   UnknownType,
 } from './processType'

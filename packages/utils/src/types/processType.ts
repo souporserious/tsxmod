@@ -220,6 +220,17 @@ export type BaseTypes =
   | GenericType
   | UnknownType
 
+export type AllTypes =
+  | BaseTypes
+  | ClassAccessorType
+  | ClassMethodType
+  | FunctionSignatureType
+  | ComponentSignatureType
+
+export type TypeByKind<Type, Key> = Type extends { kind: Key } ? Type : never
+
+export type TypeOfKind<Key extends AllTypes['kind']> = TypeByKind<AllTypes, Key>
+
 export type ParameterTypes = CreateParameterType<BaseTypes>
 
 export type PropertyTypes = CreatePropertyType<BaseTypes>
