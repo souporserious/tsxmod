@@ -747,8 +747,15 @@ export function processType(
 
   typeReferences.delete(type)
 
+  let metadataDeclaration = declaration
+
+  /* If the type is a variable declaration, use the parent statement to retrieve jsdoc metadata. */
+  if (Node.isVariableDeclaration(enclosingNode)) {
+    metadataDeclaration = enclosingNode
+  }
+
   return {
-    ...(declaration ? getJsDocMetadata(declaration) : {}),
+    ...(metadataDeclaration ? getJsDocMetadata(metadataDeclaration) : {}),
     ...processedType,
     ...declarationLocation,
   }
