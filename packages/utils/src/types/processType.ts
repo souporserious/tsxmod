@@ -515,6 +515,9 @@ export function processType(
     if (type.isClass()) {
       if (Node.isClassDeclaration(symbolDeclaration)) {
         processedType = processClass(symbolDeclaration, filter)
+        if (symbolMetadata.name) {
+          processedType.name = symbolMetadata.name
+        }
       } else {
         throw new Error(
           `[processType]: No class declaration found for "${symbolMetadata.name}". Please file an issue if you encounter this error.`
