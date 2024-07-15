@@ -153,9 +153,11 @@ export interface ClassMethodType extends SharedClassMemberType {
   signatures: FunctionSignatureType[]
 }
 
-export type ClassPropertyType = SharedClassMemberType & {
-  isReadonly: boolean
-} & ProcessedType
+export type ClassPropertyType = BaseTypes &
+  SharedClassMemberType & {
+    defaultValue?: unknown
+    isReadonly: boolean
+  }
 
 export interface FunctionSignatureType extends BaseType {
   kind: 'FunctionSignature'
