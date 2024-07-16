@@ -99,17 +99,17 @@ describe('addComputedTypes', () => {
     expect(result).toMatchInlineSnapshot(`"export type UserId = number;"`)
   })
 
-  it('does not wrap built-in object types', () => {
+  it('does not compute built-in object types', () => {
     const sourceFile = project.createSourceFile(
       'test.ts',
       `export type PublishedDate = Date;`,
       { overwrite: true }
     )
-    const beforeSourceFileText = sourceFile.getFullText()
-
     addComputedTypes(sourceFile)
 
-    expect(beforeSourceFileText).toMatch(sourceFile.getFullText())
+    expect(
+      sourceFile.getTypeAliasOrThrow('PublishedDate').getType().getText()
+    ).toMatch('Date')
   })
 
   it('skips built-in object types', () => {
@@ -133,7 +133,7 @@ describe('addComputedTypes', () => {
   it('skips existing Computed type', () => {
     const sourceFile = project.createSourceFile(
       'test.ts',
-      `export type Intersected = Compute<{ a: number; } & { b: number; } & { c: number; }>;`,
+      `export type Intersected = _Compute<{ a: number; } & { b: number; } & { c: number; }>;`,
       { overwrite: true }
     )
     const beforeSourceFileText = sourceFile.getFullText()
@@ -161,6 +161,27 @@ describe('addComputedTypes', () => {
 
     expect(result).toMatchInlineSnapshot(
       `"{ title: string; date: Date; summary?: string; tags?: string[]; }"`
+    )
+  })
+
+  it('preserves complex built-in types', () => {
+    const sourceFile = project.createSourceFile(
+      'test.ts',
+      `
+      type Foo = { bar: 'baz' } & { beep: 'boop' }
+      type AsyncFoo = Promise<Foo>
+      `,
+      { overwrite: true }
+    )
+    addComputedTypes(sourceFile)
+
+    const result = sourceFile
+      .getTypeAliasOrThrow('AsyncFoo')
+      .getType()
+      .getText()
+
+    expect(result).toMatchInlineSnapshot(
+      `"Promise<{ bar: "baz"; beep: "boop"; }>"`
     )
   })
 })
