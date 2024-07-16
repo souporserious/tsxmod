@@ -1,5 +1,13 @@
 # @tsxmod/utils
 
+## 0.7.1
+
+### Patch Changes
+
+- 6732bfe: Adds `TypeByKind` and `TypeOfKind` utility types.
+- 61c694f: Fixes `ClassPropertyType` to use `BaseTypes` instead of `ProcessedType`.
+- 52f7c0b: Fixes intersection references not being processed when mixed with unions.
+
 ## 0.7.0
 
 ### Minor Changes
