@@ -554,44 +554,70 @@ export function processType(
         )
       }
     } else if (type.isUnion()) {
-      const processedUnionTypes: ProcessedType[] = []
+      const typeNode = Node.isTypeAliasDeclaration(symbolDeclaration)
+        ? symbolDeclaration.getTypeNode()
+        : undefined
 
-      for (const unionType of type.getUnionTypes()) {
-        const processedType = processType(
-          unionType,
-          declaration,
-          filter,
-          false,
-          defaultValues
-        )
+      /* type.isIntersection() will be `false` when mixed with unions so we process the type nodes individually instead. */
+      if (Node.isIntersectionTypeNode(typeNode)) {
+        const processedIntersectionTypes = typeNode
+          .getTypeNodes()
+          .map((typeNode) =>
+            processType(typeNode.getType(), typeNode, filter, false)
+          )
+          .filter(Boolean) as ProcessedType[]
 
-        if (processedType) {
-          const previousProperty = processedUnionTypes.at(-1)
-
-          // Flatten boolean literals to just 'boolean' if both values are present
-          if (
-            processedType.kind === 'Boolean' &&
-            previousProperty?.kind === 'Boolean'
-          ) {
-            processedUnionTypes.pop()
-            processedType.type = 'boolean'
-          }
-
-          processedUnionTypes.push(processedType)
+        if (processedIntersectionTypes.length === 0) {
+          typeReferences.delete(type)
+          return
         }
-      }
 
-      if (processedUnionTypes.length === 0) {
-        typeReferences.delete(type)
-        return
-      }
+        processedType = {
+          kind: 'Intersection',
+          name: symbolMetadata.name,
+          type: typeText,
+          properties: processedIntersectionTypes,
+        } satisfies IntersectionType
+      } else {
+        const processedUnionTypes: ProcessedType[] = []
 
-      processedType = {
-        kind: 'Union',
-        name: symbolMetadata.name,
-        type: typeText,
-        members: processedUnionTypes,
-      } satisfies UnionType
+        for (const unionType of type.getUnionTypes()) {
+          const processedType = processType(
+            unionType,
+            declaration,
+            filter,
+            false,
+            defaultValues
+          )
+
+          if (processedType) {
+            const previousProperty = processedUnionTypes.at(-1)
+
+            // Flatten boolean literals to just 'boolean' if both values are present
+            if (
+              processedType.kind === 'Boolean' &&
+              previousProperty?.kind === 'Boolean'
+            ) {
+              processedUnionTypes.pop()
+              processedType.type = 'boolean'
+            }
+
+            processedUnionTypes.push(processedType)
+          }
+        }
+
+        if (processedUnionTypes.length === 0) {
+          typeReferences.delete(type)
+          return
+        }
+
+        processedType = {
+          kind: 'Union',
+          name: symbolMetadata.name,
+          type: typeText,
+          members: processedUnionTypes,
+        } satisfies UnionType
+      }
     } else if (type.isIntersection()) {
       const processedIntersectionTypes = type
         .getIntersectionTypes()

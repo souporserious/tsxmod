@@ -2303,115 +2303,7 @@ describe('processProperties', () => {
             "defaultValue": undefined,
             "element": {
               "filePath": "test.ts",
-              "kind": "Union",
-              "members": [
-                {
-                  "filePath": "test.ts",
-                  "kind": "Intersection",
-                  "name": undefined,
-                  "position": {
-                    "end": {
-                      "column": 48,
-                      "line": 3,
-                    },
-                    "start": {
-                      "column": 1,
-                      "line": 3,
-                    },
-                  },
-                  "properties": [
-                    {
-                      "filePath": "node_modules/@types/library/index.d.ts",
-                      "kind": "Reference",
-                      "position": {
-                        "end": {
-                          "column": 2,
-                          "line": 7,
-                        },
-                        "start": {
-                          "column": 1,
-                          "line": 5,
-                        },
-                      },
-                      "type": "FunctionMetadata",
-                    },
-                    {
-                      "defaultValue": undefined,
-                      "filePath": "test.ts",
-                      "isOptional": false,
-                      "isReadonly": false,
-                      "kind": "String",
-                      "name": "slug",
-                      "position": {
-                        "end": {
-                          "column": 46,
-                          "line": 3,
-                        },
-                        "start": {
-                          "column": 34,
-                          "line": 3,
-                        },
-                      },
-                      "type": "string",
-                      "value": undefined,
-                    },
-                  ],
-                  "type": "FunctionMetadata & { slug: string; }",
-                },
-                {
-                  "filePath": "test.ts",
-                  "kind": "Intersection",
-                  "name": undefined,
-                  "position": {
-                    "end": {
-                      "column": 48,
-                      "line": 3,
-                    },
-                    "start": {
-                      "column": 1,
-                      "line": 3,
-                    },
-                  },
-                  "properties": [
-                    {
-                      "filePath": "node_modules/@types/library/index.d.ts",
-                      "kind": "Reference",
-                      "position": {
-                        "end": {
-                          "column": 2,
-                          "line": 11,
-                        },
-                        "start": {
-                          "column": 1,
-                          "line": 9,
-                        },
-                      },
-                      "type": "TypeMetadata",
-                    },
-                    {
-                      "defaultValue": undefined,
-                      "filePath": "test.ts",
-                      "isOptional": false,
-                      "isReadonly": false,
-                      "kind": "String",
-                      "name": "slug",
-                      "position": {
-                        "end": {
-                          "column": 46,
-                          "line": 3,
-                        },
-                        "start": {
-                          "column": 34,
-                          "line": 3,
-                        },
-                      },
-                      "type": "string",
-                      "value": undefined,
-                    },
-                  ],
-                  "type": "TypeMetadata & { slug: string; }",
-                },
-              ],
+              "kind": "Intersection",
               "name": "ExportedType",
               "position": {
                 "end": {
@@ -2423,6 +2315,61 @@ describe('processProperties', () => {
                   "line": 3,
                 },
               },
+              "properties": [
+                {
+                  "filePath": "node_modules/@types/library/index.d.ts",
+                  "kind": "Reference",
+                  "position": {
+                    "end": {
+                      "column": 56,
+                      "line": 17,
+                    },
+                    "start": {
+                      "column": 1,
+                      "line": 17,
+                    },
+                  },
+                  "type": "Metadata",
+                },
+                {
+                  "filePath": "test.ts",
+                  "kind": "Object",
+                  "name": undefined,
+                  "position": {
+                    "end": {
+                      "column": 48,
+                      "line": 3,
+                    },
+                    "start": {
+                      "column": 32,
+                      "line": 3,
+                    },
+                  },
+                  "properties": [
+                    {
+                      "defaultValue": undefined,
+                      "filePath": "test.ts",
+                      "isOptional": false,
+                      "isReadonly": false,
+                      "kind": "String",
+                      "name": "slug",
+                      "position": {
+                        "end": {
+                          "column": 46,
+                          "line": 3,
+                        },
+                        "start": {
+                          "column": 34,
+                          "line": 3,
+                        },
+                      },
+                      "type": "string",
+                      "value": undefined,
+                    },
+                  ],
+                  "type": "{ slug: string; }",
+                },
+              ],
               "type": "ExportedType",
             },
             "filePath": "test.ts",
@@ -6776,125 +6723,7 @@ describe('processProperties', () => {
     expect(types).toMatchInlineSnapshot(`
       {
         "filePath": "test.ts",
-        "kind": "Union",
-        "members": [
-          {
-            "filePath": "test.ts",
-            "kind": "Object",
-            "name": undefined,
-            "position": {
-              "end": {
-                "column": 97,
-                "line": 1,
-              },
-              "start": {
-                "column": 1,
-                "line": 1,
-              },
-            },
-            "properties": [
-              {
-                "defaultValue": undefined,
-                "filePath": "test.ts",
-                "isOptional": false,
-                "isReadonly": false,
-                "kind": "String",
-                "name": "color",
-                "position": {
-                  "end": {
-                    "column": 37,
-                    "line": 1,
-                  },
-                  "start": {
-                    "column": 25,
-                    "line": 1,
-                  },
-                },
-                "type": "string",
-                "value": undefined,
-              },
-              {
-                "defaultValue": undefined,
-                "filePath": "test.ts",
-                "isOptional": false,
-                "isReadonly": false,
-                "kind": "String",
-                "name": "backgroundColor",
-                "position": {
-                  "end": {
-                    "column": 68,
-                    "line": 1,
-                  },
-                  "start": {
-                    "column": 45,
-                    "line": 1,
-                  },
-                },
-                "type": "string",
-                "value": undefined,
-              },
-            ],
-            "type": "{ color: string; } & { backgroundColor: string; }",
-          },
-          {
-            "filePath": "test.ts",
-            "kind": "Object",
-            "name": undefined,
-            "position": {
-              "end": {
-                "column": 97,
-                "line": 1,
-              },
-              "start": {
-                "column": 1,
-                "line": 1,
-              },
-            },
-            "properties": [
-              {
-                "defaultValue": undefined,
-                "filePath": "test.ts",
-                "isOptional": false,
-                "isReadonly": false,
-                "kind": "String",
-                "name": "color",
-                "position": {
-                  "end": {
-                    "column": 37,
-                    "line": 1,
-                  },
-                  "start": {
-                    "column": 25,
-                    "line": 1,
-                  },
-                },
-                "type": "string",
-                "value": undefined,
-              },
-              {
-                "defaultValue": undefined,
-                "filePath": "test.ts",
-                "isOptional": false,
-                "isReadonly": false,
-                "kind": "String",
-                "name": "borderColor",
-                "position": {
-                  "end": {
-                    "column": 94,
-                    "line": 1,
-                  },
-                  "start": {
-                    "column": 75,
-                    "line": 1,
-                  },
-                },
-                "type": "string",
-                "value": undefined,
-              },
-            ],
-            "type": "{ color: string; } & { borderColor: string; }",
-          },
-        ],
+        "kind": "Intersection",
         "name": "ButtonVariants",
         "position": {
           "end": {
@@ -6906,6 +6735,140 @@ describe('processProperties', () => {
             "line": 1,
           },
         },
+        "properties": [
+          {
+            "filePath": "test.ts",
+            "kind": "Object",
+            "name": undefined,
+            "position": {
+              "end": {
+                "column": 39,
+                "line": 1,
+              },
+              "start": {
+                "column": 23,
+                "line": 1,
+              },
+            },
+            "properties": [
+              {
+                "defaultValue": undefined,
+                "filePath": "test.ts",
+                "isOptional": false,
+                "isReadonly": false,
+                "kind": "String",
+                "name": "color",
+                "position": {
+                  "end": {
+                    "column": 37,
+                    "line": 1,
+                  },
+                  "start": {
+                    "column": 25,
+                    "line": 1,
+                  },
+                },
+                "type": "string",
+                "value": undefined,
+              },
+            ],
+            "type": "{ color: string; }",
+          },
+          {
+            "filePath": "test.ts",
+            "kind": "Union",
+            "members": [
+              {
+                "filePath": "test.ts",
+                "kind": "Object",
+                "name": undefined,
+                "position": {
+                  "end": {
+                    "column": 70,
+                    "line": 1,
+                  },
+                  "start": {
+                    "column": 43,
+                    "line": 1,
+                  },
+                },
+                "properties": [
+                  {
+                    "defaultValue": undefined,
+                    "filePath": "test.ts",
+                    "isOptional": false,
+                    "isReadonly": false,
+                    "kind": "String",
+                    "name": "backgroundColor",
+                    "position": {
+                      "end": {
+                        "column": 68,
+                        "line": 1,
+                      },
+                      "start": {
+                        "column": 45,
+                        "line": 1,
+                      },
+                    },
+                    "type": "string",
+                    "value": undefined,
+                  },
+                ],
+                "type": "{ backgroundColor: string; }",
+              },
+              {
+                "filePath": "test.ts",
+                "kind": "Object",
+                "name": undefined,
+                "position": {
+                  "end": {
+                    "column": 96,
+                    "line": 1,
+                  },
+                  "start": {
+                    "column": 73,
+                    "line": 1,
+                  },
+                },
+                "properties": [
+                  {
+                    "defaultValue": undefined,
+                    "filePath": "test.ts",
+                    "isOptional": false,
+                    "isReadonly": false,
+                    "kind": "String",
+                    "name": "borderColor",
+                    "position": {
+                      "end": {
+                        "column": 94,
+                        "line": 1,
+                      },
+                      "start": {
+                        "column": 75,
+                        "line": 1,
+                      },
+                    },
+                    "type": "string",
+                    "value": undefined,
+                  },
+                ],
+                "type": "{ borderColor: string; }",
+              },
+            ],
+            "name": undefined,
+            "position": {
+              "end": {
+                "column": 97,
+                "line": 1,
+              },
+              "start": {
+                "column": 42,
+                "line": 1,
+              },
+            },
+            "type": "{ backgroundColor: string; } | { borderColor: string; }",
+          },
+        ],
         "type": "ButtonVariants",
       }
     `)
@@ -8388,5 +8351,165 @@ describe('processProperties', () => {
     const types = processType(typeAlias.getType(), typeAlias)
 
     expect(types).toBeUndefined()
+  })
+
+  test('intersection with properties and methods', () => {
+    const sourceFile = project.createSourceFile(
+      `test.ts`,
+      dedent`
+      export interface StringType {
+        kind: 'String'
+      }
+
+      export interface BooleanType {
+        kind: 'Boolean'
+      }
+
+      export type AllTypes = StringType | BooleanType
+
+      type Foo = AllTypes & { value: string | boolean, getValue(): string | boolean }
+      `,
+      { overwrite: true }
+    )
+
+    const typeAlias = sourceFile.getTypeAliasOrThrow('Foo')
+
+    const types = processType(typeAlias.getType(), typeAlias)
+
+    expect(types).toMatchInlineSnapshot(`
+      {
+        "filePath": "test.ts",
+        "kind": "Intersection",
+        "name": "Foo",
+        "position": {
+          "end": {
+            "column": 80,
+            "line": 11,
+          },
+          "start": {
+            "column": 1,
+            "line": 11,
+          },
+        },
+        "properties": [
+          {
+            "filePath": "test.ts",
+            "kind": "Reference",
+            "position": {
+              "end": {
+                "column": 48,
+                "line": 9,
+              },
+              "start": {
+                "column": 1,
+                "line": 9,
+              },
+            },
+            "type": "AllTypes",
+          },
+          {
+            "filePath": "test.ts",
+            "kind": "Object",
+            "name": undefined,
+            "position": {
+              "end": {
+                "column": 80,
+                "line": 11,
+              },
+              "start": {
+                "column": 23,
+                "line": 11,
+              },
+            },
+            "properties": [
+              {
+                "defaultValue": undefined,
+                "filePath": "test.ts",
+                "isOptional": false,
+                "isReadonly": false,
+                "kind": "Union",
+                "members": [
+                  {
+                    "filePath": "test.ts",
+                    "kind": "String",
+                    "name": undefined,
+                    "position": {
+                      "end": {
+                        "column": 49,
+                        "line": 11,
+                      },
+                      "start": {
+                        "column": 25,
+                        "line": 11,
+                      },
+                    },
+                    "type": "string",
+                    "value": undefined,
+                  },
+                  {
+                    "filePath": "test.ts",
+                    "kind": "Boolean",
+                    "name": undefined,
+                    "position": {
+                      "end": {
+                        "column": 49,
+                        "line": 11,
+                      },
+                      "start": {
+                        "column": 25,
+                        "line": 11,
+                      },
+                    },
+                    "type": "boolean",
+                  },
+                ],
+                "name": "value",
+                "position": {
+                  "end": {
+                    "column": 49,
+                    "line": 11,
+                  },
+                  "start": {
+                    "column": 25,
+                    "line": 11,
+                  },
+                },
+                "type": "string | boolean",
+              },
+              {
+                "defaultValue": undefined,
+                "filePath": "test.ts",
+                "isOptional": false,
+                "isReadonly": false,
+                "kind": "Function",
+                "name": "getValue",
+                "position": {
+                  "end": {
+                    "column": 78,
+                    "line": 11,
+                  },
+                  "start": {
+                    "column": 50,
+                    "line": 11,
+                  },
+                },
+                "signatures": [
+                  {
+                    "kind": "FunctionSignature",
+                    "modifier": undefined,
+                    "parameters": [],
+                    "returnType": "string | boolean",
+                    "type": "() => string | boolean",
+                  },
+                ],
+                "type": "() => string | boolean",
+              },
+            ],
+            "type": "{ value: string | boolean; getValue(): string | boolean; }",
+          },
+        ],
+        "type": "Foo",
+      }
+    `)
   })
 })
