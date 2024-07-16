@@ -8353,7 +8353,7 @@ describe('processProperties', () => {
     expect(types).toBeUndefined()
   })
 
-  test('intersection with properties and methods', () => {
+  test('mixed union reference and intersection', () => {
     const sourceFile = project.createSourceFile(
       `test.ts`,
       dedent`
