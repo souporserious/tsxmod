@@ -84,7 +84,7 @@ export function Dialog(props: {
 
 const initialTransformSource = `
 import { Project } from 'ts-morph';
-import { getJsxElement, getPropTypes } from '@tsxmod/utils';
+import { getJsxElement } from '@tsxmod/utils';
 
 export default function (project: Project) {
   const appSourceFile = project.getSourceFileOrThrow('App.tsx');
@@ -92,7 +92,6 @@ export default function (project: Project) {
   const dialogSourceFile = project.getSourceFileOrThrow('Dialog.tsx');
   
   const appElement = getJsxElement(appSourceFile, 'App')
-  const buttonPropTypes = getPropTypes(buttonSourceFile.getVariableDeclaration('Button'))
   
   // Write codemod here
 }

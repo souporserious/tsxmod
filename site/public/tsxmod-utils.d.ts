@@ -1,5 +1,5 @@
 import * as ts_morph from 'ts-morph';
-import { DiagnosticMessageChain, SourceFile, Expression, ArrayLiteralExpression, ObjectLiteralExpression, Identifier, Node, Project, ts, ImportClause, ImportDeclaration, ImportSpecifier, JsxOpeningElement, JsxSelfClosingElement, JsxElement, VariableDeclaration, FunctionDeclaration, FunctionExpression, ArrowFunction, ClassDeclaration, JsxAttribute, BindingElement, ParameterDeclaration, PropertyAssignment, CallExpression, Symbol as Symbol$1, PropertySignature, InterfaceDeclaration, TypeAliasDeclaration, EnumDeclaration } from 'ts-morph';
+import { DiagnosticMessageChain, SourceFile, Expression, ArrayLiteralExpression, ObjectLiteralExpression, Identifier, Node, Project, ts, ImportClause, ImportDeclaration, ImportSpecifier, JsxOpeningElement, JsxSelfClosingElement, JsxElement, VariableDeclaration, FunctionDeclaration, FunctionExpression, ArrowFunction, ClassDeclaration, JsxAttribute, BindingElement, ParameterDeclaration, PropertyDeclaration, PropertySignature, CallExpression, Symbol as Symbol$1, Type, Signature } from 'ts-morph';
 
 /** Parses a diagnostic message into a string. */
 declare function getDiagnosticMessageText(message: string | DiagnosticMessageChain): string;
@@ -7,7 +7,7 @@ declare function getDiagnosticMessageText(message: string | DiagnosticMessageCha
 /** Extract a single export and its local dependencies from a source file. */
 declare function extractExportByIdentifier(sourceFile: SourceFile, identifier: string): string;
 
-type LiteralExpressionValue = null | boolean | number | string | Record<string, any> | LiteralExpressionValue[];
+type LiteralExpressionValue = undefined | null | boolean | number | string | Record<string, any> | LiteralExpressionValue[];
 /** Recursively resolves an expression into a literal value. */
 declare function resolveLiteralExpression(expression: Expression): LiteralExpressionValue | LiteralExpressionValue[] | Symbol;
 /** Resolves an array literal expression to an array. */
@@ -93,7 +93,7 @@ declare function isJsxComponent(node: Node): node is VariableDeclaration | Funct
 declare function renameJsxIdentifier(jsxElement: JsxElement | JsxSelfClosingElement, identifier: string): boolean;
 
 /** Resolves the value of a JSX attribute into a literal value. */
-declare function resolveJsxAttributeLiteralValue(attribute: JsxAttribute): LiteralExpressionValue | Symbol | undefined;
+declare function resolveJsxAttributeLiteralValue(attribute: JsxAttribute): LiteralExpressionValue | Symbol;
 
 declare const TreeMode: {
     readonly getChildren: "getChildren";
@@ -121,8 +121,10 @@ declare function getTypeDeclarationsFromProject(project: Project): Promise<{
     code: string;
 }[]>;
 
-/** Gets the default values for a set of properties. */
-declare function getDefaultValuesFromProperties(properties: Array<BindingElement | ParameterDeclaration | PropertyAssignment>): Record<string, LiteralExpressionValue>;
+/** Gets the key for a default value property. */
+declare function getPropertyDefaultValueKey(property: BindingElement | ParameterDeclaration | PropertyDeclaration | PropertySignature): string;
+/** Gets the default value for a single parameter or property. */
+declare function getPropertyDefaultValue(property: ParameterDeclaration | PropertyDeclaration | PropertySignature): LiteralExpressionValue;
 
 /** Returns a functional component declaration, unwrapping forwardRef if needed. */
 declare function getReactFunctionDeclaration(declaration: Node): ArrowFunction | FunctionDeclaration | FunctionExpression | null;
@@ -147,97 +149,183 @@ declare function addComputedTypes(sourceFile: SourceFile): void;
  */
 declare function getComputedQuickInfoAtPosition(sourceFile: SourceFile, position: number): ts.QuickInfo | undefined;
 
-interface SharedMetadata {
+interface BaseType {
+    /** Distinguishs between different kinds of types, such as primitives, objects, classes, functions, etc. */
+    kind?: unknown;
+    /** The name of the symbol or declaration if it exists. */
     name?: string;
+    /** The description of the symbol or declaration if it exists. */
     description?: string;
+    /** JSDoc tags for the declaration if present. */
     tags?: {
         tagName: string;
         text?: string;
     }[];
+    /** A stringified representation of the type. */
     type: string;
-}
-interface SharedValueMetadata extends SharedMetadata {
-    defaultValue?: any;
-    required?: boolean;
-}
-interface ValueMetadata extends SharedValueMetadata {
-    kind: 'Value';
-}
-/** Represents a function value e.g. { fn(): void } */
-interface FunctionValueMetadata extends SharedValueMetadata {
-    kind: 'FunctionValue';
-    parameters: ParameterMetadata[];
-    returnType: string;
-}
-/** Represents an object value e.g. { prop: 'value' } */
-interface ObjectValueMetadata extends SharedValueMetadata {
-    kind: 'ObjectValue';
-    properties?: PropertyMetadata[];
-    unionProperties?: PropertyMetadata[][];
-}
-type ParameterMetadata = ValueMetadata | FunctionValueMetadata | ObjectValueMetadata;
-type PropertyMetadata = ValueMetadata | FunctionValueMetadata | ObjectValueMetadata;
-type PropertyFilter = (property: PropertySignature) => boolean;
-interface InterfaceMetadata extends SharedMetadata {
-    kind: 'Interface';
-    properties: PropertyMetadata[];
-    unionProperties?: PropertyMetadata[][];
-}
-interface TypeAliasMetadata extends SharedMetadata {
-    kind: 'TypeAlias';
-    properties: PropertyMetadata[];
-    unionProperties?: PropertyMetadata[][];
-}
-interface EnumMetadata extends SharedMetadata {
-    kind: 'Enum';
-    members: string[];
-}
-interface ClassMetadata extends SharedMetadata {
-    kind: 'Class';
-    constructor?: SharedMetadata & {
-        parameters: ParameterMetadata[];
+    /** The path to the file where the symbol declaration is located. */
+    path?: string;
+    /** The line and column number of the symbol declaration. */
+    position?: {
+        start: {
+            line: number;
+            column: number;
+        };
+        end: {
+            line: number;
+            column: number;
+        };
     };
-    accessors?: ClassAccessorMetadata[];
-    methods?: ClassMethodMetadata[];
-    properties?: ClassPropertyMetadata[];
 }
-interface SharedClassMemberMetadata extends SharedMetadata {
+interface ParameterType extends BaseType {
+    /** The default value assigned to the property parsed as a literal value if possible. */
+    defaultValue?: unknown;
+    /** Whether or not the property has an optional modifier or default value. */
+    isOptional?: boolean;
+}
+type CreateParameterType<Type> = Type extends any ? Type & ParameterType : never;
+interface PropertyType extends BaseType {
+    /** The default value assigned to the property parsed as a literal value if possible. */
+    defaultValue?: unknown;
+    /** Whether or not the property has an optional modifier or default value. */
+    isOptional?: boolean;
+    /** Whether or not the property has a readonly modifier. */
+    isReadonly?: boolean;
+}
+type CreatePropertyType<Type> = Type extends any ? Type & PropertyType : never;
+interface StringType extends BaseType {
+    kind: 'String';
+    value?: string;
+}
+interface NumberType extends BaseType {
+    kind: 'Number';
+    value?: number;
+}
+interface BooleanType extends BaseType {
+    kind: 'Boolean';
+}
+interface SymbolType extends BaseType {
+    kind: 'Symbol';
+}
+interface ArrayType extends BaseType {
+    kind: 'Array';
+    element: ProcessedType;
+}
+interface TupleType extends BaseType {
+    kind: 'Tuple';
+    elements: ProcessedType[];
+}
+interface ObjectType extends BaseType {
+    kind: 'Object';
+    properties: PropertyTypes[];
+}
+interface IntersectionType extends BaseType {
+    kind: 'Intersection';
+    properties: ProcessedType[];
+}
+interface EnumType extends BaseType {
+    kind: 'Enum';
+    members: Record<string, string | number | undefined>;
+}
+interface UnionType extends BaseType {
+    kind: 'Union';
+    members: ProcessedType[];
+}
+interface ClassType extends BaseType {
+    kind: 'Class';
+    constructors?: ReturnType<typeof processCallSignatures>;
+    accessors?: ClassAccessorType[];
+    methods?: ClassMethodType[];
+    properties?: ClassPropertyType[];
+}
+interface SharedClassMemberType extends BaseType {
     scope?: 'abstract' | 'static';
     visibility?: 'private' | 'protected' | 'public';
 }
-interface ClassGetAccessorMetadata extends SharedClassMemberMetadata {
+interface ClassGetAccessorType extends SharedClassMemberType {
     kind: 'ClassGetAccessor';
 }
-interface ClassSetAccessorMetadata extends SharedClassMemberMetadata {
+type ClassSetAccessorType = SharedClassMemberType & {
     kind: 'ClassSetAccessor';
-    returnType: string;
-    parameters?: ParameterMetadata[];
-}
-type ClassAccessorMetadata = ClassGetAccessorMetadata | ClassSetAccessorMetadata;
-interface ClassMethodMetadata extends SharedClassMemberMetadata {
+} & Omit<FunctionSignatureType, 'kind'>;
+type ClassAccessorType = ClassGetAccessorType | ClassSetAccessorType;
+interface ClassMethodType extends SharedClassMemberType {
     kind: 'ClassMethod';
-    modifier?: 'async' | 'generator';
-    returnType: string;
-    parameters: ParameterMetadata[];
+    signatures: FunctionSignatureType[];
 }
-interface ClassPropertyMetadata extends SharedClassMemberMetadata {
-    kind: 'ClassProperty';
+type ClassPropertyType = BaseTypes & SharedClassMemberType & {
+    defaultValue?: unknown;
     isReadonly: boolean;
-}
-interface FunctionMetadata extends SharedMetadata {
-    kind: 'Function';
+};
+interface FunctionSignatureType extends BaseType {
+    kind: 'FunctionSignature';
     modifier?: 'async' | 'generator';
-    parameters: ParameterMetadata[];
+    parameters: ParameterTypes[];
     returnType: string;
 }
-interface ComponentMetadata extends SharedMetadata {
+interface FunctionType extends BaseType {
+    kind: 'Function';
+    signatures: FunctionSignatureType[];
+}
+interface ComponentSignatureType extends BaseType {
+    kind: 'ComponentSignature';
+    modifier?: 'async' | 'generator';
+    parameter?: ObjectType | ReferenceType;
+    returnType: string;
+}
+interface ComponentType extends BaseType {
     kind: 'Component';
-    properties: PropertyMetadata[];
-    unionProperties?: PropertyMetadata[][];
-    returnType: string;
+    signatures: ComponentSignatureType[];
 }
-type Declaration = InterfaceDeclaration | TypeAliasDeclaration | EnumDeclaration | ClassDeclaration | FunctionDeclaration | VariableDeclaration;
-type DocumentationMetadata<Type> = Type extends InterfaceDeclaration ? InterfaceMetadata : Type extends TypeAliasDeclaration ? TypeAliasMetadata : Type extends ClassDeclaration ? ClassMetadata : Type extends EnumDeclaration ? EnumMetadata : Type extends FunctionDeclaration ? FunctionMetadata | ComponentMetadata : Type extends VariableDeclaration ? FunctionMetadata | ComponentMetadata : never;
-declare function getTypeDocumentation<Type extends Declaration>(declaration: Type, propertyFilter?: PropertyFilter): DocumentationMetadata<Type>;
+interface PrimitiveType extends BaseType {
+    kind: 'Primitive';
+}
+interface ReferenceType extends BaseType {
+    kind: 'Reference';
+}
+interface GenericType extends BaseType {
+    kind: 'Generic';
+    typeName: string;
+    arguments: ParameterTypes[];
+}
+interface UnknownType extends BaseType {
+    kind: 'Unknown';
+}
+type BaseTypes = StringType | NumberType | BooleanType | SymbolType | ArrayType | TupleType | ObjectType | IntersectionType | EnumType | UnionType | ClassType | FunctionType | ComponentType | PrimitiveType | ReferenceType | GenericType | UnknownType;
+type AllTypes = BaseTypes | ClassAccessorType | ClassMethodType | FunctionSignatureType | ComponentSignatureType;
+type TypeByKind<Type, Key> = Type extends {
+    kind: Key;
+} ? Type : never;
+type TypeOfKind<Key extends AllTypes['kind']> = TypeByKind<AllTypes, Key>;
+type ParameterTypes = CreateParameterType<BaseTypes>;
+type PropertyTypes = CreatePropertyType<BaseTypes>;
+type ProcessedType = BaseTypes | ParameterTypes | PropertyTypes;
+type SymbolMetadata = ReturnType<typeof getSymbolMetadata>;
+type SymbolFilter = (symbolMetadata: SymbolMetadata) => boolean;
+/** Process type metadata. */
+declare function processType(type: Type, enclosingNode?: Node, filter?: SymbolFilter, isRootType?: boolean, defaultValues?: Record<string, unknown> | unknown, useReferences?: boolean): ProcessedType | undefined;
+/** Process all function signatures of a given type including their parameters and return types. */
+declare function processCallSignatures(signatures: Signature[], enclosingNode?: Node, filter?: SymbolFilter, isRootType?: boolean): FunctionSignatureType[];
+/** Process a single function signature including its parameters and return type. */
+declare function processSignature(signature: Signature, enclosingNode?: Node, filter?: SymbolFilter, isRootType?: boolean): FunctionSignatureType | undefined;
+/** Process all apparent properties of a given type. */
+declare function processTypeProperties(type: Type, enclosingNode?: Node, filter?: SymbolFilter, isRootType?: boolean, defaultValues?: Record<string, unknown> | unknown): ProcessedType[];
+/** Gather metadata about a symbol. */
+declare function getSymbolMetadata(symbol?: Symbol$1, enclosingNode?: Node): {
+    /** The name of the symbol if it exists. */
+    name?: string;
+    /** Whether or not the symbol is exported. */
+    isExported: boolean;
+    /** Whether or not the symbol is external to the current source file. */
+    isExternal: boolean;
+    /** Whether or not the symbol is located in node_modules. */
+    isInNodeModules: boolean;
+    /** Whether or not the symbol is global. */
+    isGlobal: boolean;
+    /** Whether or not the node is generated by the compiler. */
+    isVirtual: boolean;
+};
+/** Processes a class declaration into a metadata object. */
+declare function processClass(classDeclaration: ClassDeclaration, filter?: SymbolFilter): ClassType;
 
-export { type ClassAccessorMetadata, type ClassGetAccessorMetadata, type ClassMetadata, type ClassMethodMetadata, type ClassPropertyMetadata, type ClassSetAccessorMetadata, type ComponentMetadata, type DocumentationMetadata, type EnumMetadata, type FunctionMetadata, type FunctionValueMetadata, type InterfaceMetadata, type LiteralExpressionValue, type ObjectValueMetadata, type ParameterMetadata, type PropertyFilter, type PropertyMetadata, type SharedClassMemberMetadata, type SharedMetadata, type SharedValueMetadata, TreeMode, type TypeAliasMetadata, type ValueMetadata, addComputedTypes, extractExportByIdentifier, findClosestComponentDeclaration, findNamedImportReferences, findReferencesAsJsxElements, findReferencesInSourceFile, findRootComponentReferences, getChildrenFunction, getClassNamesForJsxElement, getComputedQuickInfoAtPosition, getDefaultValuesFromProperties, getDescendantAtRange, getDiagnosticMessageText, getImportClause, getImportDeclaration, getImportSpecifier, getJsDocMetadata, getJsxElement, getJsxElements, getReactFunctionDeclaration, getSymbolDescription, getTypeDeclarationsFromProject, getTypeDocumentation, hasJsDocTag, isForwardRefExpression, isJsxComponent, isLiteralExpressionValue, renameJsxIdentifier, resolveArrayLiteralExpression, resolveJsxAttributeLiteralValue, resolveLiteralExpression, resolveObjectLiteralExpression };
+export { type AllTypes, type ArrayType, type BaseType, type BaseTypes, type BooleanType, type ClassAccessorType, type ClassGetAccessorType, type ClassMethodType, type ClassPropertyType, type ClassSetAccessorType, type ClassType, type ComponentSignatureType, type ComponentType, type CreateParameterType, type CreatePropertyType, type EnumType, type FunctionSignatureType, type FunctionType, type GenericType, type IntersectionType, type LiteralExpressionValue, type NumberType, type ObjectType, type ParameterType, type ParameterTypes, type PrimitiveType, type ProcessedType, type PropertyType, type PropertyTypes, type ReferenceType, type SharedClassMemberType, type StringType, type SymbolFilter, type SymbolMetadata, type SymbolType, TreeMode, type TupleType, type TypeByKind, type TypeOfKind, type UnionType, type UnknownType, addComputedTypes, extractExportByIdentifier, findClosestComponentDeclaration, findNamedImportReferences, findReferencesAsJsxElements, findReferencesInSourceFile, findRootComponentReferences, getChildrenFunction, getClassNamesForJsxElement, getComputedQuickInfoAtPosition, getDescendantAtRange, getDiagnosticMessageText, getImportClause, getImportDeclaration, getImportSpecifier, getJsDocMetadata, getJsxElement, getJsxElements, getPropertyDefaultValue, getPropertyDefaultValueKey, getReactFunctionDeclaration, getSymbolDescription, getTypeDeclarationsFromProject, hasJsDocTag, isForwardRefExpression, isJsxComponent, isLiteralExpressionValue, processCallSignatures, processClass, processSignature, processType, processTypeProperties, renameJsxIdentifier, resolveArrayLiteralExpression, resolveJsxAttributeLiteralValue, resolveLiteralExpression, resolveObjectLiteralExpression };
