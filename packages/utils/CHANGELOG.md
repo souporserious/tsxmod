@@ -1,5 +1,11 @@
 # @tsxmod/utils
 
+## 0.7.2
+
+### Patch Changes
+
+- 7c8f854: Preserve complex built-in utility types in `addComputedTypes`.
+
 ## 0.7.1
 
 ### Patch Changes
